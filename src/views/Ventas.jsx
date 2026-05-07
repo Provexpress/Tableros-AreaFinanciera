@@ -58,7 +58,7 @@ function ClientReconciliationPanel({ rows = [] }) {
   const filteredRows = normalizedQuery
     ? rows.filter((row) => String(row.cliente || "").toLowerCase().includes(normalizedQuery))
     : rows;
-  const visibleRows = filteredRows.slice(0, 25);
+  const visibleRows = filteredRows.slice(0, 10);
 
   return (
     <Card>
