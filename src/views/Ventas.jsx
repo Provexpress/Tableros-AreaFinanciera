@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import DocumentFlowBoard from "@/components/cards/DocumentFlowBoard";
 import DocumentStatusGrid from "@/components/cards/DocumentStatusGrid";
 import KpiCard from "@/components/cards/KpiCard";
 import PurchaseAnalysisBlock from "@/components/cards/PurchaseAnalysisBlock";
@@ -281,7 +280,6 @@ export default function Ventas({ isLoading = false }) {
   const filters = useVentasStore((state) => state.filters);
   const documentSummary = useVentasStore((state) => state.documentSummary);
   const documentStatus = useVentasStore((state) => state.documentStatus);
-  const documentRowsByStatus = useVentasStore((state) => state.documentRowsByStatus);
   const supplierAccountingRanking = useVentasStore((state) => state.supplierAccountingRanking);
   const supplierRankingByCategory = useVentasStore((state) => state.supplierRankingByCategory);
   const activeMonthDailySpend = useVentasStore((state) => state.activeMonthDailySpend);
@@ -378,12 +376,6 @@ export default function Ventas({ isLoading = false }) {
               "En revision": { label: "Sin aceptar", helper: "Sin acuse completo o sin aceptacion visible" },
               Aprobado: { label: "Aceptada", helper: "Aceptada, tacita o paga en sistema" },
             }}
-          />
-          <DocumentFlowBoard
-            rowsByStatus={documentRowsByStatus}
-            selectedStatus={selectedFlowStatus}
-            entityLabel="Cliente"
-            layout="ventas"
           />
         </section>
 
