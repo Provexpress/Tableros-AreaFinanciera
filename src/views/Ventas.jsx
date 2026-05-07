@@ -287,6 +287,20 @@ export default function Ventas({ isLoading = false }) {
   const clientReconciliationRows = useMemo(() => buildClientReconciliationRows(filteredData), [filteredData]);
 
   const handleSelectDay = (date) => {
+    const isSameSelectedDate =
+      filters.selectedDates?.length === 1 &&
+      filters.selectedDates[0] === date &&
+      filters.dateRange?.[0] === date &&
+      filters.dateRange?.[1] === date;
+
+    if (isSameSelectedDate) {
+      setFilters({
+        selectedDates: [],
+        dateRange: [null, null],
+      });
+      return;
+    }
+
     setFilters({
       selectedDates: [date],
       dateRange: [date, date],
