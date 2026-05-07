@@ -9,6 +9,7 @@ import DocumentReviewSection from "@/components/tables/DocumentReviewSection";
 import DetailTable from "@/components/tables/DetailTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useVentasStore } from "@/store/useVentasStore";
 import { formatCOP, formatCOPFull, formatInteger, formatPeriod } from "@/utils/formatters";
 
@@ -52,16 +53,31 @@ function buildClientReconciliationRows(rows = []) {
 }
 
 function ClientReconciliationPanel({ rows = [] }) {
-  const visibleRows = rows.slice(0, 10);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const filteredRows = normalizedQuery
+    ? rows.filter((row) => String(row.cliente || "").toLowerCase().includes(normalizedQuery))
+    : rows;
+  const visibleRows = filteredRows.slice(0, 25);
 
   return (
     <Card>
       <CardContent className="space-y-3 pt-4">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Conciliacion FV / NC por cliente</h2>
-          <p className="text-sm text-[var(--txt2)]">
-            Muestra como se casan las facturas de venta con las notas credito dentro del corte visible.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Conciliacion FV / NC por cliente</h2>
+            <p className="text-sm text-[var(--txt2)]">
+              Muestra como se casan las facturas de venta con las notas credito dentro del corte visible.
+            </p>
+          </div>
+          <div className="w-full sm:w-[280px]">
+            <Input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar cliente"
+              aria-label="Buscar cliente en conciliacion FV NC"
+            />
+          </div>
         </div>
         <div className="overflow-x-auto rounded-[10px] border border-white/5">
           <table className="min-w-[760px] w-full text-sm">
@@ -79,7 +95,7 @@ function ClientReconciliationPanel({ rows = [] }) {
               {!visibleRows.length ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
-                    Sin clientes para el corte visible.
+                    {normalizedQuery ? "Sin clientes para esa busqueda." : "Sin clientes para el corte visible."}
                   </td>
                 </tr>
               ) : (
@@ -102,6 +118,9 @@ function ClientReconciliationPanel({ rows = [] }) {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="text-xs text-[var(--txt3)]">
+          Mostrando {formatInteger(visibleRows.length)} de {formatInteger(filteredRows.length)} clientes.
         </div>
       </CardContent>
     </Card>
