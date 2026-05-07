@@ -224,7 +224,7 @@ export default function Ventas({ isLoading = false }) {
 
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
-      ? "Comparativo del mes seleccionado entre todos los anos visibles y comparacion simple por cliente."
+      ? "Comparativo del mes seleccionado entre todos los años visibles y comparacion simple por cliente."
       : filters.year !== "ALL" && filters.month !== "ALL"
         ? "Trazabilidad diaria de venta neta dentro del mes activo y comparacion simple por cliente."
         : "Lectura mensual simple de venta neta y comparacion contra el periodo anterior en ventas.";

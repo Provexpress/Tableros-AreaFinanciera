@@ -88,9 +88,9 @@ export default function PeriodRangeControls({
 
   return (
     <div className="space-y-3">
-      <FilterCard title="Ano">
+      <FilterCard title="Año">
         <Select value={activeYear} onChange={(event) => updateYear(event.target.value)} disabled={Boolean(fixedYear)}>
-          <option value="ALL">Todos los anos</option>
+          <option value="ALL">Todos los años</option>
           {years.map((year) => (
             <option key={year} value={year}>{year}</option>
           ))}
@@ -133,7 +133,7 @@ export default function PeriodRangeControls({
                   : "border-white/8 bg-white/[0.02] text-[var(--txt2)] hover:border-white/16"
               )}
             >
-              Ultimo mes disponible
+              Último mes disponible
             </button>
           </div>
         ) : (
