@@ -72,14 +72,20 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
   );
 }
 
-function CategoryMix({ rows = [], selectedCategory = null, onSelectCategory = null }) {
+function CategoryMix({
+  rows = [],
+  selectedCategory = null,
+  onSelectCategory = null,
+  title = "Mix de gasto por categoria",
+  subtitle = "Distribucion simple por categoria del corte.",
+}) {
   const visibleRows = rows.slice(0, 5);
 
   return (
     <Card className="h-full min-w-0">
       <CardHeader className="min-w-0">
-        <CardTitle>Mix de gasto por categoria</CardTitle>
-        <p className="text-sm text-[var(--txt2)]">Distribucion simple por categoria del corte.</p>
+        <CardTitle>{title}</CardTitle>
+        <p className="text-sm text-[var(--txt2)]">{subtitle}</p>
       </CardHeader>
       <CardContent className="min-w-0">
         {!visibleRows.length ? (
@@ -138,6 +144,8 @@ export default function PurchaseAnalysisBlock({
   entityLabel = "proveedor",
   rankingTitle = "Ranking de compras por proveedor",
   rankingSubtitle = "Top proveedores por monto total del corte.",
+  mixTitle = "Mix de gasto por categoria",
+  mixSubtitle = "Distribucion simple por categoria del corte.",
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const providerRows = useMemo(() => {
@@ -161,6 +169,8 @@ export default function PurchaseAnalysisBlock({
       <CategoryMix
         rows={categories}
         selectedCategory={selectedCategory}
+        title={mixTitle}
+        subtitle={mixSubtitle}
         onSelectCategory={(category) => {
           setSelectedCategory(category);
           onSelectCategory?.(category);

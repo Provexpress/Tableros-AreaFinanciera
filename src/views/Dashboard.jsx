@@ -45,7 +45,7 @@ export default function Dashboard({ isLoading = false }) {
             <div className="flex items-center justify-between rounded-[8px] border border-white/8 bg-[var(--surface)]/60 px-4 py-2.5">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-[var(--tec)]" />
-                <span className="text-sm font-medium text-[var(--txt)]">Detalle auditable de compras</span>
+                <span className="text-sm font-medium text-[var(--txt)]">Detalle de compras</span>
               </div>
               <Button variant="secondary" size="sm" onClick={() => setShowDetail(false)}>
                 Ocultar
@@ -59,7 +59,7 @@ export default function Dashboard({ isLoading = false }) {
             onClick={() => setShowDetail(true)}
             className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-white/12 bg-[var(--surface)]/40 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-[var(--surface)]/60"
           >
-            <span className="text-sm text-[var(--txt2)]">Detalle auditable de compras</span>
+            <span className="text-sm text-[var(--txt2)]">Detalle de compras</span>
             <span className="text-xs text-[var(--txt3)]">Opcional · expandir</span>
           </button>
         )}

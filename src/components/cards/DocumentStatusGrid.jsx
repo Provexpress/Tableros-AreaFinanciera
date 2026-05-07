@@ -7,19 +7,19 @@ const STATUS_META = {
     label: "Rechazado",
     variant: "danger",
     accent: "bg-[var(--danger)]",
-    helper: "Documentos que frenan cierre",
+    helper: "Rechazadas por el cliente/proveedor",
   },
   "En revision": {
-    label: "En revision",
+    label: "Pendiente",
     variant: "warning",
     accent: "bg-[var(--warning)]",
     helper: "Pendiente de validacion",
   },
   Aprobado: {
-    label: "Aprobado",
+    label: "Aceptado",
     variant: "success",
     accent: "bg-[var(--success)]",
-    helper: "Disponible para cierre",
+    helper: "Facturacion aceptada",
   },
 };
 
@@ -33,10 +33,16 @@ export default function DocumentStatusGrid({
   showBlockedValue = false,
   selectedStatus = "Rechazado",
   onSelectStatus,
+  labels = {},
 }) {
+  const resolvedStatusMeta = {
+    Rechazado: { ...STATUS_META.Rechazado, ...(labels.Rechazado || {}) },
+    "En revision": { ...STATUS_META["En revision"], ...(labels["En revision"] || {}) },
+    Aprobado: { ...STATUS_META.Aprobado, ...(labels.Aprobado || {}) },
+  };
   const safeRows = rows.length
     ? rows
-    : Object.keys(STATUS_META).map((status) => ({ status, count: 0, total: 0, pct: 0 }));
+    : Object.keys(resolvedStatusMeta).map((status) => ({ status, count: 0, total: 0, pct: 0 }));
   const rejected = findStatus(safeRows, "Rechazado");
   const review = findStatus(safeRows, "En revision");
   const blockedValue = Number(rejected.total || 0) + Number(review.total || 0);
@@ -46,7 +52,7 @@ export default function DocumentStatusGrid({
   return (
     <section className={`grid gap-3 md:grid-cols-2 ${showBlockedValue ? "2xl:grid-cols-4" : "2xl:grid-cols-3"}`}>
       {safeRows.map((row) => {
-        const meta = STATUS_META[row.status] || STATUS_META["En revision"];
+        const meta = resolvedStatusMeta[row.status] || resolvedStatusMeta["En revision"];
         const isSelected = selectedStatus === row.status;
 
         return (
@@ -118,7 +124,7 @@ export default function DocumentStatusGrid({
             ) : (
               <>
                 <div className="flex items-center justify-between gap-3">
-                  <Badge variant="warning">Valor bloqueado</Badge>
+                  <Badge variant="warning">Valor pendiente</Badge>
                   <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">
                     Revision + rechazo
                   </span>
@@ -127,7 +133,7 @@ export default function DocumentStatusGrid({
                   {formatCOPFull(blockedValue)}
                 </div>
                 <div className="flex items-center justify-between gap-3 text-xs">
-                  <span className="min-w-0 text-[var(--txt2)]">Documentos sin cierre</span>
+                  <span className="min-w-0 text-[var(--txt2)]">Documentos pendientes</span>
                   <span className="shrink-0 font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                     {formatInteger(blockedCount)}
                   </span>

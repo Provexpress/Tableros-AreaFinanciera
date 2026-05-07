@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download, Search } from "lucide-react";
+import { Download, MoveRight, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -153,7 +153,11 @@ export default function DetailTable({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="max-w-full overflow-x-auto rounded-[10px] border border-white/5">
+        <div className="relative max-w-full overflow-hidden rounded-[10px] border border-white/5">
+          <div className="pointer-events-none absolute right-0 top-0 z-10 flex h-full w-12 items-center justify-end bg-gradient-to-l from-[var(--bg)] to-transparent pr-2 text-[var(--txt3)]">
+            <MoveRight className="h-4 w-4" />
+          </div>
+          <div className="max-w-full overflow-x-auto">
           <Table className="min-w-[1120px] table-fixed">
             <thead>
               <tr>
@@ -226,6 +230,7 @@ export default function DetailTable({
               ))}
             </tbody>
           </Table>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

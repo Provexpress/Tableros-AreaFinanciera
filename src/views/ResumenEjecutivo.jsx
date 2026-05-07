@@ -26,9 +26,16 @@ export default function ResumenEjecutivo({
   const supplierAccountingRanking = useFacturasStore((state) => state.supplierAccountingRanking);
   const supplierRankingByCategory = useFacturasStore((state) => state.supplierRankingByCategory);
   const activeMonthDailySpend = useFacturasStore((state) => state.activeMonthDailySpend);
+  const setFilters = useFacturasStore((state) => state.setFilters);
   const [selectedFlowStatus, setSelectedFlowStatus] = useState("Rechazado");
   const toggleFlowStatus = (status) => {
     setSelectedFlowStatus((current) => (current === status ? null : status));
+  };
+  const handleSelectDay = (date) => {
+    setFilters({
+      selectedDates: [date],
+      dateRange: [date, date],
+    });
   };
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
@@ -76,12 +83,17 @@ export default function ResumenEjecutivo({
             <p className="text-sm text-[var(--txt2)]">Estado y detalle operativo de los documentos de compras por aprobacion, revision y rechazo.</p>
           </div>
         </div>
-        <DocumentStatusGrid
-          rows={documentStatus}
-          isLoading={isLoading}
-          selectedStatus={selectedFlowStatus}
-          onSelectStatus={toggleFlowStatus}
-        />
+          <DocumentStatusGrid
+            rows={documentStatus}
+            isLoading={isLoading}
+            selectedStatus={selectedFlowStatus}
+            onSelectStatus={toggleFlowStatus}
+            labels={{
+              Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por Provexpress" },
+              "En revision": { label: "Pendiente", helper: "Pendiente de validacion interna" },
+              Aprobado: { label: "Aceptada", helper: "Factura aceptada para el proceso" },
+            }}
+          />
         <DocumentFlowBoard rowsByStatus={documentRowsByStatus} selectedStatus={selectedFlowStatus} />
       </section>
 
@@ -112,6 +124,7 @@ export default function ResumenEjecutivo({
           selectedMonth={filters.month}
           dailyTrend={activeMonthDailySpend}
           dateRange={filters.dateRange}
+          onSelectDay={handleSelectDay}
         />
       </section>
     </div>

@@ -137,6 +137,7 @@ function TrendCard({
   selectedMonth = "ALL",
   labels = { title: "Evolución de compra neta de compras", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" },
   colors = { selected: "var(--tec)", up: "var(--success)", down: "var(--danger)", line: "var(--tec)" },
+  onSelectDay = null,
 }) {
   const activeYear = currentPeriod ? String(currentPeriod).slice(0, 4) : null;
   const activeMonthLabel = currentPeriod ? MONTHS_SHORT[Number(String(currentPeriod).slice(5, 7)) - 1] || null : null;
@@ -230,7 +231,15 @@ function TrendCard({
                     />
                     <YAxis tickLine={false} axisLine={false} tick={CHART_AXIS_TICK} tickFormatter={getCurrencyTick} width={72} />
                     <ChartTooltip cursor={{ fill: "rgba(255,255,255,0.04)" }} content={<DayTooltip />} />
-                    <Bar dataKey="total" name={labels.value} radius={[4, 4, 0, 0]} isAnimationActive animationDuration={600}>
+                    <Bar
+                      dataKey="total"
+                      name={labels.value}
+                      radius={[4, 4, 0, 0]}
+                      isAnimationActive
+                      animationDuration={600}
+                      cursor={onSelectDay ? "pointer" : "default"}
+                      onClick={onSelectDay ? (entry) => entry?.date && onSelectDay(entry.date) : undefined}
+                    >
                       {dailyWithVariation.map((entry, index) => {
                         const isSelected = isSingleDaySelected && entry.date === dateRange[0];
                         return (
@@ -322,6 +331,7 @@ export default function PurchaseTrendComparison({
   dateRange = [null, null],
   labels = undefined,
   colors = undefined,
+  onSelectDay = null,
 }) {
   const resolvedLabels = labels || { title: "Evolución de compra neta de compras", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" };
   const resolvedColors = colors || { selected: "var(--tec)", up: "var(--success)", down: "var(--danger)", line: "var(--tec)" };
@@ -366,6 +376,7 @@ export default function PurchaseTrendComparison({
         selectedMonth={selectedMonth}
         labels={resolvedLabels}
         colors={resolvedColors}
+        onSelectDay={onSelectDay}
       />
     </section>
   );

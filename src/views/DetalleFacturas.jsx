@@ -74,9 +74,9 @@ export default function DetalleFacturas() {
 
       <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3 stagger-item stagger-delay-2">
         <KpiCard
-          label="Base auditable de compras"
+          label="Detalle de compras"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Registros del drill-down actual de compras"
+          sub="Facturas y notas credito del corte actual"
           accentColor="blue"
         />
         <KpiCard
@@ -88,7 +88,7 @@ export default function DetalleFacturas() {
         <KpiCard
           label="Aprobacion de compras"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
-          sub="Lectura rapida de compras antes de entrar al detalle"
+          sub="Documentos aceptados dentro del detalle visible"
           accentColor="purple"
         />
       </section>

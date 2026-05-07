@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, Minus, MoveRight } from "lucide-react";
+import { Minus, MoveRight } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/utils/cn";
@@ -238,6 +238,13 @@ function EntityRow({ index, label, value, helper, active = false, onClick }) {
 }
 
 function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
+  const [query, setQuery] = useState("");
+  const visibleRows = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    if (!needle) return rows;
+    return rows.filter((row) => String(row.label || "").toLowerCase().includes(needle));
+  }, [query, rows]);
+
   return (
     <Card>
       <CardHeader className="gap-1.5">
@@ -246,8 +253,15 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
       </CardHeader>
       <CardContent>
         {rows.length ? (
-          <div className="max-h-[360px] space-y-2 overflow-auto pr-1">
-            {rows.map((row, index) => (
+          <div className="space-y-3">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Buscar"
+              className="h-9 w-full rounded-[8px] border border-white/10 bg-white/[0.03] px-3 text-sm text-[var(--txt)] outline-none transition focus:border-[var(--tec)]/50"
+            />
+            <div className="max-h-[360px] space-y-2 overflow-auto pr-1">
+            {visibleRows.map((row, index) => (
               <EntityRow
                 key={row.key || row.provider || row.label || index}
                 index={index + 1}
@@ -258,168 +272,18 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
                 onClick={() => onSelect(row)}
               />
             ))}
+            {!visibleRows.length ? (
+              <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
+                Sin coincidencias para la busqueda.
+              </div>
+            ) : null}
+            </div>
           </div>
         ) : (
           <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
             {emptyText}
           </div>
         )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function NetDirectionCard({ purchasesNet, salesNet }) {
-  const difference = Number(salesNet || 0) - Number(purchasesNet || 0);
-  const salesAbovePurchases = difference >= 0;
-  const Icon = salesAbovePurchases ? ArrowUp : ArrowDown;
-  const toneClass = salesAbovePurchases ? "text-[var(--success)]" : "text-[var(--danger)]";
-
-  return (
-    <Card>
-      <CardContent className="grid gap-3 p-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-        <div className="rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
-          <div className="text-[11px] uppercase tracking-[0.08em] text-[var(--txt3)]">Compra neta</div>
-          <div className="mt-1 font-mono text-xl font-semibold text-[var(--gasto)] [font-variant-numeric:tabular-nums]">
-            {formatCOPCompact(purchasesNet)}
-          </div>
-        </div>
-        <div className="flex items-center justify-center gap-2 rounded-[8px] border border-white/8 bg-white/[0.03] px-4 py-3">
-          <Icon className={cn("h-5 w-5", toneClass)} />
-          <div className="text-center">
-            <div className="text-[11px] uppercase tracking-[0.08em] text-[var(--txt3)]">Diferencia neta</div>
-            <div className={cn("font-mono text-lg font-semibold [font-variant-numeric:tabular-nums]", toneClass)}>
-              {formatCOPCompact(Math.abs(difference))}
-            </div>
-            <div className="text-xs text-[var(--txt2)]">
-              {salesAbovePurchases ? "Ventas por encima de compras" : "Compras por encima de ventas"}
-            </div>
-          </div>
-        </div>
-        <div className="rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
-          <div className="text-[11px] uppercase tracking-[0.08em] text-[var(--txt3)]">Venta neta</div>
-          <div className="mt-1 font-mono text-xl font-semibold text-[var(--success)] [font-variant-numeric:tabular-nums]">
-            {formatCOPCompact(salesNet)}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function ComparativeNetRow({ purchasesNet, salesNet }) {
-  const margin = Number(salesNet || 0) - Number(purchasesNet || 0);
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle>Compra Neta vs Venta Neta vs Margen Bruto estimado</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-3 md:grid-cols-3">
-        <FormulaStep label="Compra neta" value={formatCOPCompact(purchasesNet)} helper="Costo neto visible" tone="amber" />
-        <FormulaStep label="Venta neta" value={formatCOPCompact(salesNet)} helper="Ingreso neto visible" tone="green" />
-        <FormulaStep
-          label="Margen bruto estimado"
-          value={formatCOPCompact(margin)}
-          helper="Venta neta menos compra neta"
-          tone={margin >= 0 ? "green" : "danger"}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-function getStatusCount(rows = [], status) {
-  return rows.find((row) => row.status === status)?.count || 0;
-}
-
-function OperationalStatusTable({ purchaseStatus = [], salesStatus = [] }) {
-  const rows = [
-    { label: "Compras", values: purchaseStatus },
-    { label: "Ventas", values: salesStatus },
-  ].map((row) => {
-    const approved = getStatusCount(row.values, "Aprobado");
-    const review = getStatusCount(row.values, "En revision");
-    const rejected = getStatusCount(row.values, "Rechazado");
-    return { ...row, approved, review, rejected, total: approved + review + rejected };
-  });
-  const total = rows.reduce(
-    (acc, row) => ({
-      label: "Total",
-      approved: acc.approved + row.approved,
-      review: acc.review + row.review,
-      rejected: acc.rejected + row.rejected,
-      total: acc.total + row.total,
-    }),
-    { approved: 0, review: 0, rejected: 0, total: 0 }
-  );
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle>Estado operativo</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto rounded-[8px] border border-white/8">
-          <table className="min-w-[560px] w-full text-sm">
-            <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
-              <tr>
-                <th className="px-3 py-2">Linea</th>
-                <th className="px-3 py-2 text-right">Aprobado</th>
-                <th className="px-3 py-2 text-right">En revision</th>
-                <th className="px-3 py-2 text-right">Rechazado</th>
-                <th className="px-3 py-2 text-right">Total docs</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/8">
-              {[...rows, total].map((row) => (
-                <tr key={row.label} className="bg-white/[0.02]">
-                  <td className="px-3 py-2 font-medium text-[var(--txt)]">{row.label}</td>
-                  <td className="px-3 py-2 text-right font-mono text-[var(--success)]">{formatInteger(row.approved)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-[var(--warning)]">{formatInteger(row.review)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-[var(--danger)]">{formatInteger(row.rejected)}</td>
-                  <td className="px-3 py-2 text-right font-mono text-[var(--txt)]">{formatInteger(row.total)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function NcComparisonBars({ comprasSummary, ventasSummary }) {
-  const rows = [
-    {
-      label: "Compras",
-      pct: comprasSummary.purchaseInvoiceTotal ? (comprasSummary.creditNoteTotal / comprasSummary.purchaseInvoiceTotal) * 100 : 0,
-      color: "var(--tec)",
-    },
-    {
-      label: "Ventas",
-      pct: ventasSummary.purchaseInvoiceTotal ? (ventasSummary.creditNoteTotal / ventasSummary.purchaseInvoiceTotal) * 100 : 0,
-      color: "#1D9E75",
-    },
-  ];
-  const max = Math.max(...rows.map((row) => row.pct), 1);
-
-  return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle>NC como % de facturas brutas</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {rows.map((row) => (
-          <div key={row.label} className="space-y-1.5">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-[var(--txt)]">{row.label}</span>
-              <span className="font-mono text-[var(--txt2)]">{row.pct.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-white/8">
-              <div className="h-full rounded-full" style={{ width: `${Math.max(3, (row.pct / max) * 100)}%`, backgroundColor: row.color }} />
-            </div>
-          </div>
-        ))}
       </CardContent>
     </Card>
   );
@@ -496,7 +360,11 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
 }
 
 function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCategory }) {
-  const title = type === "purchase" ? "Detalle comprado por categoria" : "Detalle vendido por categoria";
+  const title = type === "purchase" ? "Detalle comprado por categoria" : "Resumen de venta y ajustes";
+  const helper =
+    type === "purchase"
+      ? "Selecciona una categoria para ver los documentos que componen el valor."
+      : "Ventas no trae producto/categoria desde acuses; se muestra FV, NC y neto por categoria disponible.";
 
   return (
     <Card>
@@ -504,7 +372,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
         <CardTitle>{title}</CardTitle>
         <p className="text-sm text-[var(--txt2)]">
           {selected
-            ? `${selected.label} - ${formatCOPFull(selected.total)}`
+            ? `${selected.label} - ${formatCOPFull(selected.total)}. ${helper}`
             : "Selecciona un proveedor o cliente para ver el detalle."}
         </p>
       </CardHeader>
@@ -558,7 +426,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
 }
 
 function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
-  const title = type === "purchase" ? "Que se compro" : "Que se vendio o ajusto";
+  const title = type === "purchase" ? "Que se compro" : "Detalle de documentos de venta";
 
   return (
     <Card>
@@ -567,7 +435,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
         <p className="text-sm text-[var(--txt2)]">
           {selectedEntity && selectedCategory
             ? `${selectedEntity.label} - ${selectedCategory.category} - ${formatInteger(rows.length)} movimientos`
-            : "Selecciona una categoria para ver los movimientos."}
+            : "Selecciona una fila para ver los documentos."}
         </p>
       </CardHeader>
       <CardContent>
@@ -610,7 +478,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
           </div>
         ) : (
           <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
-            {selectedCategory ? "No hay movimientos para esta categoria." : "Toca una categoria para abrir el detalle final."}
+            {selectedCategory ? "No hay movimientos para esta seleccion." : "Toca una fila para abrir el detalle final."}
           </div>
         )}
       </CardContent>

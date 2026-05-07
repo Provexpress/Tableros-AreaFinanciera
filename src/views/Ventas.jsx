@@ -134,21 +134,21 @@ function DetalleVentas() {
     <div className="space-y-6">
       <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <KpiCard
-          label="Base auditable de ventas"
+          label="Detalle de ventas"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Registros del drill-down actual de ventas"
+          sub="Facturas y notas credito del corte actual"
           accentColor="blue"
         />
         <KpiCard
           label="Total neto de ventas"
           value={formatCOP(detailSummary.total)}
-          sub="Monto ajustado de la base filtrada de ventas"
+          sub="Monto neto de la base filtrada"
           accentColor="green"
         />
         <KpiCard
           label="Aprobacion de ventas"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
-          sub="Lectura rapida de ventas antes de entrar al detalle"
+          sub="Facturas aceptadas dentro del detalle visible"
           accentColor="purple"
         />
       </section>
@@ -158,8 +158,8 @@ function DetalleVentas() {
         search={searchInput}
         onSearchChange={setSearchInput}
         labels={{
-          title: "Detalle auditable de documentos de ventas",
-          subtitle: "Base filtrada de facturas de venta y notas credito de venta",
+          title: "Detalle de ventas",
+          subtitle: "Listado filtrado de facturas de venta y notas credito de venta",
           searchPlaceholder: "Buscar cliente",
           entity: "Cliente",
           fileName: "detalle_ventas_auditable.csv",
@@ -193,6 +193,14 @@ export default function Ventas({ isLoading = false }) {
   const activeMonthDailySpend = useVentasStore((state) => state.activeMonthDailySpend);
   const setFilters = useVentasStore((state) => state.setFilters);
   const clientReconciliationRows = useMemo(() => buildClientReconciliationRows(filteredData), [filteredData]);
+
+  const handleSelectDay = (date) => {
+    setFilters({
+      selectedDates: [date],
+      dateRange: [date, date],
+    });
+    setShowDetail(true);
+  };
 
   useEffect(() => {
     if (showDetail) {
@@ -247,7 +255,7 @@ export default function Ventas({ isLoading = false }) {
               invoiceDescription: "Base documental de facturas de venta del periodo visible",
               credit: "Notas credito de venta (NC)",
               creditDescription: "Notas credito de venta del periodo visible",
-              net: "Venta neta contable",
+              net: "Venta neta",
               netDescription: "Facturas de venta menos notas credito de venta",
               fcHelper: "Base contable de referencia: 100% del valor de ventas visibles.",
               ncHelperSuffix: "sobre FV de ventas.",
@@ -285,9 +293,9 @@ export default function Ventas({ isLoading = false }) {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Flujo documental y estado operativo de ventas</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturacion de ventas</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Estado y detalle operativo de los documentos de ventas por aprobacion, revision y rechazo.
+              Estado DIAN y aceptacion de las facturas emitidas a clientes.
             </p>
           </div>
           <DocumentStatusGrid
@@ -295,6 +303,11 @@ export default function Ventas({ isLoading = false }) {
             isLoading={isLoading}
             selectedStatus={selectedFlowStatus}
             onSelectStatus={toggleFlowStatus}
+            labels={{
+              Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por el cliente" },
+              "En revision": { label: "Pendiente", helper: "Sin acuse o pendiente de validacion" },
+              Aprobado: { label: "Aceptada", helper: "Aceptada o con aceptacion tacita" },
+            }}
           />
           <DocumentFlowBoard
             rowsByStatus={documentRowsByStatus}
@@ -318,6 +331,8 @@ export default function Ventas({ isLoading = false }) {
             entityLabel="cliente"
             rankingTitle="Ranking de ventas por cliente"
             rankingSubtitle="Top clientes por monto total del corte."
+            mixTitle="Mix de ventas por categoria"
+            mixSubtitle="Distribucion simple de ventas y notas credito por categoria disponible."
           />
         </section>
 
@@ -341,6 +356,7 @@ export default function Ventas({ isLoading = false }) {
               monthly: "Venta neta mensual - ultimos 12 meses",
             }}
             colors={{ selected: TEAL, up: TEAL, down: CORAL, line: TEAL }}
+            onSelectDay={handleSelectDay}
           />
         </section>
       </div>
@@ -351,7 +367,7 @@ export default function Ventas({ isLoading = false }) {
             <div className="flex items-center justify-between rounded-[8px] border border-white/8 bg-[var(--surface)]/60 px-4 py-2.5">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full" style={{ backgroundColor: TEAL }} />
-                <span className="text-sm font-medium text-[var(--txt)]">Detalle auditable de ventas</span>
+                <span className="text-sm font-medium text-[var(--txt)]">Detalle de ventas</span>
               </div>
               <Button variant="secondary" size="sm" onClick={() => setShowDetail(false)}>
                 Ocultar
@@ -365,7 +381,7 @@ export default function Ventas({ isLoading = false }) {
             onClick={() => setShowDetail(true)}
             className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-white/12 bg-[var(--surface)]/40 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-[var(--surface)]/60"
           >
-            <span className="text-sm text-[var(--txt2)]">Detalle auditable de ventas</span>
+            <span className="text-sm text-[var(--txt2)]">Detalle de ventas</span>
             <span className="text-xs text-[var(--txt3)]">Opcional - expandir</span>
           </button>
         )}

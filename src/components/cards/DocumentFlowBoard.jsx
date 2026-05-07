@@ -37,7 +37,9 @@ export default function DocumentFlowBoard({
         </Badge>
       </CardHeader>
       <CardContent>
-        <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-white/5">
+        <div className="relative max-h-[360px] max-w-full overflow-hidden rounded-[10px] border border-white/5">
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-[var(--bg)] to-transparent" />
+          <div className="max-h-[360px] max-w-full overflow-auto">
           <Table className={isSalesLayout ? "min-w-[1040px] table-fixed" : "min-w-[860px] table-fixed"}>
             <thead>
               {isSalesLayout ? (
@@ -146,6 +148,7 @@ export default function DocumentFlowBoard({
               )}
             </tbody>
           </Table>
+          </div>
         </div>
       </CardContent>
     </Card>
