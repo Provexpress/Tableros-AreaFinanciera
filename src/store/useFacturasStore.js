@@ -145,13 +145,96 @@ function isCreditNote(row) {
   );
 }
 
+function getDocumentValue(row) {
+  return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+}
+
+function getNetValue(row) {
+  return Number(row.total || 0);
+}
+
+function getReconciliationKey(row) {
+  const period = String(row.periodo || "");
+  const provider = String(row.proveedor || "")
+    .toUpperCase()
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return `${period}|${provider}`;
+}
+
+function groupCreditNotesForReconciliation(apiRows, creditNoteRows) {
+  const apiGrossByKey = new Map();
+  const creditNotesByKey = new Map();
+
+  apiRows.forEach((row) => {
+    const key = getReconciliationKey(row);
+    apiGrossByKey.set(key, (apiGrossByKey.get(key) || 0) + Math.abs(getNetValue(row)));
+  });
+
+  creditNoteRows.forEach((row) => {
+    const key = getReconciliationKey(row);
+    const bucket = creditNotesByKey.get(key) || {
+      key,
+      period: row.periodo || "",
+      provider: row.proveedor || "",
+      rows: [],
+      total: 0,
+    };
+
+    bucket.rows.push(row);
+    bucket.total += getDocumentValue(row);
+    creditNotesByKey.set(key, bucket);
+  });
+
+  return [...creditNotesByKey.values()].map((bucket) => ({
+    ...bucket,
+    apiGross: apiGrossByKey.get(bucket.key) || 0,
+  }));
+}
+
+function reconcileExcelCreditNotesWithApi(apiRows, creditNoteRows) {
+  const tolerance = 1.01;
+  const matched = [];
+  const unmatched = [];
+  const unmatchedGroups = [];
+
+  const groups = groupCreditNotesForReconciliation(apiRows, creditNoteRows);
+  groups.forEach((group) => {
+    const hasVisibleBase = group.apiGross > 0 && group.total <= group.apiGross * tolerance;
+
+    if (hasVisibleBase) {
+      matched.push(...group.rows);
+      return;
+    }
+
+    unmatched.push(...group.rows);
+    unmatchedGroups.push({
+      period: group.period,
+      provider: group.provider,
+      apiGross: group.apiGross,
+      creditNoteTotal: group.total,
+      rows: group.rows.length,
+    });
+  });
+
+  return {
+    matched,
+    unmatched,
+    unmatchedGroups: unmatchedGroups
+      .sort((a, b) => b.creditNoteTotal - a.creditNoteTotal)
+      .slice(0, 20),
+  };
+}
+
 function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
   if (!apiResult?.data?.length) {
     return excelResult;
   }
 
   const creditNoteRows = (excelResult?.data || []).filter(isCreditNote);
-  const data = [...apiResult.data, ...creditNoteRows].sort(
+  const reconciledCreditNotes = reconcileExcelCreditNotesWithApi(apiResult.data, creditNoteRows);
+  const data = [...apiResult.data, ...reconciledCreditNotes.matched].sort(
     (a, b) =>
       String(a.periodo || "").localeCompare(String(b.periodo || "")) ||
       String(a.proveedor || "").localeCompare(String(b.proveedor || ""))
@@ -173,6 +256,11 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
         purchaseInvoicesSource: "API contable compras PBI",
         purchaseCreditNotesSource: excelResult?.meta?.sourceName || "Control Facturas.xlsx",
         purchaseCreditNotesRows: creditNoteRows.length,
+        purchaseCreditNotesMatchedRows: reconciledCreditNotes.matched.length,
+        purchaseCreditNotesUnmatchedRows: reconciledCreditNotes.unmatched.length,
+        purchaseCreditNotesMatchedTotal: reconciledCreditNotes.matched.reduce((sum, row) => sum + getDocumentValue(row), 0),
+        purchaseCreditNotesUnmatchedTotal: reconciledCreditNotes.unmatched.reduce((sum, row) => sum + getDocumentValue(row), 0),
+        purchaseCreditNotesUnmatchedGroups: reconciledCreditNotes.unmatchedGroups,
       },
     },
   };
