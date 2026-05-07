@@ -127,7 +127,7 @@ function bucketToInvoice(bucket, index, options = {}) {
       conciliacion: "",
       validacion: bucket.employeeId,
       motivoRechazo: "",
-      observacion: productSample || `${bucket.lineCount} lineas API contable`,
+      observacion: productSample || `${bucket.lineCount} líneas API`,
       fuente: "PBI Ventas",
       asesor: bucket.employeeName,
       lineCount: bucket.lineCount,
@@ -136,7 +136,7 @@ function bucketToInvoice(bucket, index, options = {}) {
   };
 }
 
-export function parseVentasPbiRows(rows = [], sourceName = "API contable ventas PBI", options = {}) {
+export function parseVentasPbiRows(rows = [], sourceName = "API de ventas PBI", options = {}) {
   const buckets = new Map();
 
   rows.forEach((row, index) => {

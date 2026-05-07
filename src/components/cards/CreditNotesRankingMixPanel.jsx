@@ -93,7 +93,7 @@ function DetailTable({ title, selectedLabel, rows = [], totalValue = 0, isLoadin
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
           <p className="text-sm text-[var(--txt2)]">
-            {selectedLabel ? `Detalle de ${selectedLabel}.` : "Selecciona una barra para ver el detalle asociado."}
+            {selectedLabel ? `Detalle de ${selectedLabel}.` : "Seleccióna una barra para ver el detalle asociado."}
           </p>
         </div>
         {selectedLabel ? <Badge variant="tech">{selectedLabel}</Badge> : null}
@@ -211,16 +211,16 @@ export default function CreditNotesRankingMixPanel({
         totalCount: totalNcCount,
         count: causeSummary.length,
         countLabel: "Cantidad de causas",
-        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas credito de ventas",
+        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
         variant: "danger",
         accentClass: "bg-[var(--danger)]",
         chartTitle: "Causas de NC de ventas",
-        chartSubtitle: "Conteo de notas credito de ventas por causa agrupada.",
+        chartSubtitle: "Conteo de notas crédito de ventas por causa agrupada.",
         chartData: causeSummary.map((item) => ({ ...item, note: item.totalValue })),
         valueFormatter: (value) => `${formatInteger(value)} NC`,
         noteFormatter: (value) => `Valor asociado: ${formatCOPFull(value)}`,
-        emptyMessage: "No hay causas con notas credito de ventas en el corte actual.",
-        detailTitle: "Detalle de notas credito de ventas por causa",
+        emptyMessage: "No hay causas con notas crédito de ventas en el corte actual.",
+        detailTitle: "Detalle de notas crédito de ventas por causa",
         resolveRows: (selectedKey) =>
           rows
             .filter(buildCauseMatcher(selectedKey))
@@ -235,16 +235,16 @@ export default function CreditNotesRankingMixPanel({
         totalCount: totalNcCount,
         count: uniqueClients,
         countLabel: "Cantidad de clientes",
-        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas credito de ventas",
+        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
         variant: "tech",
         accentClass: "bg-[var(--tec)]",
         chartTitle: "Clientes con mas NC de ventas",
-        chartSubtitle: "Ranking por cantidad de notas credito de ventas del periodo.",
+        chartSubtitle: "Ranking por cantidad de notas crédito de ventas del periodo.",
         chartData: clientSummary.map((item) => ({ ...item, note: item.totalValue })),
         valueFormatter: (value) => `${formatInteger(value)} NC`,
         noteFormatter: (value) => `Valor asociado: ${formatCOPFull(value)}`,
-        emptyMessage: "No hay clientes con notas credito de ventas en el corte actual.",
-        detailTitle: "Detalle de notas credito de ventas por cliente",
+        emptyMessage: "No hay clientes con notas crédito de ventas en el corte actual.",
+        detailTitle: "Detalle de notas crédito de ventas por cliente",
         resolveRows: (selectedKey) =>
           rows
             .filter((row) => (row.cliente || "Sin cliente") === selectedKey)
@@ -259,16 +259,16 @@ export default function CreditNotesRankingMixPanel({
         totalCount: commercialNcCount,
         count: uniqueResponsibles,
         countLabel: "Cantidad de comerciales",
-        helper: "Solo notas credito de ventas con causa comercial",
+        helper: "Solo notas crédito de ventas con causa comercial",
         variant: "warning",
         accentClass: "bg-[var(--warning)]",
         chartTitle: "Comerciales con mas NC de ventas",
-        chartSubtitle: "Solo notas credito de ventas con origen comercial.",
+        chartSubtitle: "Solo notas crédito de ventas con origen comercial.",
         chartData: responsibleSummary.map((item) => ({ ...item, note: item.totalValue })),
         valueFormatter: (value) => `${formatInteger(value)} NC`,
         noteFormatter: (value) => `Valor asociado: ${formatCOPFull(value)}`,
-        emptyMessage: "No hay comerciales con notas credito de ventas en el corte actual.",
-        detailTitle: "Detalle de notas credito de ventas por comercial",
+        emptyMessage: "No hay comerciales con notas crédito de ventas en el corte actual.",
+        detailTitle: "Detalle de notas crédito de ventas por comercial",
         resolveRows: (selectedKey) =>
           rows
             .filter(
@@ -352,7 +352,7 @@ export default function CreditNotesRankingMixPanel({
           rows={detailRows}
           totalValue={detailTotalValue}
           isLoading={isLoading}
-          emptyMessage="No hay notas credito para el elemento seleccionado."
+          emptyMessage="No hay notas crédito para el elemento seleccionado."
         />
       </div>
     </section>

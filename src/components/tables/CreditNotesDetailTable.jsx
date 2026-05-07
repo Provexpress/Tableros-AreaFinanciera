@@ -181,7 +181,7 @@ export default function CreditNotesDetailTable({
     <Card>
       <CardHeader className="gap-3">
         <div className="space-y-2">
-          <CardTitle>Detalle auditable de notas credito de ventas</CardTitle>
+          <CardTitle>Detalle de notas crédito de ventas</CardTitle>
           <p className="text-sm text-[var(--txt2)]">
             {selectedWeekLabel
               ? `Semana activa: ${selectedWeekLabel}`
@@ -189,7 +189,7 @@ export default function CreditNotesDetailTable({
                 ? `Detalle abierto por ${detailInteractionLabel}.`
                 : activeInteractionLabel
                   ? `Detalle del filtro tactico: ${activeInteractionLabel}.`
-                  : "Selecciona una semana o toca una causa, cliente o responsable para abrir el detalle."}
+                  : "Seleccióna una semana o toca una causa, cliente o responsable para abrir el detalle."}
           </p>
         </div>
 
@@ -329,13 +329,13 @@ export default function CreditNotesDetailTable({
               {!hasDetailContext ? (
                 <tr>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-[var(--txt3)]">
-                    Selecciona una semana desde la tendencia o toca una causa, cliente o responsable para abrir el detalle.
+                    Seleccióna una semana desde la tendencia o toca una causa, cliente o responsable para abrir el detalle.
                   </TableCell>
                 </tr>
               ) : paginatedRows.length === 0 ? (
                 <tr>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-[var(--txt3)]">
-                    No hay notas credito para los filtros activos en esta seleccion.
+                    No hay notas crédito para los filtros activos en esta selección.
                   </TableCell>
                 </tr>
               ) : (

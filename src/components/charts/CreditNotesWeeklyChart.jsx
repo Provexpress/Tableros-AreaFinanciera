@@ -70,7 +70,7 @@ export default function CreditNotesWeeklyChart({
   onSelectWeek,
   isLoading = false,
   title = "Tendencia semanal de NC",
-  subtitle = "Ultimas semanas del periodo con facturacion bruta, notas credito, refacturacion y porcentaje NC.",
+  subtitle = "Últimas semanas del periodo con facturación bruta, notas crédito, refacturación y porcentaje NC.",
 }) {
   const activeWeekIndex = useMemo(() => {
     if (!data.length) {
@@ -166,7 +166,7 @@ export default function CreditNotesWeeklyChart({
                     <Bar
                       yAxisId="value"
                       dataKey="valorBruto"
-                      name="Facturacion bruta"
+                      name="Facturación bruta"
                       fill="var(--tec)"
                       radius={[6, 6, 0, 0]}
                       maxBarSize={maxBarSize}
@@ -186,7 +186,7 @@ export default function CreditNotesWeeklyChart({
                     <Bar
                       yAxisId="value"
                       dataKey="valorNc"
-                      name="Notas credito"
+                      name="Notas crédito"
                       fill="var(--danger)"
                       radius={[6, 6, 0, 0]}
                       maxBarSize={maxBarSize}
@@ -206,7 +206,7 @@ export default function CreditNotesWeeklyChart({
                     <Bar
                       yAxisId="value"
                       dataKey="valorRefact"
-                      name="Refacturacion"
+                      name="Refacturación"
                       fill="var(--success)"
                       radius={[6, 6, 0, 0]}
                       maxBarSize={maxBarSize}

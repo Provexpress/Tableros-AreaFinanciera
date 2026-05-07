@@ -19,7 +19,7 @@ const routes = [
   { to: "/comparativo", label: "Consolidado" },
   { to: "/", label: "Compras" },
   { to: "/ventas", label: "Ventas" },
-  { to: "/notas-credito", label: "Notas credito" },
+  { to: "/notas-credito", label: "Notas crédito" },
 ];
 
 const MONTH_LABELS = {
@@ -442,13 +442,13 @@ export default function App() {
         activeFilters.push({ label: `Rango: ${formatRangeLabel(ventasFilters.periodRange?.[0], ventasFilters.periodRange?.[1])}`, variant: "warning" });
       }
       if (ventasFilters.selectedDates?.length) {
-        activeFilters.push({ label: `${ventasFilters.selectedDates.length} dias seleccionados`, variant: "warning" });
+        activeFilters.push({ label: `${ventasFilters.selectedDates.length} días seleccionados`, variant: "warning" });
       }
 
       return {
         datasetType: "ventas",
         title: "PX / Control de ventas emitidas",
-        subtitle: "Seguimiento contable de FV, NC y venta neta",
+        subtitle: "Seguimiento de FV, NC y venta neta",
         sourceName: ventasSourceName,
         rangeLabel: formatRangeLabel(ventasFilters.periodRange?.[0], ventasFilters.periodRange?.[1]),
         isLoading: ventasIsLoading,
@@ -504,7 +504,7 @@ export default function App() {
       return {
         datasetType: "notas",
         title: "PX / CONTROL DE VENTAS",
-        subtitle: "Seguimiento semanal de facturación, NC y refacturaciones",
+        subtitle: "Seguimiento semanal de facturación, NC y refacturaciónes",
         sourceName: notasSourceName,
         rangeLabel: notasHeaderRangeLabel,
         isLoading: notasIsLoading,
@@ -558,7 +558,7 @@ export default function App() {
     }
     if (facturasFilters.selectedDates?.length) {
       activeFilters.push({
-        label: `${facturasFilters.selectedDates.length} dias seleccionados`,
+        label: `${facturasFilters.selectedDates.length} días seleccionados`,
         variant: "warning",
       });
     } else if (facturasHasCustomDateRange) {
@@ -571,10 +571,10 @@ export default function App() {
     return {
       datasetType: "facturas",
       title: "PX / Control de compras a proveedores",
-      subtitle: "Seguimiento contable de FC, NC y compra neta",
+      subtitle: "Seguimiento de FC, NC y compra neta",
       sourceName: facturasSourceName,
       rangeLabel: facturasFilters.selectedDates?.length
-        ? `${facturasFilters.selectedDates.length} dias seleccionados`
+        ? `${facturasFilters.selectedDates.length} días seleccionados`
         : facturasFilters.selectedPeriods?.length > 1
           ? `${facturasFilters.selectedPeriods.length} meses seleccionados`
           : facturasHasCustomDateRange

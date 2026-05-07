@@ -136,7 +136,7 @@ function buildCategoryBreakdown({ rows = [], selected, type }) {
       return;
     }
 
-    const category = type === "purchase" ? row.categoria || "Sin categoria" : row.categoria || row.causa || row.concepto || "Sin categoria";
+    const category = type === "purchase" ? row.categoria || "Sin categoría" : row.categoria || row.causa || row.concepto || "Sin categoría";
     const value = Number(row.total || row.valor || 0);
     const docValue = Math.abs(Number(row.totalOriginal ?? row.total ?? row.valor ?? 0));
     const typeText = String(row.tipoDocNormalizado || row.tipoDoc || "").toLowerCase();
@@ -167,7 +167,7 @@ function buildCategoryBreakdown({ rows = [], selected, type }) {
 }
 
 function getRowCategory(row, type) {
-  return type === "purchase" ? row.categoria || "Sin categoria" : row.categoria || row.causa || row.concepto || "Sin categoria";
+  return type === "purchase" ? row.categoria || "Sin categoría" : row.categoria || row.causa || row.concepto || "Sin categoría";
 }
 
 function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }) {
@@ -274,7 +274,7 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
             ))}
             {!visibleRows.length ? (
               <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
-                Sin coincidencias para la busqueda.
+                Sin coincidencias para la búsqueda.
               </div>
             ) : null}
             </div>
@@ -360,10 +360,10 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
 }
 
 function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCategory }) {
-  const title = type === "purchase" ? "Detalle comprado por categoria" : "Detalle vendido o ajustado por categoria";
+  const title = type === "purchase" ? "Detalle comprado por categoría" : "Detalle vendido o ajustado por categoría";
   const helper =
     type === "purchase"
-      ? "Selecciona una categoria para ver los documentos que componen el valor."
+      ? "Seleccióna una categoria para ver los documentos que componen el valor."
       : "Se usa la categoria de la API de ventas cuando esta disponible; las NC se muestran con su causa o concepto.";
 
   return (
@@ -373,7 +373,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
         <p className="text-sm text-[var(--txt2)]">
           {selected
             ? `${selected.label} - ${formatCOPFull(selected.total)}. ${helper}`
-            : "Selecciona un proveedor o cliente para ver el detalle."}
+            : "Seleccióna un proveedor o cliente para ver el detalle."}
         </p>
       </CardHeader>
       <CardContent>
@@ -417,7 +417,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
           </div>
         ) : (
           <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
-            {selected ? "No hay detalle por categoria para esta seleccion." : "Elige un item de las tarjetas para abrir el detalle."}
+            {selected ? "No hay detalle por categoría para esta selección." : "Elige un ítem de las tarjetas para abrir el detalle."}
           </div>
         )}
       </CardContent>
@@ -426,7 +426,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
 }
 
 function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
-  const title = type === "purchase" ? "Que se compro" : "Detalle de documentos de venta";
+  const title = type === "purchase" ? "Qu? se compr?" : "Detalle de documentos de venta";
 
   return (
     <Card>
@@ -435,7 +435,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
         <p className="text-sm text-[var(--txt2)]">
           {selectedEntity && selectedCategory
             ? `${selectedEntity.label} - ${selectedCategory.category} - ${formatInteger(rows.length)} movimientos`
-            : "Selecciona una fila para ver los documentos."}
+            : "Seleccióna una fila para ver los documentos."}
         </p>
       </CardHeader>
       <CardContent>
@@ -607,7 +607,7 @@ export default function ConsolidatedSnapshotPanel({
     <div className="space-y-4">
       <div className="grid gap-4 xl:grid-cols-2">
         <FormulaRow
-          title="Como se lee compras"
+          title="Cómo se lee compras"
           first={{
             label: "Facturas",
             value: formatCOPCompact(comprasSummary.purchaseInvoiceTotal),
@@ -615,7 +615,7 @@ export default function ConsolidatedSnapshotPanel({
             tone: "amber",
           }}
           second={{
-            label: "Notas credito",
+            label: "Notas crédito",
             value: formatCOPCompact(comprasSummary.creditNoteTotal),
             helper: `${formatInteger(comprasSummary.creditNoteCount)} ajustes`,
             tone: "danger",
@@ -628,15 +628,15 @@ export default function ConsolidatedSnapshotPanel({
           }}
         />
         <FormulaRow
-          title="Como se lee ventas"
+          title="Cómo se lee ventas"
           first={{
-            label: "Facturacion bruta",
+            label: "Facturación bruta",
             value: formatCOPCompact(ventasSummary.purchaseInvoiceTotal),
             helper: `${formatInteger(ventasSummary.purchaseInvoiceCount)} facturas`,
             tone: "amber",
           }}
           second={{
-            label: "Notas credito",
+            label: "Notas crédito",
             value: formatCOPCompact(ventasSummary.creditNoteTotal),
             helper: `${formatInteger(ventasSummary.creditNoteCount)} NC`,
             tone: "danger",
@@ -657,7 +657,7 @@ export default function ConsolidatedSnapshotPanel({
       <div className="grid gap-4 xl:grid-cols-2">
         <EntityCard
           title="Compras por proveedor"
-          subtitle="Selecciona un proveedor para ver que se compro por categoria."
+          subtitle="Seleccióna un proveedor para ver qu? se compr? por categoría."
           rows={purchaseEntities}
           selected={activePurchase}
           onSelect={(row) => {
@@ -668,7 +668,7 @@ export default function ConsolidatedSnapshotPanel({
         />
         <EntityCard
           title="Ventas por cliente"
-          subtitle="Selecciona un cliente para ver que se vendio o ajusto por categoria."
+          subtitle="Seleccióna un cliente para ver qu? se vendi? o ajusto por categoría."
           rows={salesEntities}
           selected={activeSale}
           onSelect={(row) => {

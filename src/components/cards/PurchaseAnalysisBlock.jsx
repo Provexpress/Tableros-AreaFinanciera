@@ -11,7 +11,7 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
       <CardHeader className="min-w-0">
         <CardTitle>{title}</CardTitle>
         <p className="text-sm text-[var(--txt2)]">
-          {selectedCategory ? `Filtrado por categoria: ${selectedCategory}.` : subtitle || `Top ${entityLabel}s por monto total del corte.`}
+          {selectedCategory ? `Filtrado por categoría: ${selectedCategory}.` : subtitle || `Top ${entityLabel}s por monto total del corte.`}
         </p>
       </CardHeader>
       <CardContent>
@@ -76,8 +76,8 @@ function CategoryMix({
   rows = [],
   selectedCategory = null,
   onSelectCategory = null,
-  title = "Mix de gasto por categoria",
-  subtitle = "Distribucion simple por categoria del corte.",
+  title = "Mix de gasto por categoría",
+  subtitle = "Distribución simple por categoría del corte.",
 }) {
   const visibleRows = rows.slice(0, 5);
 
@@ -90,7 +90,7 @@ function CategoryMix({
       <CardContent className="min-w-0">
         {!visibleRows.length ? (
           <div className="rounded-[10px] border border-dashed border-white/10 px-4 py-7 text-sm text-[var(--txt3)]">
-            Sin categorias para el corte activo.
+            Sin categorías para el corte activo.
           </div>
         ) : (
           <div className="space-y-3">
@@ -144,8 +144,8 @@ export default function PurchaseAnalysisBlock({
   entityLabel = "proveedor",
   rankingTitle = "Ranking de compras por proveedor",
   rankingSubtitle = "Top proveedores por monto total del corte.",
-  mixTitle = "Mix de gasto por categoria",
-  mixSubtitle = "Distribucion simple por categoria del corte.",
+  mixTitle = "Mix de gasto por categoría",
+  mixSubtitle = "Distribución simple por categoría del corte.",
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const providerRows = useMemo(() => {

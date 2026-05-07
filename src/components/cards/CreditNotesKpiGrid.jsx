@@ -48,31 +48,31 @@ export default function CreditNotesKpiGrid({ summary, isLoading = false }) {
   return (
     <section className="grid gap-3 md:grid-cols-2 2xl:grid-cols-4">
       <SummaryCard
-        label="Facturacion bruta de ventas"
-        description="Base de facturacion de ventas del periodo visible"
+        label="Facturación bruta de ventas"
+        description="Base de facturación de ventas del periodo visible"
         helper={`${formatInteger(summary.totalFacturas)} facturas emitidas`}
         amount={summary.totalBruto}
         isLoading={isLoading}
       />
       <SummaryCard
-        label="Notas credito emitidas de ventas"
-        description="Notas credito de ventas emitidas en el corte visible"
+        label="Notas crédito emitidas de ventas"
+        description="Notas crédito de ventas emitidas en el corte visible"
         helper={`${formatInteger(summary.totalNcCount)} NC visibles | ${formatPct(ncRate, { signed: false })} sobre la bruta`}
         amount={summary.totalNc}
         tone="danger"
         isLoading={isLoading}
       />
       <SummaryCard
-        label="Refacturacion asociada a NC de ventas"
-        description="Notas credito de ventas reemplazadas por nueva factura"
+        label="Refacturación asociada a NC de ventas"
+        description="Notas crédito de ventas reemplazadas por nueva factura"
         helper={`${formatInteger(summary.totalRefactCount)} refacturadas | ${formatPct(refactRate, { signed: false })} recuperado frente a NC`}
         amount={summary.totalRefact}
         tone="amber"
         isLoading={isLoading}
       />
       <SummaryCard
-        label="Facturacion neta de ventas"
-        description="Facturacion neta de ventas despues de NC"
+        label="Facturación neta de ventas"
+        description="Facturación neta de ventas despues de NC"
         helper={`${formatPct(netRate, { signed: false })} retenido sobre la base bruta visible`}
         amount={summary.totalNeto}
         tone="green"

@@ -374,7 +374,7 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
     data,
     meta: {
       ...apiResult.meta,
-      sourceName: `${apiResult.meta?.sourceName || "API contable compras PBI"} + NC compra Excel`,
+      sourceName: `${apiResult.meta?.sourceName || "API de compras PBI"} + NC compra Excel`,
       validRows: data.length,
       skippedRows: apiResult.meta?.skippedRows || 0,
       range: {
@@ -383,7 +383,7 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
       },
       stats: {
         ...(apiResult.meta?.stats || {}),
-        purchaseInvoicesSource: "API contable compras PBI",
+        purchaseInvoicesSource: "API de compras PBI",
         purchaseCreditNotesSource: excelResult?.meta?.sourceName || "Control Facturas.xlsx",
         purchaseCreditNotesRows: creditNoteRows.length,
         purchaseCreditNotesMatchedRows: reconciledCreditNotes.matched.length,

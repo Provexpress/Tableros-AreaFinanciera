@@ -45,11 +45,11 @@ export default function DetailTable({
   search,
   onSearchChange,
   labels = {
-    title: "Detalle auditable de documentos de compras",
-    subtitle: "Base filtrada de facturas de compra y notas credito de compras",
+    title: "Detalle de documentos de compras",
+    subtitle: "Base filtrada de facturas de compra y notas crédito de compras",
     searchPlaceholder: "Buscar proveedor",
     entity: "Proveedor",
-    fileName: "detalle_facturas_auditable.csv",
+    fileName: "detalle_facturas.csv",
   },
 }) {
   const [page, setPage] = useState(1);
@@ -163,7 +163,7 @@ export default function DetailTable({
               <tr>
                 <TableHead className="w-[84px]">Tipo</TableHead>
                 <TableHead onClick={() => toggleSort("numeroDocumento")} className="w-[136px] cursor-pointer">
-                  Numero
+                  Número
                 </TableHead>
                 <TableHead onClick={() => toggleSort("fecha")} className="w-[104px] cursor-pointer">
                   Fecha doc.

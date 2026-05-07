@@ -77,9 +77,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
       <CardContent className="space-y-3 pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Conciliacion FV / NC por cliente</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Conciliación FV / NC por cliente</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Muestra como se casan las facturas de venta con las notas credito dentro del corte visible.
+              Muestra cómo se cruzan las facturas de venta con las notas crédito dentro del corte visible.
             </p>
           </div>
           <div className="w-full sm:w-[280px]">
@@ -87,7 +87,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar cliente"
-              aria-label="Buscar cliente en conciliacion FV NC"
+              aria-label="Buscar cliente en conciliación FV / NC"
             />
           </div>
         </div>
@@ -99,7 +99,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                 <th className="px-3 py-2 text-right">FV</th>
                 <th className="px-3 py-2 text-right">NC</th>
                 <th className="px-3 py-2 text-right">Venta bruta</th>
-                <th className="px-3 py-2 text-right">Notas credito</th>
+                <th className="px-3 py-2 text-right">Notas crédito</th>
                 <th className="px-3 py-2 text-right">Neto</th>
               </tr>
             </thead>
@@ -107,7 +107,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
               {!visibleRows.length ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
-                    {normalizedQuery ? "Sin clientes para esa busqueda." : "Sin clientes para el corte visible."}
+                    {normalizedQuery ? "Sin clientes para esa búsqueda." : "Sin clientes para el corte visible."}
                   </td>
                 </tr>
               ) : (
@@ -231,7 +231,7 @@ function DetalleVentas() {
         <KpiCard
           label="Detalle de ventas"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas credito del corte actual"
+          sub="Facturas y notas crédito del corte visible"
           accentColor="blue"
         />
         <KpiCard
@@ -241,7 +241,7 @@ function DetalleVentas() {
           accentColor="green"
         />
         <KpiCard
-          label="Aprobacion de ventas"
+          label="Aprobación de ventas"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
           sub="Facturas aceptadas dentro del detalle visible"
           accentColor="purple"
@@ -254,10 +254,10 @@ function DetalleVentas() {
         onSearchChange={setSearchInput}
         labels={{
           title: "Detalle de ventas",
-          subtitle: "Listado filtrado de facturas de venta y notas credito de venta",
+          subtitle: "Listado filtrado de facturas y notas crédito de venta",
           searchPlaceholder: "Buscar cliente",
           entity: "Cliente",
-          fileName: "detalle_ventas_auditable.csv",
+          fileName: "detalle_ventas.csv",
         }}
       />
 
@@ -330,10 +330,10 @@ export default function Ventas({ isLoading = false }) {
 
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
-      ? "Comparativo del mes seleccionado entre todos los años visibles y comparacion simple por cliente."
+      ? "Comparativo del mes seleccionado entre todos los años visibles y comparación simple por cliente."
       : filters.year !== "ALL" && filters.month !== "ALL"
-        ? "Trazabilidad diaria de venta neta dentro del mes activo y comparacion simple por cliente."
-        : "Lectura mensual simple de venta neta y comparacion contra el periodo anterior en ventas.";
+        ? "Trazabilidad diaria de venta neta dentro del mes activo y comparación simple por cliente."
+        : "Lectura mensual simple de venta neta y comparación contra el periodo anterior en ventas.";
 
   return (
     <div className="space-y-5">
@@ -346,10 +346,13 @@ export default function Ventas({ isLoading = false }) {
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-[var(--txt)]">
-                Resumen contable de facturas y notas credito de ventas
+                Resumen de facturas y notas crédito de ventas
               </h2>
               <p className="text-sm text-[var(--txt2)]">
                 Corte activo de ventas para leer FV, NC y valor neto: {formatPeriod(periodContext.period)}
+              </p>
+              <p className="mt-1 text-xs text-[var(--txt3)]">
+                Fuente: API de ventas para FV; NC desde el maestro de notas crédito y estado desde acuses cuando hay coincidencia.
               </p>
             </div>
           </div>
@@ -359,11 +362,11 @@ export default function Ventas({ isLoading = false }) {
             labels={{
               invoice: "Facturas de venta (FV)",
               invoiceDescription: "Base documental de facturas de venta del periodo visible",
-              credit: "Notas credito de venta (NC)",
-              creditDescription: "Notas credito de venta del periodo visible",
+              credit: "Notas crédito de venta (NC)",
+              creditDescription: "Notas crédito de venta del periodo visible",
               net: "Venta neta",
-              netDescription: "Facturas de venta menos notas credito de venta",
-              fcHelper: "Base contable de referencia: 100% del valor de ventas visibles.",
+              netDescription: "Facturas de venta menos notas crédito de venta",
+              fcHelper: "Base de referencia: 100% del valor de ventas visibles.",
               ncHelperSuffix: "sobre FV de ventas.",
               netHelperSuffix: "retenido frente a FV de ventas.",
             }}
@@ -375,9 +378,9 @@ export default function Ventas({ isLoading = false }) {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturacion de ventas</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturación de ventas</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Estado DIAN y aceptacion de las facturas emitidas a clientes.
+              Estado de aceptación visible de las facturas emitidas a clientes.
             </p>
           </div>
           <DocumentStatusGrid
@@ -387,16 +390,16 @@ export default function Ventas({ isLoading = false }) {
             onSelectStatus={toggleFlowStatus}
             labels={{
               Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por el cliente" },
-              "En revision": { label: "Sin aceptar", helper: "Sin acuse completo o sin aceptacion visible" },
-              Aprobado: { label: "Aceptada", helper: "Aceptada, tacita o paga en sistema" },
+              "En revision": { label: "Sin aceptar", helper: "Sin acuse completo o sin aceptación visible" },
+              Aprobado: { label: "Aceptada", helper: "Aceptada, aceptación tácita o pagada en sistema" },
             }}
           />
         </section>
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Concentracion de ventas por cliente y categoria</h2>
-            <p className="text-sm text-[var(--txt2)]">Lectura rapida de clientes lideres y mezcla por categoria de ventas.</p>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Concentración de ventas por cliente y categoría</h2>
+            <p className="text-sm text-[var(--txt2)]">Lectura rápida de clientes líderes y mezcla por categoría de ventas.</p>
           </div>
           <PurchaseAnalysisBlock
             providers={supplierAccountingRanking}
@@ -407,8 +410,8 @@ export default function Ventas({ isLoading = false }) {
             entityLabel="cliente"
             rankingTitle="Ranking de ventas por cliente"
             rankingSubtitle="Top clientes por monto total del corte."
-            mixTitle="Mix de ventas por categoria"
-            mixSubtitle="Distribucion simple de ventas y notas credito por categoria disponible."
+            mixTitle="Mix de ventas por categoría"
+            mixSubtitle="Distribución simple de ventas y notas crédito por categoría disponible."
           />
         </section>
 
@@ -429,7 +432,7 @@ export default function Ventas({ isLoading = false }) {
               title: "Evolucion de venta neta",
               value: "Venta neta",
               daily: "Venta neta diaria",
-              monthly: "Venta neta mensual - ultimos 12 meses",
+              monthly: "Venta neta mensual - últimos 12 meses",
             }}
             colors={{ selected: TEAL, up: TEAL, down: CORAL, line: TEAL }}
             onSelectDay={handleSelectDay}

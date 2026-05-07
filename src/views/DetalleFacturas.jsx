@@ -39,7 +39,7 @@ export default function DetalleFacturas() {
         <Card>
           <CardContent className="grid gap-3 pt-5 lg:grid-cols-2 2xl:grid-cols-[1.2fr_1fr_1fr_auto]">
             <Select value={filters.category} onChange={(event) => setFilters({ category: event.target.value })}>
-              <option value="ALL">Todas las categorias</option>
+              <option value="ALL">Todas las categorías</option>
               <option value="Tecnología">Tecnología</option>
               <option value="PAC">PAC</option>
               <option value="Gasto">Gasto</option>
@@ -76,7 +76,7 @@ export default function DetalleFacturas() {
         <KpiCard
           label="Detalle de compras"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas credito del corte actual"
+          sub="Facturas y notas crédito del corte visible"
           accentColor="blue"
         />
         <KpiCard
@@ -86,7 +86,7 @@ export default function DetalleFacturas() {
           accentColor="green"
         />
         <KpiCard
-          label="Aprobacion de compras"
+          label="Aprobación de compras"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
           sub="Documentos aceptados dentro del detalle visible"
           accentColor="purple"

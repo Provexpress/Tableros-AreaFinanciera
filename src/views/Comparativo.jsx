@@ -136,7 +136,7 @@ function buildPurchaseRanking(rows = []) {
 function adaptSalesRows(rows = []) {
   return rows.map((row) => {
     const total = Math.abs(getNumericValue(row));
-    const category = row.categoria || row.categoriaVenta || row.category || "Sin categoria";
+    const category = row.categoria || row.categoriaVenta || row.category || "Sin categoría";
     return {
       ...row,
       cliente: row.cliente || row.clienteNormalizado || row.nombreCliente || "Sin cliente",
@@ -211,7 +211,7 @@ function adaptSalesCreditRows(rows = [], resolveClient = (value) => value || "Si
   return rows.map((row) => {
     const value = Math.abs(Number(row.valor ?? row.total ?? 0) || 0);
     const client = resolveClient(row.cliente);
-    const category = row.categoria || row.categoriaVenta || row.category || row.causa || row.concepto || "Notas credito";
+    const category = row.categoria || row.categoriaVenta || row.category || row.causa || row.concepto || "Notas crédito";
     return {
       ...row,
       cliente: client,
@@ -316,7 +316,7 @@ export default function Comparativo() {
         <div>
           <h2 className="text-base font-semibold text-[var(--txt)]">Lectura ejecutiva de compras y ventas</h2>
           <p className="text-sm text-[var(--txt2)]">
-            Corte comun disponible: {rangeLabel}. El consolidado solo compara periodos presentes en compras y ventas.
+            Corte común disponible: {rangeLabel}. El consolidado solo compara periodos presentes en compras y ventas; las categorías de ventas vienen de la API cuando están disponibles.
           </p>
         </div>
         <ConsolidatedSnapshotPanel

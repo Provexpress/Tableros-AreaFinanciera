@@ -123,7 +123,7 @@ export default function WeekVariationPanel({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Variacion semanal de notas credito de ventas</CardTitle>
+          <CardTitle>Variación semanal de notas crédito de ventas</CardTitle>
         </CardHeader>
         <CardContent>
           <EmptyState>No hay semanas visibles para comparar.</EmptyState>
@@ -136,7 +136,7 @@ export default function WeekVariationPanel({
     return (
       <Card>
         <CardHeader className="gap-3">
-          <CardTitle>Variacion semanal de notas credito de ventas</CardTitle>
+          <CardTitle>Variación semanal de notas crédito de ventas</CardTitle>
           {activeInteractionLabel ? <Badge variant="warning">Filtro activo: {activeInteractionLabel}</Badge> : null}
         </CardHeader>
         <CardContent>
@@ -159,9 +159,9 @@ export default function WeekVariationPanel({
     <Card className="min-w-0">
       <CardHeader className="gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 space-y-1">
-          <CardTitle>Variacion semanal de notas credito de ventas</CardTitle>
+          <CardTitle>Variación semanal de notas crédito de ventas</CardTitle>
           <div className="text-sm text-[var(--txt2)]">
-            Semana actual vs semana anterior para notas credito de ventas, causas y responsables.
+            Semana actual vs semana anterior para notas crédito de ventas, causas y responsables.
           </div>
         </div>
         {activeInteractionLabel ? <Badge variant="warning">Filtro activo: {activeInteractionLabel}</Badge> : null}

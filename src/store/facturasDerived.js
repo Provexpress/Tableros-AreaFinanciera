@@ -81,11 +81,11 @@ function buildInsightsFromMetrics(metrics, totalRows) {
   return [
     topCategory
       ? `La categoria ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total visible.`
-      : "No hay concentracion visible por categoria.",
+      : "No hay concentración visible por categoría.",
     `${formatPct(ocPct, { signed: false })} de las facturas no tiene Orden de Compra registrada.`,
     trendPct >= 0
-      ? `La tendencia de los ultimos 3 meses muestra una mejora de ${formatPct(trendPct)}.`
-      : `La tendencia de los ultimos 3 meses muestra una caida de ${formatPct(trendPct)}.`,
+      ? `La tendencia de los últimos 3 meses muestra una mejora de ${formatPct(trendPct)}.`
+      : `La tendencia de los últimos 3 meses muestra una caída de ${formatPct(trendPct)}.`,
   ];
 }
 

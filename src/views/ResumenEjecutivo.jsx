@@ -39,10 +39,10 @@ export default function ResumenEjecutivo({
   };
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
-      ? "Comparativo del mes seleccionado entre todos los años visibles y comparacion simple por proveedor."
+      ? "Comparativo del mes seleccionado entre todos los años visibles y comparación simple por proveedor."
       : filters.year !== "ALL" && filters.month !== "ALL"
-      ? "Trazabilidad diaria de compra neta dentro del mes activo y comparacion simple por proveedor."
-      : "Lectura mensual simple de compra neta y comparacion contra el periodo anterior en compras.";
+      ? "Trazabilidad diaria de compra neta dentro del mes activo y comparación simple por proveedor."
+      : "Lectura mensual simple de compra neta y comparación contra el periodo anterior en compras.";
 
   if (!periodContext || !Number.isFinite(periodContext.total) || periodContext.count <= 0) {
     return (
@@ -59,8 +59,11 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Resumen contable de facturas y notas credito de compras</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Resumen de facturas y notas crédito de compras</h2>
             <p className="text-sm text-[var(--txt2)]">Corte activo de compras para leer FC, NC y valor neto: {formatPeriod(periodContext.period)}</p>
+            <p className="mt-1 text-xs text-[var(--txt3)]">
+              Fuente: API de compras para facturas; NC y estado documental desde Control Facturas cuando hay coincidencia.
+            </p>
           </div>
         </div>
         <PurchasesKpiGrid summary={documentSummary} isLoading={isLoading} />
@@ -69,7 +72,7 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Revision documental de facturas y notas credito de compras</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado documental de facturas y notas crédito de compras</h2>
             <p className="text-sm text-[var(--txt2)]">Tablas operativas para revisar FC y NC de compras dentro del corte visible.</p>
           </div>
         </div>
@@ -90,7 +93,7 @@ export default function ResumenEjecutivo({
             onSelectStatus={toggleFlowStatus}
             labels={{
               Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por Provexpress" },
-              "En revision": { label: "Pendiente", helper: "Pendiente de validacion interna" },
+              "En revision": { label: "Pendiente", helper: "Pendiente de validación interna" },
               Aprobado: { label: "Aceptada", helper: "Factura aceptada para el proceso" },
             }}
           />
@@ -99,8 +102,8 @@ export default function ResumenEjecutivo({
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Concentracion de compras por proveedor y categoria</h2>
-          <p className="text-sm text-[var(--txt2)]">Lectura rapida de proveedores lideres y mezcla por categoria de compras.</p>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Concentración de compras por proveedor y categoría</h2>
+          <p className="text-sm text-[var(--txt2)]">Lectura rápida de proveedores líderes y mezcla por categoría de compras.</p>
         </div>
         <PurchaseAnalysisBlock
           providers={supplierAccountingRanking}

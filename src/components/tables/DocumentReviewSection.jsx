@@ -106,11 +106,11 @@ export default function DocumentReviewSection({
   labels = {
     invoiceTitle: "Facturas de compra (FC)",
     invoiceSubtitle: "Facturas de proveedores registradas en el periodo.",
-    creditTitle: "Notas credito de compras (NC)",
+    creditTitle: "Notas crédito de compras (NC)",
     creditSubtitle: "Documentos de ajuste de compras registrados en el periodo.",
     entity: "Proveedor",
-    invoiceNumber: "Numero factura",
-    creditNumber: "Numero doc.",
+    invoiceNumber: "Número factura",
+    creditNumber: "Número doc.",
   },
 }) {
   return (

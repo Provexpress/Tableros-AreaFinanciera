@@ -13,13 +13,13 @@ const STATUS_META = {
     label: "Pendiente",
     variant: "warning",
     accent: "bg-[var(--warning)]",
-    helper: "Pendiente de validacion",
+    helper: "Pendiente de validación",
   },
   Aprobado: {
     label: "Aceptado",
     variant: "success",
     accent: "bg-[var(--success)]",
-    helper: "Facturacion aceptada",
+    helper: "Facturación aceptada",
   },
 };
 
@@ -126,7 +126,7 @@ export default function DocumentStatusGrid({
                 <div className="flex items-center justify-between gap-3">
                   <Badge variant="warning">Valor pendiente</Badge>
                   <span className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">
-                    Revision + rechazo
+                    Revisión + rechazo
                   </span>
                 </div>
                 <div className="min-w-0 font-mono text-[clamp(1.1rem,1.6vw,1.5rem)] font-medium leading-tight tracking-[-0.03em] text-[var(--txt)] [font-variant-numeric:tabular-nums]">

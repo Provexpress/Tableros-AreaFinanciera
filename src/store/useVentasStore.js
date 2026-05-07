@@ -502,7 +502,7 @@ export const useVentasStore = create((set, get) => ({
         validRows: data.length,
         stats: {
           ...(result.meta.stats || {}),
-          ventasFvSource: pbiResult ? "API contable ventas PBI" : "Acuses Excel",
+          ventasFvSource: pbiResult ? "API de ventas PBI" : "Acuses Excel",
           ventasNcSource: "NOTAS CREDITO 2026.xlsx",
           ventasFvRows: facturasVenta.length,
           ventasNcRows: notasCreditoVenta.length,
