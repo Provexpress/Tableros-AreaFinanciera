@@ -178,6 +178,109 @@ function normalizeMergedRow(row) {
   };
 }
 
+function normalizeDocumentMatchKey(value) {
+  return String(value || "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Z0-9]+/g, "");
+}
+
+function normalizeProviderMatchKey(value) {
+  return String(value || "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Z0-9]+/g, " ")
+    .replace(/\b(SAS|SA|S A S|S A|LTDA|LTD|SUCURSAL|COLOMBIA|DE|DEL|LA|EL|LOS|LAS)\b/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getDocumentMatchKeys(row) {
+  return [
+    row.numeroDocumento,
+    row.folio,
+    [row.prefijo, row.folio].filter(Boolean).join("-"),
+  ]
+    .map(normalizeDocumentMatchKey)
+    .filter(Boolean);
+}
+
+function buildPurchaseDocumentResolver(excelRows = []) {
+  const byProviderDocument = new Map();
+  const byDocument = new Map();
+
+  excelRows.forEach((row) => {
+    if (isCreditNote(row)) {
+      return;
+    }
+
+    const providerKey = normalizeProviderMatchKey(row.proveedor);
+    getDocumentMatchKeys(row).forEach((documentKey) => {
+      const compoundKey = `${providerKey}|${documentKey}`;
+      if (providerKey && !byProviderDocument.has(compoundKey)) {
+        byProviderDocument.set(compoundKey, row);
+      }
+      if (!byDocument.has(documentKey)) {
+        byDocument.set(documentKey, row);
+      }
+    });
+  });
+
+  return (invoice) => {
+    const providerKey = normalizeProviderMatchKey(invoice.proveedor);
+    const documentKeys = getDocumentMatchKeys(invoice);
+
+    for (const documentKey of documentKeys) {
+      const compoundKey = `${providerKey}|${documentKey}`;
+      if (byProviderDocument.has(compoundKey)) {
+        return byProviderDocument.get(compoundKey);
+      }
+    }
+
+    for (const documentKey of documentKeys) {
+      if (byDocument.has(documentKey)) {
+        return byDocument.get(documentKey);
+      }
+    }
+
+    return null;
+  };
+}
+
+function enrichApiPurchasesWithExcelStatus(apiRows = [], excelRows = []) {
+  if (!excelRows.length) {
+    return apiRows;
+  }
+
+  const resolveDocument = buildPurchaseDocumentResolver(excelRows);
+
+  return apiRows.map((invoice) => {
+    const excelDocument = resolveDocument(invoice);
+    if (!excelDocument) {
+      return invoice;
+    }
+
+    return {
+      ...invoice,
+      estado: excelDocument.estado || invoice.estado,
+      fechaRecepcion: excelDocument.fechaRecepcion || invoice.fechaRecepcion,
+      fechaRecepcionIso: excelDocument.fechaRecepcionIso || invoice.fechaRecepcionIso,
+      oc: excelDocument.oc || invoice.oc,
+      obs1: excelDocument.obs1 || invoice.obs1,
+      obs2: excelDocument.obs2 || invoice.obs2,
+      observacionContabilidad: excelDocument.observacionContabilidad || invoice.observacionContabilidad,
+      observacionRechazos: excelDocument.observacionRechazos || invoice.observacionRechazos,
+      conciliacion: excelDocument.conciliacion || invoice.conciliacion,
+      validacion: excelDocument.validacion || invoice.validacion,
+      motivoRechazo: excelDocument.motivoRechazo || invoice.motivoRechazo,
+      observacion: excelDocument.observacion || invoice.observacion,
+      fuenteEstadoDocumental: excelDocument.fuenteArchivo || "Control Facturas.xlsx",
+    };
+  });
+}
+
 function getReconciliationKey(row) {
   const period = String(row.periodo || "");
   const provider = String(row.proveedor || "")
@@ -259,7 +362,9 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
 
   const creditNoteRows = (excelResult?.data || []).filter(isCreditNote);
   const reconciledCreditNotes = reconcileExcelCreditNotesWithApi(apiResult.data, creditNoteRows);
-  const data = [...apiResult.data, ...reconciledCreditNotes.matched].map(normalizeMergedRow).sort(
+  const enrichedApiRows = enrichApiPurchasesWithExcelStatus(apiResult.data, excelResult?.data || []);
+  const matchedDocumentStates = enrichedApiRows.filter((row) => row.fuenteEstadoDocumental).length;
+  const data = [...enrichedApiRows, ...reconciledCreditNotes.matched].map(normalizeMergedRow).sort(
     (a, b) =>
       String(a.periodo || "").localeCompare(String(b.periodo || "")) ||
       String(a.proveedor || "").localeCompare(String(b.proveedor || ""))
@@ -286,6 +391,8 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
         purchaseCreditNotesMatchedTotal: reconciledCreditNotes.matched.reduce((sum, row) => sum + getDocumentValue(row), 0),
         purchaseCreditNotesUnmatchedTotal: reconciledCreditNotes.unmatched.reduce((sum, row) => sum + getDocumentValue(row), 0),
         purchaseCreditNotesUnmatchedGroups: reconciledCreditNotes.unmatchedGroups,
+        purchaseDocumentStatusSource: excelResult?.meta?.sourceName || "Control Facturas.xlsx",
+        purchaseDocumentStatusMatchedRows: matchedDocumentStates,
       },
     },
   };
