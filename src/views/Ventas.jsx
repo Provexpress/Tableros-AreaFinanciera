@@ -5,13 +5,12 @@ import KpiCard from "@/components/cards/KpiCard";
 import PurchaseAnalysisBlock from "@/components/cards/PurchaseAnalysisBlock";
 import PurchaseTrendComparison from "@/components/cards/PurchaseTrendComparison";
 import PurchasesKpiGrid from "@/components/cards/PurchasesKpiGrid";
-import DocumentReviewSection from "@/components/tables/DocumentReviewSection";
 import DetailTable from "@/components/tables/DetailTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useVentasStore } from "@/store/useVentasStore";
-import { formatCOP, formatCOPFull, formatInteger, formatPeriod } from "@/utils/formatters";
+import { formatCOP, formatCOPFull, formatDate, formatInteger, formatPeriod } from "@/utils/formatters";
 
 const TEAL = "#1D9E75";
 const CORAL = "#D85A30";
@@ -52,13 +51,27 @@ function buildClientReconciliationRows(rows = []) {
   );
 }
 
-function ClientReconciliationPanel({ rows = [] }) {
+function ClientReconciliationPanel({ rows = [], documents = [] }) {
   const [query, setQuery] = useState("");
+  const [selectedClient, setSelectedClient] = useState(null);
   const normalizedQuery = query.trim().toLowerCase();
   const filteredRows = normalizedQuery
     ? rows.filter((row) => String(row.cliente || "").toLowerCase().includes(normalizedQuery))
     : rows;
   const visibleRows = filteredRows.slice(0, 10);
+  const selectedRows = useMemo(
+    () =>
+      selectedClient
+        ? documents
+            .filter((row) => (row.cliente || row.proveedor || "Sin cliente") === selectedClient)
+            .sort((a, b) => String(b.fechaIso || "").localeCompare(String(a.fechaIso || "")))
+        : [],
+    [documents, selectedClient]
+  );
+
+  const handleSelectClient = (client) => {
+    setSelectedClient((current) => (current === client ? null : client));
+  };
 
   return (
     <Card>
@@ -99,8 +112,16 @@ function ClientReconciliationPanel({ rows = [] }) {
                   </td>
                 </tr>
               ) : (
-                visibleRows.map((row) => (
-                  <tr key={row.cliente} className="bg-[var(--bg)] even:bg-white/[0.01]">
+                visibleRows.map((row) => {
+                  const selected = selectedClient === row.cliente;
+                  return (
+                  <tr
+                    key={row.cliente}
+                    className={`cursor-pointer bg-[var(--bg)] even:bg-white/[0.01] hover:bg-[var(--surface-2)] ${
+                      selected ? "outline outline-1 outline-[var(--tec)]/40" : ""
+                    }`}
+                    onClick={() => handleSelectClient(row.cliente)}
+                  >
                     <td className="px-3 py-2 font-medium text-[var(--txt)]">
                       <div className="max-w-[260px] truncate" title={row.cliente}>
                         {row.cliente}
@@ -114,7 +135,8 @@ function ClientReconciliationPanel({ rows = [] }) {
                     </td>
                     <td className="px-3 py-2 text-right font-mono font-semibold text-[var(--txt)]">{formatCOPFull(row.neto)}</td>
                   </tr>
-                ))
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -122,6 +144,61 @@ function ClientReconciliationPanel({ rows = [] }) {
         <div className="text-xs text-[var(--txt3)]">
           Mostrando {formatInteger(visibleRows.length)} de {formatInteger(filteredRows.length)} clientes.
         </div>
+        {selectedClient ? (
+          <div className="rounded-[10px] border border-white/8 bg-white/[0.02]">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/8 px-3 py-2">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium text-[var(--txt)]" title={selectedClient}>
+                  {selectedClient}
+                </div>
+                <div className="text-xs text-[var(--txt3)]">
+                  {formatInteger(selectedRows.length)} documentos del corte visible
+                </div>
+              </div>
+              <Button size="sm" variant="secondary" onClick={() => setSelectedClient(null)}>
+                Cerrar
+              </Button>
+            </div>
+            <div className="max-h-[320px] overflow-auto">
+              <table className="min-w-[860px] w-full text-sm">
+                <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
+                  <tr>
+                    <th className="px-3 py-2">Fecha</th>
+                    <th className="px-3 py-2">Doc</th>
+                    <th className="px-3 py-2">Factura / NC</th>
+                    <th className="px-3 py-2 text-right">Monto factura</th>
+                    <th className="px-3 py-2 text-right">Monto NC</th>
+                    <th className="px-3 py-2 text-right">Total</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/8">
+                  {selectedRows.map((row) => {
+                    const isCredit = Number(row.signoDocumento || 1) < 0;
+                    const amount = Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+                    return (
+                      <tr key={row.id} className="bg-[var(--bg)] even:bg-white/[0.01]">
+                        <td className="px-3 py-2 whitespace-nowrap">{formatDate(row.fecha)}</td>
+                        <td className="px-3 py-2">{isCredit ? "NC" : "FV"}</td>
+                        <td className="px-3 py-2 font-mono text-xs text-[var(--txt2)]">
+                          {row.numeroDocumento || row.folio || "-"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-[var(--txt)]">
+                          {isCredit ? "-" : formatCOPFull(amount)}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-[var(--danger)]">
+                          {isCredit ? formatCOPFull(amount) : "-"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono font-semibold text-[var(--txt)]">
+                          {formatCOPFull(Number(row.total || 0))}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -205,8 +282,6 @@ export default function Ventas({ isLoading = false }) {
   const documentSummary = useVentasStore((state) => state.documentSummary);
   const documentStatus = useVentasStore((state) => state.documentStatus);
   const documentRowsByStatus = useVentasStore((state) => state.documentRowsByStatus);
-  const purchaseInvoiceRows = useVentasStore((state) => state.purchaseInvoiceRows);
-  const creditNoteRows = useVentasStore((state) => state.creditNoteRows);
   const supplierAccountingRanking = useVentasStore((state) => state.supplierAccountingRanking);
   const supplierRankingByCategory = useVentasStore((state) => state.supplierRankingByCategory);
   const activeMonthDailySpend = useVentasStore((state) => state.activeMonthDailySpend);
@@ -284,31 +359,7 @@ export default function Ventas({ isLoading = false }) {
           />
         </section>
 
-        <ClientReconciliationPanel rows={clientReconciliationRows} />
-
-        <section className="space-y-3">
-          <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">
-              Revision documental de facturas y notas credito de ventas
-            </h2>
-            <p className="text-sm text-[var(--txt2)]">
-              Tablas operativas para revisar FV y NC de ventas dentro del corte visible.
-            </p>
-          </div>
-          <DocumentReviewSection
-            purchaseRows={purchaseInvoiceRows}
-            creditRows={creditNoteRows}
-            labels={{
-              invoiceTitle: "Facturas de venta (FV)",
-              invoiceSubtitle: "Facturas emitidas a clientes registradas en el periodo.",
-              creditTitle: "Notas credito de venta (NC)",
-              creditSubtitle: "Documentos de ajuste de ventas registrados en el periodo.",
-              entity: "Cliente",
-              invoiceNumber: "Numero factura",
-              creditNumber: "Numero doc.",
-            }}
-          />
-        </section>
+        <ClientReconciliationPanel rows={clientReconciliationRows} documents={filteredData} />
 
         <section className="space-y-3">
           <div>
