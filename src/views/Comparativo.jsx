@@ -136,11 +136,12 @@ function buildPurchaseRanking(rows = []) {
 function adaptSalesRows(rows = []) {
   return rows.map((row) => {
     const total = Math.abs(getNumericValue(row));
+    const category = row.categoria || row.categoriaVenta || row.category || "Sin categoria";
     return {
       ...row,
       cliente: row.cliente || row.clienteNormalizado || row.nombreCliente || "Sin cliente",
       proveedor: row.cliente || row.clienteNormalizado || row.nombreCliente || "Sin cliente",
-      categoria: "Ventas",
+      categoria: category,
       total,
       totalOriginal: total,
       valor: total,
@@ -210,11 +211,12 @@ function adaptSalesCreditRows(rows = [], resolveClient = (value) => value || "Si
   return rows.map((row) => {
     const value = Math.abs(Number(row.valor ?? row.total ?? 0) || 0);
     const client = resolveClient(row.cliente);
+    const category = row.categoria || row.categoriaVenta || row.category || row.causa || row.concepto || "Notas credito";
     return {
       ...row,
       cliente: client,
       proveedor: client,
-      categoria: "Ventas",
+      categoria: category,
       total: -value,
       totalOriginal: value,
       valor: -value,

@@ -360,11 +360,11 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
 }
 
 function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCategory }) {
-  const title = type === "purchase" ? "Detalle comprado por categoria" : "Resumen de venta y ajustes";
+  const title = type === "purchase" ? "Detalle comprado por categoria" : "Detalle vendido o ajustado por categoria";
   const helper =
     type === "purchase"
       ? "Selecciona una categoria para ver los documentos que componen el valor."
-      : "Ventas no trae producto/categoria desde acuses; se muestra FV, NC y neto por categoria disponible.";
+      : "Se usa la categoria de la API de ventas cuando esta disponible; las NC se muestran con su causa o concepto.";
 
   return (
     <Card>
