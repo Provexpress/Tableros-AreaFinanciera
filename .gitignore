@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.vite/
+.claude/
+public/_cache/
+public/favicon.svg
+.env
+.env.*
+!.env.example

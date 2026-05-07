@@ -1,0 +1,58 @@
+name: Refresh dashboard data cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_year:
+        description: "Ano minimo a publicar en cache"
+        required: false
+        default: "2024"
+  schedule:
+    - cron: "0 13 * * 1-5" # 8:00 a.m. Colombia
+    - cron: "0 18 * * 1-5" # 1:00 p.m. Colombia
+    - cron: "0 20 * * 1-5" # 3:00 p.m. Colombia
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Excel-derived caches
+        run: npm run build:data-cache
+
+      - name: Build PBI API caches
+        env:
+          PBI_API_BASE_URL: ${{ secrets.PBI_API_BASE_URL }}
+          PBI_API_USER: ${{ secrets.PBI_API_USER }}
+          PBI_API_PASSWORD: ${{ secrets.PBI_API_PASSWORD }}
+          PBI_API_AUTH_MODE: auto
+          PBI_API_USER_FIELD: username
+          PBI_API_PASSWORD_FIELD: password
+          PBI_API_TOKEN_HEADER: Authorization
+          PBI_CACHE_MIN_YEAR: ${{ github.event.inputs.min_year || vars.PBI_CACHE_MIN_YEAR || '2024' }}
+        run: npm run build:pbi-cache
+
+      - name: Validate app build
+        run: npm run build
+
+      - name: Commit refreshed caches
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(data): refresh dashboard cache"
+          file_pattern: Data/_cache/*.json
