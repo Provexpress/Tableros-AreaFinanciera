@@ -152,16 +152,17 @@ function normalizeStatus(value) {
 
 function normalizeDocumentType(value) {
   const normalized = normalizeText(value);
+  const compact = normalized.replace(/[^a-z0-9]+/g, "");
 
-  if (normalized.includes("notadecredito")) {
+  if (compact.includes("notadecredito")) {
     return "Nota de crédito";
   }
 
-  if (normalized.includes("notadedebito")) {
+  if (compact.includes("notadedebito")) {
     return "Nota de débito";
   }
 
-  if (normalized.includes("facturaelectronica")) {
+  if (compact.includes("facturaelectronica")) {
     return "Factura electrónica";
   }
 
@@ -169,7 +170,7 @@ function normalizeDocumentType(value) {
     return "Factura contingencia";
   }
 
-  if (normalized.includes("documentosoporte") && normalized.includes("ajuste")) {
+  if (compact.includes("documentosoporte") && normalized.includes("ajuste")) {
     return "Nota de ajuste documento soporte";
   }
 
@@ -177,7 +178,8 @@ function normalizeDocumentType(value) {
 }
 
 function getDocumentSign(normalizedDocumentType) {
-  return normalizeText(normalizedDocumentType).includes("notadecredito") ? -1 : 1;
+  const compact = normalizeText(normalizedDocumentType).replace(/[^a-z0-9]+/g, "");
+  return compact.includes("notadecredito") ? -1 : 1;
 }
 
 function normalizePeriodKey(rawPeriod) {
