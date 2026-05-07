@@ -305,8 +305,8 @@ export default function Ventas({ isLoading = false }) {
             onSelectStatus={toggleFlowStatus}
             labels={{
               Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por el cliente" },
-              "En revision": { label: "Pendiente", helper: "Sin acuse o pendiente de validacion" },
-              Aprobado: { label: "Aceptada", helper: "Aceptada o con aceptacion tacita" },
+              "En revision": { label: "Sin aceptar", helper: "Sin acuse completo o sin aceptacion visible" },
+              Aprobado: { label: "Aceptada", helper: "Aceptada, tacita o paga en sistema" },
             }}
           />
           <DocumentFlowBoard

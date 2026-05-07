@@ -82,6 +82,77 @@ function mapVentasAcusesRows(rows = []) {
   });
 }
 
+function normalizeDocumentMatchKey(value) {
+  return String(value || "")
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^A-Z0-9]+/g, "");
+}
+
+function getDocumentMatchKeys(row) {
+  return [
+    row.numeroDocumento,
+    row.folio,
+    [row.prefijo, row.folio].filter(Boolean).join("-"),
+  ]
+    .map(normalizeDocumentMatchKey)
+    .filter(Boolean);
+}
+
+function buildAcuseStatusResolver(acuseRows = []) {
+  const byDocument = new Map();
+
+  acuseRows.forEach((row) => {
+    getDocumentMatchKeys(row).forEach((key) => {
+      if (!byDocument.has(key)) {
+        byDocument.set(key, row);
+      }
+    });
+  });
+
+  return (invoice) => {
+    const keys = getDocumentMatchKeys(invoice);
+    for (const key of keys) {
+      if (byDocument.has(key)) {
+        return byDocument.get(key);
+      }
+    }
+
+    return null;
+  };
+}
+
+function enrichInvoicesWithAcuseStatus(invoiceRows = [], acuseRows = []) {
+  if (!acuseRows.length) {
+    return invoiceRows;
+  }
+
+  const resolveAcuse = buildAcuseStatusResolver(acuseRows);
+
+  return invoiceRows.map((invoice) => {
+    const acuse = resolveAcuse(invoice);
+    if (!acuse) {
+      return invoice;
+    }
+
+    return {
+      ...invoice,
+      estado: acuse.estado,
+      estadoAcuse: acuse.estadoAcuse,
+      fechaRecepcion: acuse.fechaRecepcion || invoice.fechaRecepcion,
+      fechaRecepcionIso: acuse.fechaRecepcionIso || invoice.fechaRecepcionIso,
+      obs1: acuse.obs1 || invoice.obs1,
+      obs2: acuse.obs2 || invoice.obs2,
+      observacionRechazos: acuse.observacionRechazos || invoice.observacionRechazos,
+      validacion: acuse.validacion || invoice.validacion,
+      motivoRechazo: acuse.motivoRechazo || invoice.motivoRechazo,
+      observacion: acuse.observacion || invoice.observacion,
+      fuenteAcuse: acuse.fuenteArchivo || acuse.fuenteHoja || "Acuses Excel",
+    };
+  });
+}
+
 function normalizeClientMatchKey(value) {
   return String(value || "")
     .toUpperCase()
@@ -254,10 +325,77 @@ function sanitizeFilters(rawData, filters, meta) {
 function recompute(rawData, filters, focusPeriod, meta) {
   const safeFilters = sanitizeFilters(rawData, filters, meta);
   const filteredData = applyFacturasFilters(rawData, safeFilters);
+  const computed = computeFacturasDerivedState(filteredData, safeFilters, focusPeriod);
 
   return {
     filters: safeFilters,
-    ...computeFacturasDerivedState(filteredData, safeFilters, focusPeriod),
+    ...computed,
+    ...buildInvoiceOnlyStatusState(computed.purchaseInvoiceRows || []),
+  };
+}
+
+function getStatusKey(status) {
+  const text = String(status || "").toLowerCase();
+  if (text.includes("rechaz")) {
+    return "Rechazado";
+  }
+  if (text.includes("revisi") || text.includes("pend")) {
+    return "En revision";
+  }
+  if (text.includes("aprob")) {
+    return "Aprobado";
+  }
+  return "En revision";
+}
+
+function getDocumentValue(row) {
+  return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+}
+
+function compareDocumentRows(a, b) {
+  const amountDelta = getDocumentValue(b) - getDocumentValue(a);
+  if (amountDelta !== 0) {
+    return amountDelta;
+  }
+
+  return String(b.fechaIso || "").localeCompare(String(a.fechaIso || ""));
+}
+
+function buildInvoiceOnlyStatusState(invoiceRows = []) {
+  const buckets = new Map([
+    ["Rechazado", { status: "Rechazado", label: "Rechazado", count: 0, total: 0 }],
+    ["En revision", { status: "En revision", label: "En revision", count: 0, total: 0 }],
+    ["Aprobado", { status: "Aprobado", label: "Aprobado", count: 0, total: 0 }],
+  ]);
+  const rowsByStatus = {
+    Rechazado: [],
+    "En revision": [],
+    Aprobado: [],
+  };
+
+  invoiceRows.forEach((row) => {
+    const statusKey = getStatusKey(row.estado);
+    const bucket = buckets.get(statusKey) || buckets.get("En revision");
+    const docValue = getDocumentValue(row);
+
+    bucket.count += 1;
+    bucket.total += docValue;
+    rowsByStatus[statusKey]?.push(row);
+  });
+
+  const totalInvoices = invoiceRows.length;
+
+  return {
+    documentStatus: ["Rechazado", "En revision", "Aprobado"].map((status) => {
+      const bucket = buckets.get(status);
+      return {
+        ...bucket,
+        pct: totalInvoices ? (bucket.count / totalInvoices) * 100 : 0,
+      };
+    }),
+    documentRowsByStatus: Object.fromEntries(
+      Object.entries(rowsByStatus).map(([status, rows]) => [status, [...rows].sort(compareDocumentRows)])
+    ),
   };
 }
 
@@ -345,7 +483,8 @@ export const useVentasStore = create((set, get) => ({
       if (!result) {
         throw new Error("No se encontro cache de ventas PBI ni acuses de respaldo.");
       }
-      const facturasVenta = pbiResult ? pbiResult.data : mapVentasAcusesRows(result.data);
+      const acuseRows = acusesResult?.data?.length ? mapVentasAcusesRows(acusesResult.data) : [];
+      const facturasVenta = pbiResult ? enrichInvoicesWithAcuseStatus(pbiResult.data, acuseRows) : mapVentasAcusesRows(result.data);
       const resolveClient = buildClientResolver(facturasVenta);
       const notasCreditoVenta = mapVentasCreditRows(notasResult.ncDetail, resolveClient);
       const data = [...facturasVenta, ...notasCreditoVenta].sort(
@@ -367,6 +506,7 @@ export const useVentasStore = create((set, get) => ({
           ventasNcSource: "NOTAS CREDITO 2026.xlsx",
           ventasFvRows: facturasVenta.length,
           ventasNcRows: notasCreditoVenta.length,
+          ventasAcuseRows: acuseRows.length,
         },
       };
       const computed = recompute(data, filters, "ALL", sourceMeta);
