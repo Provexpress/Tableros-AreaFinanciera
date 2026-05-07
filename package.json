@@ -6,6 +6,7 @@
   "scripts": {
     "predev": "npm run build:data-cache && npm run sync:public-cache",
     "prebuild": "npm run build:data-cache && npm run sync:public-cache",
+    "download:ms-files": "node scripts/download-ms-files.mjs",
     "build:data-cache": "node --experimental-specifier-resolution=node scripts/generate-data-cache.mjs",
     "build:pbi-cache": "node --experimental-specifier-resolution=node scripts/generate-pbi-cache.mjs",
     "sync:public-cache": "node scripts/sync-public-cache.mjs",

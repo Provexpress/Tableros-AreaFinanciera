@@ -33,6 +33,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Download Excel files from SharePoint
+        env:
+          MS_TENANT_ID: ${{ secrets.MS_TENANT_ID }}
+          MS_CLIENT_ID: ${{ secrets.MS_CLIENT_ID }}
+          MS_CLIENT_SECRET: ${{ secrets.MS_CLIENT_SECRET }}
+          MS_GRAPH_HOSTNAME: provexpress.sharepoint.com
+          MS_GRAPH_SITE_PATH: /sites/ProvexpressIntranet/Adminyfinanciero
+          MS_GRAPH_DRIVE_NAME: Documentos compartidos
+          MS_GRAPH_FOLDER_PATH: Facturación/Director de Facturación
+          MS_GRAPH_FILES: Control Facturas.xlsx,NOTAS CREDITO 2026.xlsx,reporte semanal de facturacion.xlsx
+          MS_GRAPH_DOWNLOAD_ACUSES: "false"
+        run: npm run download:ms-files
+
       - name: Build Excel-derived caches
         run: npm run build:data-cache
 
