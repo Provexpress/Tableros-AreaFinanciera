@@ -26,6 +26,7 @@ export default function PeriodRangeControls({
   fixedYear = null,
   setFilters,
   title = "Rango",
+  showDateControls = true,
 }) {
   const defaultStart = periods[0] || sourceMeta?.range?.start || null;
   const defaultEnd = periods[periods.length - 1] || sourceMeta?.range?.end || null;
@@ -141,7 +142,7 @@ export default function PeriodRangeControls({
         )}
       </FilterCard>
 
-      {selectedSinglePeriod ? (
+      {showDateControls && selectedSinglePeriod ? (
         <FilterCard title="Fechas del mes">
           <div className="space-y-2">
             <label className="block text-xs text-[var(--txt3)]">Fecha inicial</label>
@@ -171,11 +172,11 @@ export default function PeriodRangeControls({
             </button>
           </div>
         </FilterCard>
-      ) : (
+      ) : showDateControls ? (
         <div className="rounded-[10px] border border-white/8 bg-white/[0.02] px-3 py-2 text-xs text-[var(--txt3)]">
           Elige el mismo mes en desde/hasta para habilitar el rango de fechas.
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
