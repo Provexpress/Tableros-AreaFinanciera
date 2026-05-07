@@ -15,7 +15,7 @@ export const MONTHS_FULL = [
 ];
 
 export const CATEGORY_COLORS = {
-  "TecnologÃ­a": "#4f8ef7",
+  "Tecnología": "#4f8ef7",
   Tecnologia: "#4f8ef7",
   PAC: "#34c88a",
   Gasto: "#f5a623",

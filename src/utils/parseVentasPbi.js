@@ -13,7 +13,7 @@ function getValidStart(options = {}) {
 function normalizeCategory(value) {
   const normalized = normalizeText(value);
   if (!normalized) return "Ventas";
-  if (normalized.includes("tecnolog")) return "Tecnologia";
+  if (normalized.includes("tecnolog")) return "Tecnología";
   if (normalized.includes("licenciamiento")) return "Licenciamiento";
   if (normalized.includes("suministro")) return "Suministros";
   if (normalized.includes("servicio") || normalized.includes("renta")) return "Servicios";

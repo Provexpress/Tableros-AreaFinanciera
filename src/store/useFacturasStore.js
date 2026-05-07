@@ -153,6 +153,31 @@ function getNetValue(row) {
   return Number(row.total || 0);
 }
 
+function normalizeCategoryLabel(value) {
+  const text = String(value || "").trim();
+  const normalized = text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  if (normalized.includes("tecnolog")) {
+    return "Tecnología";
+  }
+
+  if (normalized.includes("pac") && normalized.includes("tec")) {
+    return "Pac/tec";
+  }
+
+  return text || "Otros";
+}
+
+function normalizeMergedRow(row) {
+  return {
+    ...row,
+    categoria: normalizeCategoryLabel(row.categoria),
+  };
+}
+
 function getReconciliationKey(row) {
   const period = String(row.periodo || "");
   const provider = String(row.proveedor || "")
@@ -234,7 +259,7 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
 
   const creditNoteRows = (excelResult?.data || []).filter(isCreditNote);
   const reconciledCreditNotes = reconcileExcelCreditNotesWithApi(apiResult.data, creditNoteRows);
-  const data = [...apiResult.data, ...reconciledCreditNotes.matched].sort(
+  const data = [...apiResult.data, ...reconciledCreditNotes.matched].map(normalizeMergedRow).sort(
     (a, b) =>
       String(a.periodo || "").localeCompare(String(b.periodo || "")) ||
       String(a.proveedor || "").localeCompare(String(b.proveedor || ""))

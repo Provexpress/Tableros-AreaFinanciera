@@ -14,9 +14,9 @@ function normalizeCategory(value) {
   const normalized = normalizeText(value);
 
   if (!normalized) return "Otros";
-  if (normalized.includes("tecnolog")) return "Tecnologia";
-  if (normalized.includes("licenciamiento")) return "Tecnologia";
-  if (normalized.includes("suministro")) return "Tecnologia";
+  if (normalized.includes("tecnolog")) return "Tecnología";
+  if (normalized.includes("licenciamiento")) return "Tecnología";
+  if (normalized.includes("suministro")) return "Tecnología";
   if (normalized.includes("pac") && normalized.includes("tec")) return "Pac/tec";
   if (normalized === "pac") return "PAC";
   if (normalized.includes("servicio") || normalized.includes("renta")) return "Servicios";
