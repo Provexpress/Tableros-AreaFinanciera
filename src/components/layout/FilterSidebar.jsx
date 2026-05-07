@@ -89,8 +89,8 @@ export default function FilterSidebar({
 }) {
   return (
     <>
-      <aside className="hidden lg:block lg:sticky lg:top-0 lg:w-[208px] lg:shrink-0 lg:self-start xl:w-[224px] 2xl:w-[248px]">
-        <div className="flex h-[calc(100vh-var(--navbar-height)-20px)] max-h-[calc(100vh-var(--navbar-height)-20px)] overflow-hidden rounded-[8px] border border-white/8 bg-[var(--bg)]/82 shadow-panel backdrop-blur">
+      <aside className="hidden lg:block lg:sticky lg:top-[var(--shell-offset)] lg:w-[208px] lg:shrink-0 lg:self-start xl:w-[224px] 2xl:w-[248px]">
+        <div className="flex h-[calc(100vh-var(--shell-offset)-12px)] max-h-[calc(100vh-var(--shell-offset)-12px)] overflow-hidden rounded-[8px] border border-white/8 bg-[var(--bg)]/82 shadow-panel backdrop-blur">
           <SidebarContent
             datasetType={datasetType}
             hasActiveFilters={hasActiveFilters}
