@@ -591,7 +591,7 @@ export default function App() {
       focusLabel: facturasFocusPeriod !== "ALL" ? formatPeriod(facturasFocusPeriod) : null,
       onClearFilters: clearFacturasFilters,
       onClearFocus: () => setFacturasFocusPeriod("ALL"),
-      onUpload: loadWorkbookFile,
+      onUpload: null,
       showSidebar: true,
       emptyHint: "Verifica que la tabla maestra de facturas esté disponible dentro de la carpeta Data.",
     };
