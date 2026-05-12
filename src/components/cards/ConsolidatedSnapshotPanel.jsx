@@ -319,7 +319,7 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle>Comparativo compras vs ventas</CardTitle>
+        <CardTitle>Diferencia entre compras y ventas</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid gap-3 md:grid-cols-2">
