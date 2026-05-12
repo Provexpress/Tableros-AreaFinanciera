@@ -290,30 +290,31 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
 }
 
 function ValueComparisonChart({ comprasSummary, ventasSummary }) {
+  const compraNeta = Number(comprasSummary.netTotal || 0);
+  const ventaNeta = Number(ventasSummary.netTotal || 0);
+  const diferencia = ventaNeta - compraNeta;
+  const diferenciaAbs = Math.abs(diferencia);
+  const isVentaAbove = diferencia >= 0;
+
   const rows = [
     {
-      key: "compras",
-      label: "Compras",
-      color: "var(--tec)",
-      gross: Number(comprasSummary.purchaseInvoiceTotal || 0),
-      credit: Number(comprasSummary.creditNoteTotal || 0),
-      net: Number(comprasSummary.netTotal || 0),
+      label: "Venta neta",
+      value: ventaNeta,
+      helper: "Lo vendido en el periodo",
+      tone: "text-[#1D9E75]",
     },
     {
-      key: "ventas",
-      label: "Ventas",
-      color: "#1D9E75",
-      gross: Number(ventasSummary.purchaseInvoiceTotal || 0),
-      credit: Number(ventasSummary.creditNoteTotal || 0),
-      net: Number(ventasSummary.netTotal || 0),
+      label: "Compra neta",
+      value: compraNeta,
+      helper: "Lo comprado en el periodo",
+      tone: "text-[var(--tec)]",
     },
-  ];
-  const maxValue = Math.max(...rows.flatMap((row) => [row.gross, row.credit, Math.abs(row.net)]), 1);
-
-  const metrics = [
-    { key: "gross", label: "Bruto", tone: "text-[var(--txt)]" },
-    { key: "credit", label: "NC", tone: "text-[var(--danger)]" },
-    { key: "net", label: "Neto", tone: "text-[var(--success)]" },
+    {
+      label: "Diferencia",
+      value: diferencia,
+      helper: isVentaAbove ? "Ventas por encima de compras" : "Compras por encima de ventas",
+      tone: isVentaAbove ? "text-[#1D9E75]" : "text-[var(--danger)]",
+    },
   ];
 
   return (
@@ -322,35 +323,24 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
         <CardTitle>Diferencia entre compras y ventas</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-3 md:grid-cols-2">
-          {rows.map((row) => (
-            <div key={row.key} className="rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: row.color }} />
-                  <span className="text-sm font-semibold text-[var(--txt)]">{row.label}</span>
-                </div>
-                <span className="font-mono text-sm font-semibold text-[var(--txt)]">{formatCOPCompact(row.net)}</span>
-              </div>
-              <div className="space-y-2.5">
-                {metrics.map((metric) => {
-                  const value = Number(row[metric.key] || 0);
-                  const width = Math.max(2, (Math.abs(value) / maxValue) * 100);
-                  const barColor = metric.key === "credit" ? "var(--danger)" : metric.key === "net" ? row.color : "var(--txt3)";
+        <div className="rounded-[8px] border border-white/8 bg-white/[0.03] p-4">
+          <div className="text-xs uppercase tracking-[0.12em] text-[var(--txt3)]">Resultado neto</div>
+          <div className={cn("mt-2 font-mono text-2xl font-semibold [font-variant-numeric:tabular-nums] sm:text-3xl", isVentaAbove ? "text-[#1D9E75]" : "text-[var(--danger)]")}>
+            {formatCOPFull(diferenciaAbs)}
+          </div>
+          <div className="mt-1 text-sm text-[var(--txt2)]">
+            {isVentaAbove ? "Ventas por encima de compras" : "Compras por encima de ventas"}
+          </div>
+        </div>
 
-                  return (
-                    <div key={metric.key} className="grid grid-cols-[4.5rem_minmax(0,1fr)_6rem] items-center gap-2">
-                      <span className="text-xs text-[var(--txt2)]">{metric.label}</span>
-                      <div className="h-2.5 overflow-hidden rounded-full bg-white/8">
-                        <div className="h-full rounded-full" style={{ width: `${width}%`, backgroundColor: barColor }} />
-                      </div>
-                      <span className={cn("text-right font-mono text-xs [font-variant-numeric:tabular-nums]", metric.tone)}>
-                        {formatCOPCompact(value)}
-                      </span>
-                    </div>
-                  );
-                })}
+        <div className="grid gap-3 md:grid-cols-3">
+          {rows.map((row) => (
+            <div key={row.label} className="rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
+              <div className="text-xs text-[var(--txt3)]">{row.label}</div>
+              <div className={cn("mt-1 font-mono text-lg font-semibold [font-variant-numeric:tabular-nums]", row.tone)}>
+                {formatCOPCompact(row.value)}
               </div>
+              <div className="mt-1 text-xs text-[var(--txt2)]">{row.helper}</div>
             </div>
           ))}
         </div>
