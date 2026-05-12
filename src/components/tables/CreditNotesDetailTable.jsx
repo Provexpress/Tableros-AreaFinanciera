@@ -209,13 +209,13 @@ export default function CreditNotesDetailTable({
           ) : null}
           {hasTacticalFilters ? (
             <Button variant="secondary" size="sm" onClick={onClearTacticalFilters}>
-              Limpiar filtros tácticos
+              Limpiar filtros
             </Button>
           ) : null}
         </div>
 
         <div className="space-y-2">
-          <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--txt3)]">Semanas criticas</div>
+          <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--txt3)]">Semanas críticas</div>
           {criticalWeeks.length ? (
             <div className="-mx-1 overflow-x-auto pb-1">
               <div className="flex w-max gap-2 px-1">
@@ -235,7 +235,7 @@ export default function CreditNotesDetailTable({
               </div>
             </div>
           ) : (
-            <div className="text-sm text-[var(--txt3)]">No hay semanas criticas para el periodo actual.</div>
+            <div className="text-sm text-[var(--txt3)]">No hay semanas críticas para el periodo actual.</div>
           )}
         </div>
 

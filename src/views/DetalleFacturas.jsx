@@ -76,7 +76,7 @@ export default function DetalleFacturas() {
         <KpiCard
           label="Detalle de compras"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas cr?dito del periodo seleccionado"
+          sub="Facturas y notas crédito del periodo seleccionado"
           accentColor="blue"
         />
         <KpiCard

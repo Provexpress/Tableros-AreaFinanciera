@@ -46,7 +46,7 @@ export default function DetailTable({
   onSearchChange,
   labels = {
     title: "Detalle de documentos de compras",
-    subtitle: "Base filtrada de facturas de compra y notas crédito de compras",
+    subtitle: "Facturas de compra y notas crédito filtradas",
     searchPlaceholder: "Buscar proveedor",
     entity: "Proveedor",
     fileName: "detalle_facturas.csv",

@@ -100,7 +100,7 @@ export default function NotasCredito({ isLoading = false }) {
           <h2 className="text-base font-semibold text-[var(--txt)]">Resumen de facturas y notas crédito de ventas</h2>
           <p className="text-sm text-[var(--txt2)]">
             {selectedWeekLabel ? `Semana activa: ${selectedWeekLabel}. ` : ""}
-            Corte visible de notas crédito de ventas: {headerRangeLabel}
+            Periodo seleccionado: {headerRangeLabel}
           </p>
           {selectedWeek && selectedWeekComment ? (
             <p className="mt-1 text-xs text-[var(--txt3)]">{selectedWeekComment}</p>
@@ -111,8 +111,8 @@ export default function NotasCredito({ isLoading = false }) {
 
       <section className="space-y-3 stagger-item stagger-delay-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Tendencia semanal de NC, facturación y refacturación de ventas</h2>
-          <p className="text-sm text-[var(--txt2)]">Porcentaje de notas crédito sobre ventas, con facturación bruta, valor NC y refacturación por semana.</p>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Notas crédito por semana</h2>
+          <p className="text-sm text-[var(--txt2)]">Muestra ventas, notas crédito y refacturación por semana.</p>
         </div>
         <CreditNotesWeeklyChart
           data={weeklySeries}
@@ -120,14 +120,14 @@ export default function NotasCredito({ isLoading = false }) {
           onSelectWeek={setSelectedWeek}
           isLoading={isLoading}
           title="Tendencia semanal de notas crédito de ventas"
-          subtitle="Línea de porcentaje de notas crédito y barras de facturación, NC y refacturación."
+          subtitle="Ventas, notas crédito y refacturación por semana."
         />
       </section>
 
       <section className="space-y-3 stagger-item stagger-delay-4">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Variación semanal por causa y responsable en notas crédito de ventas</h2>
-          <p className="text-sm text-[var(--txt2)]">Semana actual vs semana anterior, con foco en causas y responsables de notas crédito de ventas.</p>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Cambios por causa y responsable</h2>
+          <p className="text-sm text-[var(--txt2)]">Compara la semana actual contra la anterior.</p>
         </div>
         <WeekVariationPanel
           variation={weekVariation}
@@ -153,8 +153,8 @@ export default function NotasCredito({ isLoading = false }) {
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Concentración de notas crédito de ventas por causa, cliente y comercial</h2>
-          <p className="text-sm text-[var(--txt2)]">Causas, clientes y comerciales con mayor peso en las notas crédito de ventas.</p>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Notas crédito por causa, cliente y comercial</h2>
+          <p className="text-sm text-[var(--txt2)]">Dónde se concentran las notas crédito de ventas.</p>
         </div>
         <div className="stagger-item stagger-delay-5">
           <CreditNotesRankingMixPanel
@@ -170,8 +170,8 @@ export default function NotasCredito({ isLoading = false }) {
 
       <section ref={detailRef} className="space-y-3 stagger-item stagger-delay-5">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Detalle final de notas crédito de ventas</h2>
-          <p className="text-sm text-[var(--txt2)]">Detalle final de notas crédito de ventas por semana, causa, responsable o cliente.</p>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Detalle de notas crédito de ventas</h2>
+          <p className="text-sm text-[var(--txt2)]">Notas crédito filtradas por semana, causa, responsable o cliente.</p>
         </div>
         <CreditNotesDetailTable
           rows={detailRows}

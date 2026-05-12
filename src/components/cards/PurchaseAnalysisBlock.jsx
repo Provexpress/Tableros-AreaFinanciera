@@ -11,7 +11,7 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
       <CardHeader className="min-w-0">
         <CardTitle>{title}</CardTitle>
         <p className="text-sm text-[var(--txt2)]">
-          {selectedCategory ? `Filtrado por categoría: ${selectedCategory}.` : subtitle || `Top ${entityLabel}s por monto total del corte.`}
+          {selectedCategory ? `Filtrado por categoría: ${selectedCategory}.` : subtitle || `Top ${entityLabel}s por monto total del periodo.`}
         </p>
       </CardHeader>
       <CardContent>
@@ -77,7 +77,7 @@ function CategoryMix({
   selectedCategory = null,
   onSelectCategory = null,
   title = "Mix de gasto por categoría",
-  subtitle = "Distribución simple por categoría del corte.",
+  subtitle = "Distribución por categoría del periodo.",
 }) {
   const visibleRows = rows.slice(0, 5);
 
@@ -90,7 +90,7 @@ function CategoryMix({
       <CardContent className="min-w-0">
         {!visibleRows.length ? (
           <div className="rounded-[10px] border border-dashed border-white/10 px-4 py-7 text-sm text-[var(--txt3)]">
-            Sin categor?as en este periodo.
+            Sin categorías en este periodo.
           </div>
         ) : (
           <div className="space-y-3">
@@ -145,7 +145,7 @@ export default function PurchaseAnalysisBlock({
   rankingTitle = "Ranking de compras por proveedor",
   rankingSubtitle = "Proveedores con mayor valor comprado.",
   mixTitle = "Mix de gasto por categoría",
-  mixSubtitle = "Distribución simple por categoría del corte.",
+  mixSubtitle = "Distribución por categoría del periodo.",
 }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const providerRows = useMemo(() => {

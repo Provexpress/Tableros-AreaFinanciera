@@ -135,7 +135,7 @@ function TrendCard({
   dateRange = [null, null],
   selectedYear = "ALL",
   selectedMonth = "ALL",
-  labels = { title: "Evolución de compra neta de compras", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" },
+  labels = { title: "Evolución de compra neta", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" },
   colors = { selected: "var(--tec)", up: "var(--success)", down: "var(--danger)", line: "var(--tec)" },
   onSelectDay = null,
 }) {
@@ -333,7 +333,7 @@ export default function PurchaseTrendComparison({
   colors = undefined,
   onSelectDay = null,
 }) {
-  const resolvedLabels = labels || { title: "Evolución de compra neta de compras", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" };
+  const resolvedLabels = labels || { title: "Evolución de compra neta", value: "Compra neta", daily: "Compra neta diaria", monthly: "Compra neta mensual - últimos 12 meses" };
   const resolvedColors = colors || { selected: "var(--tec)", up: "var(--success)", down: "var(--danger)", line: "var(--tec)" };
   const resolvedCurrentPeriod = currentPeriod && byPeriod.some((item) => item.period === currentPeriod)
     ? currentPeriod

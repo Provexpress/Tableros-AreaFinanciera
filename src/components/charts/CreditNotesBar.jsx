@@ -13,7 +13,7 @@ export default function CreditNotesBar({
   valueFormatter,
   selectedKey,
   onSelect,
-  emptyMessage = "No hay datos para este corte.",
+  emptyMessage = "No hay datos para este periodo.",
   noteFormatter,
   isLoading = false,
 }) {

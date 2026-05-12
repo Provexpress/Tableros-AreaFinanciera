@@ -617,8 +617,8 @@ export function getInsights(data) {
 
   return [
     topCategory
-      ? `La categoría ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total visible.`
-      : "No hay concentración visible por categoría.",
+      ? `La categoría ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total del periodo.`
+      : "No hay datos suficientes por categoría.",
     `${formatPct(ocPct, { signed: false })} de las facturas no tiene Orden de Compra registrada.`,
     trendPct >= 0
       ? `La tendencia de los últimos 3 meses muestra una mejora de ${formatPct(trendPct)}.`
@@ -636,8 +636,8 @@ function buildInsightsFromMetrics(metrics, totalRows) {
 
   return [
     topCategory
-      ? `La categoría ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total visible.`
-      : "No hay concentración visible por categoría.",
+      ? `La categoría ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total del periodo.`
+      : "No hay datos suficientes por categoría.",
     `${formatPct(ocPct, { signed: false })} de las facturas no tiene Orden de Compra registrada.`,
     trendPct >= 0
       ? `La tendencia de los últimos 3 meses muestra una mejora de ${formatPct(trendPct)}.`

@@ -77,9 +77,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
       <CardContent className="space-y-3 pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Cruce de facturas y notas cr?dito por cliente</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Cruce de facturas y notas crédito por cliente</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Muestra facturas, notas cr?dito y neto por cliente.
+              Muestra facturas, notas crédito y neto por cliente.
             </p>
           </div>
           <div className="w-full sm:w-[280px]">
@@ -231,7 +231,7 @@ function DetalleVentas() {
         <KpiCard
           label="Detalle de ventas"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas cr?dito del periodo seleccionado"
+          sub="Facturas y notas crédito del periodo seleccionado"
           accentColor="blue"
         />
         <KpiCard
@@ -352,7 +352,7 @@ export default function Ventas({ isLoading = false }) {
                 Ventas del periodo seleccionado: {formatPeriod(periodContext.period)}
               </p>
               <p className="mt-1 text-xs text-[var(--txt3)]">
-                Fuente: API de ventas para FV; NC desde el maestro de notas crédito y estado desde acuses cuando hay coincidencia.
+                Datos de ventas desde la API. Las notas crédito y los estados se cruzan cuando hay coincidencia.
               </p>
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function Ventas({ isLoading = false }) {
               invoice: "Facturas de venta (FV)",
               invoiceDescription: "Facturas de venta del periodo",
               credit: "Notas crédito de venta (NC)",
-              creditDescription: "Notas cr?dito de venta del periodo",
+              creditDescription: "Notas crédito de venta del periodo",
               net: "Venta neta",
               netDescription: "Facturas de venta menos notas crédito de venta",
               fcHelper: "Total bruto de ventas mostradas.",
@@ -380,7 +380,7 @@ export default function Ventas({ isLoading = false }) {
           <div>
             <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturación de ventas</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Estado de aceptación visible de las facturas emitidas a clientes.
+              Cómo están las facturas emitidas a clientes.
             </p>
           </div>
           <DocumentStatusGrid
@@ -390,8 +390,8 @@ export default function Ventas({ isLoading = false }) {
             onSelectStatus={toggleFlowStatus}
             labels={{
               Rechazado: { label: "Rechazada", helper: "Facturas rechazadas por el cliente" },
-              "En revision": { label: "Sin aceptar", helper: "Sin acuse completo o sin aceptación visible" },
-              Aprobado: { label: "Aceptada", helper: "Aceptada, aceptación tácita o pagada en sistema" },
+              "En revision": { label: "Sin aceptar", helper: "Aún no aparece aceptación completa" },
+              Aprobado: { label: "Aceptada", helper: "Aceptada por el cliente o por tiempo cumplido" },
             }}
           />
         </section>
@@ -399,7 +399,7 @@ export default function Ventas({ isLoading = false }) {
         <section className="space-y-3">
           <div>
             <h2 className="text-base font-semibold text-[var(--txt)]">Concentración de ventas por cliente y categoría</h2>
-            <p className="text-sm text-[var(--txt2)]">Lectura rápida de clientes líderes y mezcla por categoría de ventas.</p>
+            <p className="text-sm text-[var(--txt2)]">Clientes principales y mezcla por categoría de ventas.</p>
           </div>
           <PurchaseAnalysisBlock
             providers={supplierAccountingRanking}
@@ -411,7 +411,7 @@ export default function Ventas({ isLoading = false }) {
             rankingTitle="Ranking de ventas por cliente"
             rankingSubtitle="Clientes con mayor valor vendido."
             mixTitle="Mix de ventas por categoría"
-            mixSubtitle="Distribución simple de ventas y notas crédito por categoría disponible."
+            mixSubtitle="Ventas y notas crédito agrupadas por categoría."
           />
         </section>
 

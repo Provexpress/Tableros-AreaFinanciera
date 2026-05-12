@@ -126,7 +126,7 @@ export default function WeekVariationPanel({
           <CardTitle>Variación semanal de notas crédito de ventas</CardTitle>
         </CardHeader>
         <CardContent>
-          <EmptyState>No hay semanas visibles para comparar.</EmptyState>
+          <EmptyState>No hay semanas para comparar.</EmptyState>
         </CardContent>
       </Card>
     );
@@ -141,7 +141,7 @@ export default function WeekVariationPanel({
         </CardHeader>
         <CardContent>
           <EmptyState>
-            {currentWeek.label} {currentWeek.year} es la primera semana visible del corte. Aun no hay una base previa para comparar.
+            {currentWeek.label} {currentWeek.year} es la primera semana del periodo. Aún no hay una semana anterior para comparar.
           </EmptyState>
         </CardContent>
       </Card>
@@ -197,14 +197,14 @@ export default function WeekVariationPanel({
           <DeltaList
             title="Causas que empeoraron"
             items={variation.worseningCauses || []}
-            emptyMessage="No hubo causas con deterioro visible frente a la semana anterior."
+            emptyMessage="No hubo causas que subieran frente a la semana anterior."
             selectedKey={selectedCauseKey}
             onSelect={onSelectCause}
           />
           <DeltaList
             title="Responsables que empeoraron"
             items={variation.worseningResponsibles || []}
-            emptyMessage="No hubo responsables comerciales con deterioro visible frente a la semana anterior."
+            emptyMessage="No hubo comerciales que subieran frente a la semana anterior."
             selectedKey={selectedResponsibleKey}
             onSelect={onSelectResponsible}
           />
@@ -212,7 +212,7 @@ export default function WeekVariationPanel({
 
         {improvingItems.length ? (
           <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--txt3)]">Mejoras visibles</div>
+            <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--txt3)]">Mejoras</div>
             <div className="flex flex-wrap gap-2">
               {improvingItems.map((item) => (
                 <Badge key={`${item.kind}-${item.key}`} variant="success">

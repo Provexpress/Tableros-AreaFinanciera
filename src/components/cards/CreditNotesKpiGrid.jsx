@@ -56,7 +56,7 @@ export default function CreditNotesKpiGrid({ summary, isLoading = false }) {
       />
       <SummaryCard
         label="Notas crédito emitidas de ventas"
-        description="Notas cr?dito de ventas del periodo"
+        description="Notas crédito de ventas del periodo"
         helper={`${formatInteger(summary.totalNcCount)} NC mostradas | ${formatPct(ncRate, { signed: false })} sobre la bruta`}
         amount={summary.totalNc}
         tone="danger"

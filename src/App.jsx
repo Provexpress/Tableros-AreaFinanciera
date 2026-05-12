@@ -418,7 +418,7 @@ export default function App() {
         onClearFocus: null,
         onUpload: null,
         showSidebar: true,
-        emptyHint: "Verifica que las bases de compras y los acuses mensuales de ventas esten disponibles dentro de la carpeta Data.",
+        emptyHint: "Verifica que los datos de compras, ventas y notas crédito estén listos en la carpeta Data.",
       };
     }
 
@@ -504,7 +504,7 @@ export default function App() {
       return {
         datasetType: "notas",
         title: "PX / CONTROL DE VENTAS",
-        subtitle: "Seguimiento semanal de facturación, NC y refacturaciónes",
+        subtitle: "Seguimiento semanal de facturación, NC y refacturación",
         sourceName: notasSourceName,
         rangeLabel: notasHeaderRangeLabel,
         isLoading: notasIsLoading,
@@ -680,7 +680,7 @@ export default function App() {
                   <CardContent className="space-y-3 pt-5">
                     <div className="text-lg font-medium text-[var(--txt)]">Aún no hay datos cargados</div>
                     <p className="text-sm text-[var(--txt2)]">
-                      {shell.emptyHint} Verifica que los archivos base estén disponibles dentro de la carpeta{" "}
+                      {shell.emptyHint} Verifica que los archivos estén disponibles dentro de la carpeta{" "}
                       <span className="font-medium text-[var(--txt)]">Data</span>.
                     </p>
                   </CardContent>

@@ -72,7 +72,7 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturas y notas cr?dito de compras</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturas y notas crédito de compras</h2>
             <p className="text-sm text-[var(--txt2)]">Facturas y notas crédito de compras del periodo seleccionado.</p>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--txt)]">Concentración de compras por proveedor y categoría</h2>
-          <p className="text-sm text-[var(--txt2)]">Lectura rápida de proveedores líderes y mezcla por categoría de compras.</p>
+          <p className="text-sm text-[var(--txt2)]">Proveedores principales y mezcla por categoría de compras.</p>
         </div>
         <PurchaseAnalysisBlock
           providers={supplierAccountingRanking}

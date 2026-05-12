@@ -364,7 +364,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
   const helper =
     type === "purchase"
       ? "Selecciona una categoría para ver los documentos que componen el valor."
-      : "Las ventas usan categor?a cuando existe; las NC usan causa o concepto.";
+      : "Las ventas usan categoría cuando existe; las NC usan causa o concepto.";
 
   return (
     <Card>
@@ -664,7 +664,7 @@ export default function ConsolidatedSnapshotPanel({
             setSelectedPurchaseKey(row.key);
             setSelectedPurchaseCategory(null);
           }}
-          emptyText="No hay proveedores visibles para este corte."
+          emptyText="No hay proveedores para este periodo."
         />
         <EntityCard
           title="Ventas por cliente"
@@ -675,7 +675,7 @@ export default function ConsolidatedSnapshotPanel({
             setSelectedSaleKey(row.key);
             setSelectedSaleCategory(null);
           }}
-          emptyText="No hay clientes visibles para este corte."
+          emptyText="No hay clientes para este periodo."
         />
       </div>
 
