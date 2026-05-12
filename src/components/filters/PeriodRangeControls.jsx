@@ -101,28 +101,41 @@ export default function PeriodRangeControls({
       <FilterCard title={title}>
         {periods.length ? (
           <div className="space-y-3">
-            <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-2 text-sm text-[var(--txt)]">
-              {formatPeriod(startPeriod)} - {formatPeriod(endPeriod)}
+            <div className="rounded-[8px] border border-white/8 bg-white/[0.025] px-3 py-2">
+              <div className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">Periodo</div>
+              <div className="mt-0.5 text-sm font-medium text-[var(--txt)]">
+                {formatPeriod(startPeriod)} - {formatPeriod(endPeriod)}
+              </div>
             </div>
-            <div className="space-y-2">
-              <label className="block text-xs text-[var(--txt3)]">Desde</label>
-              <input
-                type="range"
-                min="0"
-                max={periods.length - 1}
-                value={startIndex}
-                onChange={(event) => updatePeriodRange(event.target.value, endIndex)}
-                className="w-full accent-[var(--tec)]"
-              />
-              <label className="block text-xs text-[var(--txt3)]">Hasta</label>
-              <input
-                type="range"
-                min="0"
-                max={periods.length - 1}
-                value={endIndex}
-                onChange={(event) => updatePeriodRange(startIndex, event.target.value)}
-                className="w-full accent-[var(--tec)]"
-              />
+            <div className="grid gap-2">
+              <label className="space-y-1.5">
+                <span className="block text-xs text-[var(--txt3)]">Desde</span>
+                <Select
+                  value={String(startIndex)}
+                  onChange={(event) => updatePeriodRange(event.target.value, endIndex)}
+                  className="h-9"
+                >
+                  {periods.map((period, index) => (
+                    <option key={period} value={index}>
+                      {formatPeriod(period, { monthStyle: "short" })}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+              <label className="space-y-1.5">
+                <span className="block text-xs text-[var(--txt3)]">Hasta</span>
+                <Select
+                  value={String(endIndex)}
+                  onChange={(event) => updatePeriodRange(startIndex, event.target.value)}
+                  className="h-9"
+                >
+                  {periods.map((period, index) => (
+                    <option key={period} value={index}>
+                      {formatPeriod(period, { monthStyle: "short" })}
+                    </option>
+                  ))}
+                </Select>
+              </label>
             </div>
             <button
               type="button"
