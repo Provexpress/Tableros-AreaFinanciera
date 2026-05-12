@@ -77,9 +77,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
       <CardContent className="space-y-3 pt-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Conciliación FV / NC por cliente</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Cruce de facturas y notas cr?dito por cliente</h2>
             <p className="text-sm text-[var(--txt2)]">
-              Muestra cómo se cruzan las facturas de venta con las notas crédito dentro del corte visible.
+              Muestra facturas, notas cr?dito y neto por cliente.
             </p>
           </div>
           <div className="w-full sm:w-[280px]">
@@ -87,7 +87,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar cliente"
-              aria-label="Buscar cliente en conciliación FV / NC"
+              aria-label="Buscar cliente"
             />
           </div>
         </div>
@@ -107,7 +107,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
               {!visibleRows.length ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
-                    {normalizedQuery ? "Sin clientes para esa búsqueda." : "Sin clientes para el corte visible."}
+                    {normalizedQuery ? "Sin clientes para esa búsqueda." : "Sin clientes en el periodo seleccionado."}
                   </td>
                 </tr>
               ) : (
@@ -151,7 +151,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                   {selectedClient}
                 </div>
                 <div className="text-xs text-[var(--txt3)]">
-                  {formatInteger(selectedRows.length)} documentos del corte visible
+                  {formatInteger(selectedRows.length)} documentos del periodo seleccionado
                 </div>
               </div>
               <Button size="sm" variant="secondary" onClick={() => setSelectedClient(null)}>
@@ -231,19 +231,19 @@ function DetalleVentas() {
         <KpiCard
           label="Detalle de ventas"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas crédito del corte visible"
+          sub="Facturas y notas cr?dito del periodo seleccionado"
           accentColor="blue"
         />
         <KpiCard
           label="Total neto de ventas"
           value={formatCOP(detailSummary.total)}
-          sub="Monto neto de la base filtrada"
+          sub="Monto neto mostrado"
           accentColor="green"
         />
         <KpiCard
           label="Aprobación de ventas"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
-          sub="Facturas aceptadas dentro del detalle visible"
+          sub="Facturas aceptadas en el detalle"
           accentColor="purple"
         />
       </section>
@@ -330,10 +330,10 @@ export default function Ventas({ isLoading = false }) {
 
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
-      ? "Comparativo del mes seleccionado entre todos los años visibles y comparación simple por cliente."
+      ? "Compara el mes seleccionado contra otros a?os."
       : filters.year !== "ALL" && filters.month !== "ALL"
-        ? "Trazabilidad diaria de venta neta dentro del mes activo y comparación simple por cliente."
-        : "Lectura mensual simple de venta neta y comparación contra el periodo anterior en ventas.";
+        ? "Muestra c?mo se movi? la venta d?a a d?a."
+        : "Muestra la venta neta por mes y su cambio frente al periodo anterior.";
 
   return (
     <div className="space-y-5">
@@ -349,7 +349,7 @@ export default function Ventas({ isLoading = false }) {
                 Resumen de facturas y notas crédito de ventas
               </h2>
               <p className="text-sm text-[var(--txt2)]">
-                Corte activo de ventas para leer FV, NC y valor neto: {formatPeriod(periodContext.period)}
+                Ventas del periodo seleccionado: {formatPeriod(periodContext.period)}
               </p>
               <p className="mt-1 text-xs text-[var(--txt3)]">
                 Fuente: API de ventas para FV; NC desde el maestro de notas crédito y estado desde acuses cuando hay coincidencia.
@@ -361,14 +361,14 @@ export default function Ventas({ isLoading = false }) {
             isLoading={isLoading}
             labels={{
               invoice: "Facturas de venta (FV)",
-              invoiceDescription: "Base documental de facturas de venta del periodo visible",
+              invoiceDescription: "Facturas de venta del periodo",
               credit: "Notas crédito de venta (NC)",
-              creditDescription: "Notas crédito de venta del periodo visible",
+              creditDescription: "Notas cr?dito de venta del periodo",
               net: "Venta neta",
               netDescription: "Facturas de venta menos notas crédito de venta",
-              fcHelper: "Base de referencia: 100% del valor de ventas visibles.",
+              fcHelper: "Total bruto de ventas mostradas.",
               ncHelperSuffix: "sobre FV de ventas.",
-              netHelperSuffix: "retenido frente a FV de ventas.",
+              netHelperSuffix: "queda frente a la venta bruta.",
             }}
             tones={{ invoice: "salesGreen", credit: "amber", net: "teal" }}
           />
@@ -409,7 +409,7 @@ export default function Ventas({ isLoading = false }) {
             onSelectProvider={(provider) => setFilters({ provider: filters.provider === provider ? "" : provider })}
             entityLabel="cliente"
             rankingTitle="Ranking de ventas por cliente"
-            rankingSubtitle="Top clientes por monto total del corte."
+            rankingSubtitle="Clientes con mayor valor vendido."
             mixTitle="Mix de ventas por categoría"
             mixSubtitle="Distribución simple de ventas y notas crédito por categoría disponible."
           />
@@ -417,7 +417,7 @@ export default function Ventas({ isLoading = false }) {
 
         <section className="space-y-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Tendencia de venta neta y comparativo por cliente</h2>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Evolución de venta neta</h2>
             <p className="text-sm text-[var(--txt2)]">{trendDescription}</p>
           </div>
           <PurchaseTrendComparison

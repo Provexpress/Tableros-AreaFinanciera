@@ -28,7 +28,7 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
               {!visibleRows.length ? (
                 <tr>
                   <TableCell colSpan={3} className="py-7 text-center text-sm text-[var(--txt3)]">
-                    Sin {entityLabel}s para el corte activo.
+                    Sin {entityLabel}s en este periodo.
                   </TableCell>
                 </tr>
               ) : (
@@ -90,7 +90,7 @@ function CategoryMix({
       <CardContent className="min-w-0">
         {!visibleRows.length ? (
           <div className="rounded-[10px] border border-dashed border-white/10 px-4 py-7 text-sm text-[var(--txt3)]">
-            Sin categorías para el corte activo.
+            Sin categor?as en este periodo.
           </div>
         ) : (
           <div className="space-y-3">
@@ -143,7 +143,7 @@ export default function PurchaseAnalysisBlock({
   onSelectProvider = null,
   entityLabel = "proveedor",
   rankingTitle = "Ranking de compras por proveedor",
-  rankingSubtitle = "Top proveedores por monto total del corte.",
+  rankingSubtitle = "Proveedores con mayor valor comprado.",
   mixTitle = "Mix de gasto por categoría",
   mixSubtitle = "Distribución simple por categoría del corte.",
 }) {

@@ -76,19 +76,19 @@ export default function DetalleFacturas() {
         <KpiCard
           label="Detalle de compras"
           value={detailSummary.count.toLocaleString("es-CO")}
-          sub="Facturas y notas crédito del corte visible"
+          sub="Facturas y notas cr?dito del periodo seleccionado"
           accentColor="blue"
         />
         <KpiCard
           label="Total neto de compras"
           value={formatCOP(detailSummary.total)}
-          sub="Monto ajustado de la base filtrada de compras"
+          sub="Monto neto mostrado"
           accentColor="green"
         />
         <KpiCard
           label="Aprobación de compras"
           value={`${detailSummary.approvalRate.toLocaleString("es-CO", { maximumFractionDigits: 1 })}%`}
-          sub="Documentos aceptados dentro del detalle visible"
+          sub="Documentos aceptados en el detalle"
           accentColor="purple"
         />
       </section>

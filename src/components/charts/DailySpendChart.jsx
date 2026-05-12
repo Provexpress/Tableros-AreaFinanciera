@@ -57,7 +57,7 @@ function DailySpendTooltip({ active, payload, label }) {
 export default function DailySpendChart({
   data = [],
   title = "Gasto por dia",
-  subtitle = "Lectura diaria del mes activo.",
+  subtitle = "Movimiento diario del mes seleccionado.",
   embedded = false,
   valueLabel = "Gasto del dia",
 }) {

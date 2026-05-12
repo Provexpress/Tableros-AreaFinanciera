@@ -59,14 +59,14 @@ export default function PurchasesKpiGrid({
   isLoading = false,
   labels = {
     invoice: "Facturas de compra de compras (FC)",
-    invoiceDescription: "Base documental de facturas de compra del periodo visible",
+    invoiceDescription: "Facturas de compra del periodo",
     credit: "Notas crédito de compras (NC)",
-    creditDescription: "Notas crédito de compras del periodo visible",
+    creditDescription: "Notas cr?dito de compras del periodo",
     net: "Compra neta de compras",
     netDescription: "Facturas de compra menos notas crédito de compras",
-    fcHelper: "Base de referencia: 100% del valor de compras visibles.",
+    fcHelper: "Total bruto de compras mostradas.",
     ncHelperSuffix: "sobre FC de compras.",
-    netHelperSuffix: "retenido frente a FC de compras.",
+    netHelperSuffix: "queda frente a la compra bruta.",
   },
   tones = { invoice: "blue", credit: "amber", net: "green" },
 }) {

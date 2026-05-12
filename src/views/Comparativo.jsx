@@ -314,7 +314,7 @@ export default function Comparativo() {
     <div className="space-y-4">
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Lectura ejecutiva de compras y ventas</h2>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Resumen de compras y ventas</h2>
           <p className="text-sm text-[var(--txt2)]">
             Corte común disponible: {rangeLabel}. El consolidado solo compara periodos presentes en compras y ventas; las categorías de ventas vienen de la API cuando están disponibles.
           </p>

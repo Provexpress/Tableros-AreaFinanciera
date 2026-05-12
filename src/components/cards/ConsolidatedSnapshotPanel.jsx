@@ -360,11 +360,11 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
 }
 
 function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCategory }) {
-  const title = type === "purchase" ? "Detalle comprado por categoría" : "Detalle vendido o ajustado por categoría";
+  const title = type === "purchase" ? "Detalle comprado por categoría" : "Detalle vendido o ajust?do por categoría";
   const helper =
     type === "purchase"
-      ? "Seleccióna una categoria para ver los documentos que componen el valor."
-      : "Se usa la categoria de la API de ventas cuando esta disponible; las NC se muestran con su causa o concepto.";
+      ? "Selecciona una categoría para ver los documentos que componen el valor."
+      : "Las ventas usan categor?a cuando existe; las NC usan causa o concepto.";
 
   return (
     <Card>
@@ -373,7 +373,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
         <p className="text-sm text-[var(--txt2)]">
           {selected
             ? `${selected.label} - ${formatCOPFull(selected.total)}. ${helper}`
-            : "Seleccióna un proveedor o cliente para ver el detalle."}
+            : "Selecciona un proveedor o cliente para ver el detalle."}
         </p>
       </CardHeader>
       <CardContent>
@@ -382,7 +382,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
             <table className="min-w-[640px] w-full text-sm">
               <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                   <tr>
-                    <th className="px-3 py-2">Categoria</th>
+                    <th className="px-3 py-2">Categoría</th>
                   <th className="px-3 py-2 text-right">Registros</th>
                   <th className="px-3 py-2 text-right">FC / Bruto</th>
                   <th className="px-3 py-2 text-right">NC</th>
@@ -417,7 +417,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
           </div>
         ) : (
           <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
-            {selected ? "No hay detalle por categoría para esta selección." : "Elige un ítem de las tarjetas para abrir el detalle."}
+            {selected ? "No hay detalle para esta selección." : "Elige un ítem de las tarjetas para abrir el detalle."}
           </div>
         )}
       </CardContent>
@@ -426,7 +426,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
 }
 
 function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
-  const title = type === "purchase" ? "Qu? se compr?" : "Detalle de documentos de venta";
+  const title = type === "purchase" ? "Qué se compró" : "Detalle de documentos de venta";
 
   return (
     <Card>
@@ -435,7 +435,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
         <p className="text-sm text-[var(--txt2)]">
           {selectedEntity && selectedCategory
             ? `${selectedEntity.label} - ${selectedCategory.category} - ${formatInteger(rows.length)} movimientos`
-            : "Seleccióna una fila para ver los documentos."}
+            : "Selecciona una fila para ver los documentos."}
         </p>
       </CardHeader>
       <CardContent>
@@ -478,7 +478,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
           </div>
         ) : (
           <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
-            {selectedCategory ? "No hay movimientos para esta seleccion." : "Toca una fila para abrir el detalle final."}
+            {selectedCategory ? "No hay movimientos para esta selección." : "Selecciona una fila para ver el detalle."}
           </div>
         )}
       </CardContent>
@@ -597,7 +597,7 @@ export default function ConsolidatedSnapshotPanel({
     return (
       <Card>
         <CardContent className="pt-5 text-sm text-[var(--txt2)]">
-          El consolidado necesita compras y ventas cargadas para mostrar los datos puntuales del corte visible.
+          El consolidado necesita datos de compras y ventas para mostrar el resumen.
         </CardContent>
       </Card>
     );
@@ -617,13 +617,13 @@ export default function ConsolidatedSnapshotPanel({
           second={{
             label: "Notas crédito",
             value: formatCOPCompact(comprasSummary.creditNoteTotal),
-            helper: `${formatInteger(comprasSummary.creditNoteCount)} ajustes`,
+            helper: `${formatInteger(comprasSummary.creditNoteCount)} ajust?s`,
             tone: "danger",
           }}
           result={{
             label: "Compra neta",
             value: formatCOPCompact(comprasSummary.netTotal),
-            helper: "Resultado visible",
+            helper: "Resultado mostrado",
             tone: "green",
           }}
         />
@@ -644,7 +644,7 @@ export default function ConsolidatedSnapshotPanel({
           result={{
             label: "Venta neta",
             value: formatCOPCompact(ventasSummary.netTotal),
-            helper: "Resultado visible",
+            helper: "Resultado mostrado",
             tone: "green",
           }}
         />
@@ -657,7 +657,7 @@ export default function ConsolidatedSnapshotPanel({
       <div className="grid gap-4 xl:grid-cols-2">
         <EntityCard
           title="Compras por proveedor"
-          subtitle="Seleccióna un proveedor para ver qu? se compr? por categoría."
+          subtitle="Selecciona un proveedor para ver qué se compró."
           rows={purchaseEntities}
           selected={activePurchase}
           onSelect={(row) => {
@@ -668,7 +668,7 @@ export default function ConsolidatedSnapshotPanel({
         />
         <EntityCard
           title="Ventas por cliente"
-          subtitle="Seleccióna un cliente para ver qu? se vendi? o ajusto por categoría."
+          subtitle="Selecciona un cliente para ver qué se vendió o ajustó."
           rows={salesEntities}
           selected={activeSale}
           onSelect={(row) => {

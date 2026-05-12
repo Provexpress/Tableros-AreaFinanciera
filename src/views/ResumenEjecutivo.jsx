@@ -39,16 +39,16 @@ export default function ResumenEjecutivo({
   };
   const trendDescription =
     filters.year === "ALL" && filters.month !== "ALL"
-      ? "Comparativo del mes seleccionado entre todos los años visibles y comparación simple por proveedor."
+      ? "Compara el mes seleccionado contra otros a?os."
       : filters.year !== "ALL" && filters.month !== "ALL"
-      ? "Trazabilidad diaria de compra neta dentro del mes activo y comparación simple por proveedor."
-      : "Lectura mensual simple de compra neta y comparación contra el periodo anterior en compras.";
+      ? "Muestra c?mo se movi? la compra d?a a d?a."
+      : "Muestra la compra neta por mes y su cambio frente al periodo anterior.";
 
   if (!periodContext || !Number.isFinite(periodContext.total) || periodContext.count <= 0) {
     return (
       <Card>
         <CardContent className="pt-5 text-sm text-[var(--txt2)]">
-          Sin datos utiles para construir el corte activo. Ajusta los filtros del costado.
+          Sin datos útiles para este periodo. Ajusta los filtros del costado.
         </CardContent>
       </Card>
     );
@@ -60,9 +60,9 @@ export default function ResumenEjecutivo({
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-[var(--txt)]">Resumen de facturas y notas crédito de compras</h2>
-            <p className="text-sm text-[var(--txt2)]">Corte activo de compras para leer FC, NC y valor neto: {formatPeriod(periodContext.period)}</p>
+            <p className="text-sm text-[var(--txt2)]">Compras del periodo seleccionado: {formatPeriod(periodContext.period)}</p>
             <p className="mt-1 text-xs text-[var(--txt3)]">
-              Fuente: API de compras para facturas; NC y estado documental desde Control Facturas cuando hay coincidencia.
+              Datos: compras desde API; notas crédito y estados desde Control Facturas cuando aplica.
             </p>
           </div>
         </div>
@@ -72,8 +72,8 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Estado documental de facturas y notas crédito de compras</h2>
-            <p className="text-sm text-[var(--txt2)]">Tablas operativas para revisar FC y NC de compras dentro del corte visible.</p>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de facturas y notas cr?dito de compras</h2>
+            <p className="text-sm text-[var(--txt2)]">Facturas y notas crédito de compras del periodo seleccionado.</p>
           </div>
         </div>
         <DocumentReviewSection purchaseRows={purchaseInvoiceRows} creditRows={creditNoteRows} />
@@ -82,8 +82,8 @@ export default function ResumenEjecutivo({
       <section className="space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-[var(--txt)]">Flujo documental y estado operativo de compras</h2>
-            <p className="text-sm text-[var(--txt2)]">Estado y detalle operativo de los documentos de compras por aprobacion, revision y rechazo.</p>
+            <h2 className="text-base font-semibold text-[var(--txt)]">Estado de compras</h2>
+            <p className="text-sm text-[var(--txt2)]">Aceptadas, pendientes y rechazadas dentro del periodo.</p>
           </div>
         </div>
           <DocumentStatusGrid
@@ -116,7 +116,7 @@ export default function ResumenEjecutivo({
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--txt)]">Tendencia de compra neta y comparativo por proveedor</h2>
+          <h2 className="text-base font-semibold text-[var(--txt)]">Evolución de compra neta</h2>
           <p className="text-sm text-[var(--txt2)]">{trendDescription}</p>
         </div>
         <PurchaseTrendComparison

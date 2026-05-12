@@ -207,7 +207,7 @@ function TrendCard({
           <div className="skeleton h-[320px] rounded-[8px]" />
         ) : !data.length && !filteredDailyData.length ? (
           <div className="flex h-[320px] items-center justify-center rounded-[8px] border border-dashed border-white/10 text-sm text-[var(--txt3)]">
-            Sin datos para graficar en el corte activo.
+            Sin datos para graficar en este periodo.
           </div>
         ) : showDailyBars ? (
           <div className="space-y-3">

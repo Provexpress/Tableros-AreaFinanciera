@@ -80,7 +80,7 @@ function buildInsightsFromMetrics(metrics, totalRows) {
 
   return [
     topCategory
-      ? `La categoria ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total visible.`
+      ? `La categoría ${topCategory.category} representa ${formatPct(topCategory.pct, { signed: false })} del gasto total visible.`
       : "No hay concentración visible por categoría.",
     `${formatPct(ocPct, { signed: false })} de las facturas no tiene Orden de Compra registrada.`,
     trendPct >= 0

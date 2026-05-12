@@ -41,7 +41,7 @@ function LoadingShell({ sourceName }) {
   return (
     <Card>
       <CardContent className="space-y-3 pt-5">
-        <div className="text-lg font-medium text-[var(--txt)]">Cargando fuente activa</div>
+        <div className="text-lg font-medium text-[var(--txt)]">Cargando datos</div>
         <p className="text-sm text-[var(--txt2)]">
           Se está leyendo <span className="font-medium text-[var(--txt)]">{sourceName}</span> desde la carpeta Data.
         </p>
@@ -400,7 +400,7 @@ export default function App() {
       return {
         datasetType: "comparativo",
         title: "PX / Consolidado compras y ventas",
-        subtitle: "Cruce consolidado entre compras visibles y ventas visibles",
+        subtitle: "Compras y ventas en un solo resumen",
         sourceName: "Compras + Ventas",
         rangeLabel: "Corte consolidado",
         isLoading: facturasIsLoading || ventasIsLoading || notasIsLoading,
@@ -447,8 +447,8 @@ export default function App() {
 
       return {
         datasetType: "ventas",
-        title: "PX / Control de ventas emitidas",
-        subtitle: "Seguimiento de FV, NC y venta neta",
+        title: "PX / Ventas",
+        subtitle: "Facturas, notas crédito y venta neta",
         sourceName: ventasSourceName,
         rangeLabel: formatRangeLabel(ventasFilters.periodRange?.[0], ventasFilters.periodRange?.[1]),
         isLoading: ventasIsLoading,
@@ -570,8 +570,8 @@ export default function App() {
 
     return {
       datasetType: "facturas",
-      title: "PX / Control de compras a proveedores",
-      subtitle: "Seguimiento de FC, NC y compra neta",
+      title: "PX / Compras",
+      subtitle: "Facturas, notas crédito y compra neta",
       sourceName: facturasSourceName,
       rangeLabel: facturasFilters.selectedDates?.length
         ? `${facturasFilters.selectedDates.length} días seleccionados`
@@ -671,7 +671,7 @@ export default function App() {
               ) : shell.error && !shell.hasData ? (
                 <Card>
                   <CardContent className="space-y-3 pt-5">
-                    <div className="text-lg font-medium text-[var(--txt)]">No fue posible cargar la fuente activa</div>
+                    <div className="text-lg font-medium text-[var(--txt)]">No fue posible cargar los datos</div>
                     <p className="text-sm text-[var(--txt2)]">{shell.error}</p>
                   </CardContent>
                 </Card>
@@ -696,7 +696,7 @@ export default function App() {
                         element={<NotasCredito isLoading={shell.isLoading} />}
                       />
                       <Route path="/comparativo" element={<Comparativo />} />
-                      <Route path="/categorias" element={<Navigate to="/" replace />} />
+                      <Route path="/categorías" element={<Navigate to="/" replace />} />
                       <Route path="/proveedores" element={<Navigate to="/" replace />} />
                       <Route path="/detalle" element={<Navigate to="/" replace />} />
                       <Route path="*" element={<Navigate to="/" replace />} />

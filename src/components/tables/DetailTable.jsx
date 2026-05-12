@@ -92,7 +92,7 @@ export default function DetailTable({
       "Fecha_Documento",
       "Fecha_Registro",
       "Proveedor",
-      "Categoria",
+      "Categoría",
       "Estado",
       "Monto",
       "Observacion",
@@ -172,8 +172,8 @@ export default function DetailTable({
                 <TableHead onClick={() => toggleSort("proveedor")} className="w-[21%] cursor-pointer">
                   {labels.entity}
                 </TableHead>
-                <TableHead onClick={() => toggleSort("categoria")} className="w-[120px] cursor-pointer">
-                  Categoria
+                <TableHead onClick={() => toggleSort("categoría")} className="w-[120px] cursor-pointer">
+                  Categoría
                 </TableHead>
                 <TableHead onClick={() => toggleSort("estado")} className="w-[124px] cursor-pointer">
                   Estado

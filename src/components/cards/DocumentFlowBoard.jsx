@@ -29,7 +29,7 @@ export default function DocumentFlowBoard({
         <div className="min-w-0">
           <CardTitle>Detalle de {config.title.toLowerCase()}</CardTitle>
           <p className="text-sm text-[var(--txt2)]">
-            Haz clic en una tarjeta de estado para cambiar el detalle operativo; repite el clic para ver todos.
+            Haz clic en una tarjeta para ver el detalle; repite el clic para ver todos.
           </p>
         </div>
         <Badge variant={config.variant} className="self-start lg:self-auto">

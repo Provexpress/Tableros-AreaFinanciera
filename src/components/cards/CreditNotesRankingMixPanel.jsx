@@ -93,7 +93,7 @@ function DetailTable({ title, selectedLabel, rows = [], totalValue = 0, isLoadin
         <div className="min-w-0">
           <CardTitle>{title}</CardTitle>
           <p className="text-sm text-[var(--txt2)]">
-            {selectedLabel ? `Detalle de ${selectedLabel}.` : "Seleccióna una barra para ver el detalle asociado."}
+            {selectedLabel ? `Detalle de ${selectedLabel}.` : "Selecciona una barra para ver el detalle asociado."}
           </p>
         </div>
         {selectedLabel ? <Badge variant="tech">{selectedLabel}</Badge> : null}
@@ -211,7 +211,7 @@ export default function CreditNotesRankingMixPanel({
         totalCount: totalNcCount,
         count: causeSummary.length,
         countLabel: "Cantidad de causas",
-        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
+        helper: selectedWeekLabel ? `Semana ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
         variant: "danger",
         accentClass: "bg-[var(--danger)]",
         chartTitle: "Causas de NC de ventas",
@@ -235,7 +235,7 @@ export default function CreditNotesRankingMixPanel({
         totalCount: totalNcCount,
         count: uniqueClients,
         countLabel: "Cantidad de clientes",
-        helper: selectedWeekLabel ? `Lectura de ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
+        helper: selectedWeekLabel ? `Semana ${selectedWeekLabel}` : "Corte visible de notas crédito de ventas",
         variant: "tech",
         accentClass: "bg-[var(--tec)]",
         chartTitle: "Clientes con mas NC de ventas",

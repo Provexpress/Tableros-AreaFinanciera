@@ -186,10 +186,10 @@ export default function CreditNotesDetailTable({
             {selectedWeekLabel
               ? `Semana activa: ${selectedWeekLabel}`
               : detailInteractionLabel
-                ? `Detalle abierto por ${detailInteractionLabel}.`
+                ? `Detalle por ${detailInteractionLabel}.`
                 : activeInteractionLabel
-                  ? `Detalle del filtro tactico: ${activeInteractionLabel}.`
-                  : "Seleccióna una semana o toca una causa, cliente o responsable para abrir el detalle."}
+                  ? `Detalle del filtro: ${activeInteractionLabel}.`
+                  : "Selecciona una semana o toca una causa, cliente o responsable para abrir el detalle."}
           </p>
         </div>
 
@@ -209,7 +209,7 @@ export default function CreditNotesDetailTable({
           ) : null}
           {hasTacticalFilters ? (
             <Button variant="secondary" size="sm" onClick={onClearTacticalFilters}>
-              Limpiar filtros tacticos
+              Limpiar filtros tácticos
             </Button>
           ) : null}
         </div>
@@ -329,7 +329,7 @@ export default function CreditNotesDetailTable({
               {!hasDetailContext ? (
                 <tr>
                   <TableCell colSpan={7} className="py-8 text-center text-sm text-[var(--txt3)]">
-                    Seleccióna una semana desde la tendencia o toca una causa, cliente o responsable para abrir el detalle.
+                    Selecciona una semana desde la tendencia o toca una causa, cliente o responsable para abrir el detalle.
                   </TableCell>
                 </tr>
               ) : paginatedRows.length === 0 ? (
