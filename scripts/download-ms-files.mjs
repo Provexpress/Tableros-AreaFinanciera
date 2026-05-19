@@ -20,6 +20,7 @@ const DEFAULT_ACUSE_FILES = [
   "2.ACUSES FEBRERO 2026.xlsx",
   "3.ACUSE MARZO 2026.xlsx",
 ];
+const DEFAULT_ACUSE_PATTERN = "acuse";
 
 function getEnv(name, fallback = "") {
   const value = process.env[name];
@@ -92,6 +93,12 @@ async function graphJson(token, pathAndQuery) {
   });
 }
 
+async function graphJsonUrl(token, url) {
+  return requestJson(url, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+}
+
 async function getSite(token, hostname, sitePath) {
   const normalizedSitePath = sitePath.startsWith("/") ? sitePath : `/${sitePath}`;
   return graphJson(token, `/sites/${hostname}:${normalizedSitePath}`);
@@ -128,6 +135,41 @@ async function downloadDriveItem(token, driveId, driveItemPath, outputPath) {
   await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
 }
 
+async function listDriveFolderFiles(token, driveId, folderPath) {
+  const encodedPath = encodeGraphPath(folderPath);
+  let url = `${GRAPH_BASE_URL}/drives/${driveId}/root:/${encodedPath}:/children?$select=name,file`;
+  const files = [];
+
+  while (url) {
+    const page = await graphJsonUrl(token, url);
+    for (const item of page.value || []) {
+      if (item.file && item.name) {
+        files.push(item.name);
+      }
+    }
+    url = page["@odata.nextLink"] || "";
+  }
+
+  return files;
+}
+
+async function resolveAcuseFiles(token, driveId, folderPath) {
+  const acusePattern = getEnv("MS_GRAPH_ACUSE_PATTERN", DEFAULT_ACUSE_PATTERN).toLowerCase();
+  const discovered = await listDriveFolderFiles(token, driveId, folderPath);
+  const acuseFiles = discovered
+    .filter((name) => {
+      const lowerName = name.toLowerCase();
+      return (
+        lowerName.endsWith(".xlsx") &&
+        !lowerName.startsWith("~$") &&
+        lowerName.includes(acusePattern)
+      );
+    })
+    .sort((a, b) => a.localeCompare(b, "es", { numeric: true, sensitivity: "base" }));
+
+  return acuseFiles.length ? acuseFiles : DEFAULT_ACUSE_FILES;
+}
+
 async function main() {
   const token = await requestToken();
   if (!token) {
@@ -142,12 +184,18 @@ async function main() {
   const requiredFiles = parseCsv(getEnv("MS_GRAPH_FILES", DEFAULT_FILES.join(",")));
   const optionalFiles = parseCsv(getEnv("MS_GRAPH_OPTIONAL_FILES", ""));
   const includeAcuses = getEnv("MS_GRAPH_DOWNLOAD_ACUSES", "false").toLowerCase() === "true";
-  const files = includeAcuses ? [...requiredFiles, ...DEFAULT_ACUSE_FILES, ...optionalFiles] : [...requiredFiles, ...optionalFiles];
 
   console.log(`[ms-files] resolviendo sitio ${hostname}${sitePath}`);
   const site = await getSite(token, hostname, sitePath);
   const drive = await getDrive(token, site.id, driveName);
   console.log(`[ms-files] biblioteca: ${drive.name}`);
+
+  const acuseFiles = includeAcuses ? await resolveAcuseFiles(token, drive.id, folderPath) : [];
+  if (includeAcuses) {
+    console.log(`[ms-files] acuses detectados: ${acuseFiles.join(", ") || "ninguno"}`);
+  }
+
+  const files = [...new Set([...requiredFiles, ...acuseFiles, ...optionalFiles])];
 
   for (const fileName of files) {
     const driveItemPath = joinGraphPath(folderPath, fileName);

@@ -43,7 +43,7 @@ jobs:
           MS_GRAPH_DRIVE_NAME: Documentos compartidos
           MS_GRAPH_FOLDER_PATH: Facturación/Director de Facturación
           MS_GRAPH_FILES: Control Facturas.xlsx,NOTAS CREDITO 2026.xlsx,reporte semanal de facturacion.xlsx
-          MS_GRAPH_DOWNLOAD_ACUSES: "false"
+          MS_GRAPH_DOWNLOAD_ACUSES: "true"
         run: npm run download:ms-files
 
       - name: Build Excel-derived caches
