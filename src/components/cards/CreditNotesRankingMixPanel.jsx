@@ -86,7 +86,16 @@ function ScopeCard({
   );
 }
 
-function DetailTable({ title, selectedLabel, rows = [], totalValue = 0, isLoading = false, emptyMessage }) {
+function DetailTable({
+  title,
+  selectedLabel,
+  rows = [],
+  totalValue = 0,
+  isLoading = false,
+  emptyMessage,
+  causeHeader = "Causa",
+  getCauseLabel = (row) => row.causa || "-",
+}) {
   return (
     <Card className="min-w-0">
       <CardHeader className="gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -118,7 +127,7 @@ function DetailTable({ title, selectedLabel, rows = [], totalValue = 0, isLoadin
                 <TableHead className="w-[148px]">Factura</TableHead>
                 <TableHead className="w-[22%]">Cliente</TableHead>
                 <TableHead className="w-[160px]">Asesor</TableHead>
-                <TableHead className="w-[160px]">Causa</TableHead>
+                <TableHead className="w-[160px]">{causeHeader}</TableHead>
                 <TableHead className="w-[148px] text-right">Valor</TableHead>
               </tr>
             </thead>
@@ -163,8 +172,8 @@ function DetailTable({ title, selectedLabel, rows = [], totalValue = 0, isLoadin
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="truncate" title={row.causa}>
-                        {row.causa || "-"}
+                      <div className="truncate" title={getCauseLabel(row)}>
+                        {getCauseLabel(row)}
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
@@ -269,6 +278,8 @@ export default function CreditNotesRankingMixPanel({
         noteFormatter: (value) => `Valor asociado: ${formatCOPFull(value)}`,
         emptyMessage: "No hay NC causadas por comercial en este periodo.",
         detailTitle: "Detalle de NC causadas por comercial",
+        causeHeader: "Causada por",
+        getCauseLabel: () => "Comercial",
         resolveRows: (selectedKey) =>
           rows
             .filter(
@@ -353,6 +364,8 @@ export default function CreditNotesRankingMixPanel({
           totalValue={detailTotalValue}
           isLoading={isLoading}
           emptyMessage="No hay notas crédito para el elemento seleccionado."
+          causeHeader={activeConfig.causeHeader}
+          getCauseLabel={activeConfig.getCauseLabel}
         />
       </div>
     </section>
