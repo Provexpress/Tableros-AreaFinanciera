@@ -10,7 +10,7 @@ const IMPACT_DEFS = [
   },
   {
     key: "com",
-    label: "Errores Comerciales",
+    label: "Causadas por comercial",
     color: "#f5a623",
     weekField: "valorErrComercial",
     match: (row) => row.origen === "Comercial",
@@ -41,7 +41,7 @@ const IMPACT_DEFS = [
 const CAUSE_DEFS = [
   { key: "admon", label: "Errores Admon", color: "#4f8ef7", field: "errAdmon" },
   { key: "logistica", label: "Errores Logistica", color: "#a78bfa", field: "errLogistica" },
-  { key: "comercial", label: "Errores Comerciales", color: "#f5a623", field: "errComercial" },
+  { key: "comercial", label: "Causadas por comercial", color: "#f5a623", field: "errComercial" },
   { key: "sistema", label: "Errores Sistema", color: "#e05c5c", field: "errSistema" },
   { key: "cliente", label: "Inducidos Cliente", color: "#34c88a", field: "errCliente" },
   { key: "devoluciones", label: "Devoluciones", color: "#d4537e", field: "devoluciones" },

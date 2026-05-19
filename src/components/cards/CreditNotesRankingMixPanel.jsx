@@ -254,21 +254,21 @@ export default function CreditNotesRankingMixPanel({
       },
       responsibles: {
         key: "responsibles",
-        title: "Comerciales con NC de ventas",
+        title: "NC causadas por comercial",
         amount: commercialValue,
         totalCount: commercialNcCount,
         count: uniqueResponsibles,
         countLabel: "Cantidad de comerciales",
-        helper: "Solo notas crédito de ventas con causa comercial",
+        helper: "Notas crédito de ventas marcadas como causa comercial",
         variant: "warning",
         accentClass: "bg-[var(--warning)]",
-        chartTitle: "Comerciales con más NC de ventas",
-        chartSubtitle: "Solo notas crédito de ventas con origen comercial.",
+        chartTitle: "NC causadas por comercial",
+        chartSubtitle: "Ranking de comerciales asociados a esas notas crédito.",
         chartData: responsibleSummary.map((item) => ({ ...item, note: item.totalValue })),
         valueFormatter: (value) => `${formatInteger(value)} NC`,
         noteFormatter: (value) => `Valor asociado: ${formatCOPFull(value)}`,
-        emptyMessage: "No hay comerciales con notas crédito de ventas en este periodo.",
-        detailTitle: "Detalle de notas crédito de ventas por comercial",
+        emptyMessage: "No hay NC causadas por comercial en este periodo.",
+        detailTitle: "Detalle de NC causadas por comercial",
         resolveRows: (selectedKey) =>
           rows
             .filter(
