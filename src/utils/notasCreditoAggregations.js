@@ -80,12 +80,85 @@ function buildWeekNcMap(ncRows) {
   return map;
 }
 
-function resolveWeeklyMetrics(weeks, weekNcMap) {
+function getNcMonthKey(row) {
+  const directMonth = String(row.monthRef || row.monthKey || row.periodo || "").slice(0, 7);
+  if (/^\d{4}-\d{2}$/.test(directMonth)) {
+    return directMonth;
+  }
+
+  const dateMonth = String(row.fechaInicialIso || row.fechaIso || row.fecha || "").slice(0, 7);
+  if (/^\d{4}-\d{2}$/.test(dateMonth)) {
+    return dateMonth;
+  }
+
+  const year = Number(row.year || row.anio || row["Año"]);
+  const month = Number(row.monthNumber || row.mesNum || row.mes);
+  if (year > 0 && month >= 1 && month <= 12) {
+    return `${year}-${String(month).padStart(2, "0")}`;
+  }
+
+  return "";
+}
+
+function buildMonthUnmappedNcMap(ncRows) {
+  const map = new Map();
+
+  ncRows.forEach((row) => {
+    if (row.llaveSemana) {
+      return;
+    }
+
+    const monthKey = getNcMonthKey(row);
+    if (!monthKey) {
+      return;
+    }
+
+    if (!map.has(monthKey)) {
+      map.set(monthKey, []);
+    }
+    map.get(monthKey).push(row);
+  });
+
+  return map;
+}
+
+function buildFirstWeekByMonth(weeks) {
+  const map = new Map();
+
+  weeks.forEach((week) => {
+    if (week.monthKey && !map.has(week.monthKey)) {
+      map.set(week.monthKey, week.llave);
+    }
+  });
+
+  return map;
+}
+
+function getUnmappedRowsForWeek(week, monthUnmappedNcMap, firstWeekByMonth) {
+  if (!week?.monthKey || firstWeekByMonth.get(week.monthKey) !== week.llave) {
+    return [];
+  }
+
+  return monthUnmappedNcMap.get(week.monthKey) || [];
+}
+
+function getRowsForWeek(week, weekNcMap, monthUnmappedNcMap, firstWeekByMonth) {
+  return [
+    ...(weekNcMap.get(week.llave) || []),
+    ...getUnmappedRowsForWeek(week, monthUnmappedNcMap, firstWeekByMonth),
+  ];
+}
+
+function resolveWeeklyMetrics(weeks, weekNcMap, monthUnmappedNcMap = new Map(), firstWeekByMonth = buildFirstWeekByMonth(weeks)) {
   return weeks.map((week) => {
     const mappedRows = weekNcMap.get(week.llave) || [];
+    const unmappedRows = getUnmappedRowsForWeek(week, monthUnmappedNcMap, firstWeekByMonth);
+    const detailRows = [...mappedRows, ...unmappedRows];
     const mappedNcCount = mappedRows.length;
     const mappedNcValue = sumBy(mappedRows, "valor");
-    const mappedRefactCount = mappedRows.reduce((acc, row) => acc + (row.reemplazadaPor ? 1 : 0), 0);
+    const detailNcCount = detailRows.length;
+    const detailNcValue = sumBy(detailRows, "valor");
+    const mappedRefactCount = detailRows.reduce((acc, row) => acc + (row.reemplazadaPor ? 1 : 0), 0);
 
     const rawNcValue = Number(week.valorNc || 0);
     const rawNcCount = Number(week.numNc || 0);
@@ -97,8 +170,8 @@ function resolveWeeklyMetrics(weeks, weekNcMap) {
     // Preferimos el consolidado semanal cuando la semana ya existe en esa fuente.
     // Si el resumen trae conteo de NC pero valor 0, mezclar el valor desde el detalle
     // rompe la relacion Bruta - NC = Neto en los KPIs.
-    const resolvedNcValue = rawNcValue > 0 ? rawNcValue : rawNcCount > 0 ? rawNcValue : mappedNcValue;
-    const resolvedNcCount = rawNcCount > 0 ? rawNcCount : mappedNcCount;
+    const resolvedNcValue = rawNcValue > 0 ? rawNcValue : rawNcCount > 0 ? rawNcValue : detailNcValue;
+    const resolvedNcCount = rawNcCount > 0 ? rawNcCount : detailNcCount;
     const resolvedRefactCount = rawRefactCount > 0 ? rawRefactCount : mappedRefactCount;
     const resolvedGrossValue =
       rawGrossValue > 0 ? rawGrossValue : rawNetValue > 0 ? rawNetValue + resolvedNcValue : rawGrossValue;
@@ -121,9 +194,11 @@ function resolveWeeklyMetrics(weeks, weekNcMap) {
       facturadoNeto: resolvedNetValue,
       pctNc: resolvedPct,
       fallbackGrossFromNet: rawGrossValue <= 0 && resolvedGrossValue > 0,
-      fallbackFromNcDetail: rawNcValue <= 0 && rawNcCount <= 0 && mappedNcValue > 0,
+      fallbackFromNcDetail: rawNcValue <= 0 && rawNcCount <= 0 && detailNcValue > 0,
       mappedNcValue,
       mappedNcCount,
+      unmappedNcValue: sumBy(unmappedRows, "valor"),
+      unmappedNcCount: unmappedRows.length,
     };
   });
 }
@@ -187,19 +262,21 @@ function applyRowInteractionFilter(rows, filters) {
   return next;
 }
 
-function filterWeeksByInteraction(weeks, weekNcMap, filters) {
+function filterWeeksByInteraction(weeks, weekNcMap, filters, monthUnmappedNcMap = new Map(), firstWeekByMonth = new Map()) {
   let next = [...weeks];
 
   if (filters.impactKey) {
     const impact = IMPACT_DEFS.find((item) => item.key === filters.impactKey);
     if (impact) {
-      next = next.filter((week) => (weekNcMap.get(week.llave) || []).some((row) => impact.match(row)));
+      next = next.filter((week) =>
+        getRowsForWeek(week, weekNcMap, monthUnmappedNcMap, firstWeekByMonth).some((row) => impact.match(row))
+      );
     }
   }
 
   if (filters.responsible) {
     next = next.filter((week) =>
-      (weekNcMap.get(week.llave) || []).some(
+      getRowsForWeek(week, weekNcMap, monthUnmappedNcMap, firstWeekByMonth).some(
         (row) => row.origen === "Comercial" && row.asesor === filters.responsible
       )
     );
@@ -406,7 +483,14 @@ function buildDeltaList(currentMap, previousMap) {
     });
 }
 
-function buildWeekVariation(weeks, weekNcMap, filters, selectedWeek) {
+function buildWeekVariation(
+  weeks,
+  weekNcMap,
+  filters,
+  selectedWeek,
+  monthUnmappedNcMap = new Map(),
+  firstWeekByMonth = new Map()
+) {
   if (!weeks.length) {
     return {
       currentWeek: null,
@@ -438,8 +522,14 @@ function buildWeekVariation(weeks, weekNcMap, filters, selectedWeek) {
     };
   }
 
-  const currentRows = applyRowInteractionFilter(weekNcMap.get(currentWeek.llave) || [], filters);
-  const previousRows = applyRowInteractionFilter(weekNcMap.get(previousWeek.llave) || [], filters);
+  const currentRows = applyRowInteractionFilter(
+    getRowsForWeek(currentWeek, weekNcMap, monthUnmappedNcMap, firstWeekByMonth),
+    filters
+  );
+  const previousRows = applyRowInteractionFilter(
+    getRowsForWeek(previousWeek, weekNcMap, monthUnmappedNcMap, firstWeekByMonth),
+    filters
+  );
 
   const currentCauseMap = buildBucketMap(
     currentRows,
@@ -496,13 +586,20 @@ function buildCriticalWeeks(weeks) {
     }));
 }
 
-function buildWeekOptions(weeks, weekNcMap, filters) {
+function buildWeekOptions(weeks, weekNcMap, filters, monthUnmappedNcMap = new Map(), firstWeekByMonth = new Map()) {
   return weeks
-    .filter((week) => applyRowInteractionFilter(weekNcMap.get(week.llave) || [], filters).length > 0)
+    .filter(
+      (week) =>
+        applyRowInteractionFilter(getRowsForWeek(week, weekNcMap, monthUnmappedNcMap, firstWeekByMonth), filters)
+          .length > 0
+    )
     .map((week) => ({
       key: week.llave,
       label: `${week.label} ${week.year}`,
-      note: `${applyRowInteractionFilter(weekNcMap.get(week.llave) || [], filters).length} NC`,
+      note: `${applyRowInteractionFilter(
+        getRowsForWeek(week, weekNcMap, monthUnmappedNcMap, firstWeekByMonth),
+        filters
+      ).length} NC`,
       pctNcPercent: Number(week.pctNc || 0) * 100,
     }));
 }
@@ -516,12 +613,22 @@ function buildWeeklySeries(weeks) {
   }));
 }
 
-function buildSelectedWeek(weeks, weekNcMap, filters, selectedWeek) {
+function buildSelectedWeek(
+  weeks,
+  weekNcMap,
+  filters,
+  selectedWeek,
+  monthUnmappedNcMap = new Map(),
+  firstWeekByMonth = new Map()
+) {
   const visibleWeekKeys = new Set(weeks.map((week) => week.llave));
   const resolvedWeek = selectedWeek && visibleWeekKeys.has(selectedWeek) ? selectedWeek : null;
   const selectedMeta = resolvedWeek ? weeks.find((week) => week.llave === resolvedWeek) || null : null;
   const selectedRows = resolvedWeek
-    ? applyRowInteractionFilter(weekNcMap.get(resolvedWeek) || [], filters).sort((a, b) => b.valor - a.valor)
+    ? applyRowInteractionFilter(
+        getRowsForWeek(selectedMeta, weekNcMap, monthUnmappedNcMap, firstWeekByMonth),
+        filters
+      ).sort((a, b) => b.valor - a.valor)
     : [];
 
   const weekNote = selectedMeta?.notaCelda || selectedMeta?.comentario || null;
@@ -608,23 +715,50 @@ function getInteractionLabel(filters) {
 
 export function buildNotasDerivedState(rawWeeks, rawNcRows, filters, selectedWeek, meta) {
   const weekNcMap = buildWeekNcMap(rawNcRows);
+  const monthUnmappedNcMap = buildMonthUnmappedNcMap(rawNcRows);
   const monthsAvailable = buildMonthOptions(rawWeeks, filters);
+  const timeFilteredWeeks = filterWeeksByTime(rawWeeks, filters);
+  const firstWeekByMonth = buildFirstWeekByMonth(timeFilteredWeeks);
 
   const visibleWeeks = resolveWeeklyMetrics(
-    filterWeeksByInteraction(filterWeeksByTime(rawWeeks, filters), weekNcMap, filters),
-    weekNcMap
+    filterWeeksByInteraction(timeFilteredWeeks, weekNcMap, filters, monthUnmappedNcMap, firstWeekByMonth),
+    weekNcMap,
+    monthUnmappedNcMap,
+    firstWeekByMonth
   );
   const visibleWeekKeys = new Set(visibleWeeks.map((week) => week.llave));
+  const visibleMonthKeys = new Set(visibleWeeks.map((week) => week.monthKey).filter(Boolean));
   const visibleNcRows = applyRowInteractionFilter(
-    rawNcRows.filter((row) => visibleWeekKeys.has(row.llaveSemana)),
+    rawNcRows.filter((row) => {
+      if (row.llaveSemana) {
+        return visibleWeekKeys.has(row.llaveSemana);
+      }
+
+      const monthKey = getNcMonthKey(row);
+      return monthKey && visibleMonthKeys.has(monthKey);
+    }),
     filters
   );
 
-  const weekSelection = buildSelectedWeek(visibleWeeks, weekNcMap, filters, selectedWeek);
+  const weekSelection = buildSelectedWeek(
+    visibleWeeks,
+    weekNcMap,
+    filters,
+    selectedWeek,
+    monthUnmappedNcMap,
+    firstWeekByMonth
+  );
   const analysisWeeks = weekSelection.selectedWeekMeta ? [weekSelection.selectedWeekMeta] : visibleWeeks;
   const analysisRows = weekSelection.selectedWeek ? weekSelection.selectedWeekRows : visibleNcRows;
   const kpis = buildKpis(analysisWeeks);
-  const weekVariation = buildWeekVariation(visibleWeeks, weekNcMap, filters, weekSelection.selectedWeek);
+  const weekVariation = buildWeekVariation(
+    visibleWeeks,
+    weekNcMap,
+    filters,
+    weekSelection.selectedWeek,
+    monthUnmappedNcMap,
+    firstWeekByMonth
+  );
 
   return {
     visibleWeeks,
@@ -637,7 +771,7 @@ export function buildNotasDerivedState(rawWeeks, rawNcRows, filters, selectedWee
     clientSummary: buildClientSummary(analysisRows),
     criticalWeeks: buildCriticalWeeks(visibleWeeks),
     weeklySeries: buildWeeklySeries(visibleWeeks),
-    weekOptions: buildWeekOptions(visibleWeeks, weekNcMap, filters),
+    weekOptions: buildWeekOptions(visibleWeeks, weekNcMap, filters, monthUnmappedNcMap, firstWeekByMonth),
     activeInteractionLabel: getInteractionLabel(filters),
     headerRangeLabel: buildRangeLabel(filters, meta, monthsAvailable),
     weekVariation,

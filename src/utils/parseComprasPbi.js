@@ -44,7 +44,12 @@ function getInvoiceKey(row, index) {
   return [provider, prefix, number, dateKey].join("|");
 }
 
-function createBucket(row, index) {
+function isCreditPurchaseDocument(row, amount) {
+  const normalizedPrefix = normalizeText(row.Prefijo);
+  return normalizedPrefix.includes("anul") || Number(amount || 0) < 0;
+}
+
+function createBucket(row, index, sign) {
   const parsedDate = parseSpreadsheetDate(row.Fecha_Emision);
   const provider = normalizeProvider(row.Empresa || row.Identificacion || "Sin proveedor");
   const prefix = cleanText(row.Prefijo) || "FC";
@@ -59,6 +64,7 @@ function createBucket(row, index) {
     nit: cleanText(row.Identificacion),
     categoryTotals: new Map(),
     total: 0,
+    sign,
     units: 0,
     lineCount: 0,
     products: new Set(),
@@ -71,7 +77,9 @@ function getDominantCategory(bucket) {
 
 function bucketToInvoice(bucket, index, options = {}) {
   const parsedDate = bucket.parsedDate;
-  const total = bucket.total;
+  const totalOriginal = Math.abs(bucket.total);
+  const signoDocumento = bucket.sign < 0 ? -1 : 1;
+  const total = totalOriginal * signoDocumento;
   const validStart = getValidStart(options);
 
   if (!parsedDate?.isValid()) {
@@ -82,7 +90,7 @@ function bucketToInvoice(bucket, index, options = {}) {
     return { valid: false, reason: "outside-range" };
   }
 
-  if (!total || total <= 0) {
+  if (!totalOriginal || totalOriginal <= 0) {
     return { valid: false, reason: "invalid-total" };
   }
 
@@ -102,14 +110,14 @@ function bucketToInvoice(bucket, index, options = {}) {
       fechaRecepcion: parsedDate.toDate(),
       fechaRecepcionIso: parsedDate.format("YYYY-MM-DD"),
       total,
-      totalOriginal: total,
+      totalOriginal,
       totalAjustado: total,
       categoria: getDominantCategory(bucket),
       proveedor: bucket.provider,
       estado: "Aprobado",
-      tipoDoc: "Factura de compra",
-      tipoDocNormalizado: "Factura electronica",
-      signoDocumento: 1,
+      tipoDoc: signoDocumento < 0 ? "Nota crédito de compra" : "Factura de compra",
+      tipoDocNormalizado: signoDocumento < 0 ? "Nota de crédito de compra" : "Factura electronica",
+      signoDocumento,
       prefijo: bucket.prefix,
       folio: bucket.number,
       numeroDocumento,
@@ -141,12 +149,17 @@ export function parseComprasPbiRows(rows = [], sourceName = "API de compras PBI"
     if (amount == null) return;
 
     const key = getInvoiceKey(row, index);
-    const bucket = buckets.get(key) || createBucket(row, index);
+    const sign = isCreditPurchaseDocument(row, amount) ? -1 : 1;
+    const bucket = buckets.get(key) || createBucket(row, index, sign);
+    if (sign < 0) {
+      bucket.sign = -1;
+    }
     const category = normalizeCategory(row.Categoria);
-    bucket.total += amount;
+    const absoluteAmount = Math.abs(amount);
+    bucket.total += absoluteAmount;
     bucket.units += parseFlexibleNumber(row.Unidades, 0) || 0;
     bucket.lineCount += 1;
-    bucket.categoryTotals.set(category, (bucket.categoryTotals.get(category) || 0) + amount);
+    bucket.categoryTotals.set(category, (bucket.categoryTotals.get(category) || 0) + absoluteAmount);
     const product = cleanText(row.Producto);
     if (product) bucket.products.add(product);
     buckets.set(key, bucket);
