@@ -145,36 +145,85 @@ async function downloadDriveItemById(token, driveId, itemId, displayName, output
   await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
 }
 
-async function listDriveFolderFiles(token, driveId, folderPath) {
-  const encodedPath = encodeGraphPath(folderPath);
-  let url = `${GRAPH_BASE_URL}/drives/${driveId}/root:/${encodedPath}:/children?$select=id,name,file`;
-  const files = [];
+async function listDriveFolderItemsByUrl(token, url) {
+  const items = [];
 
   while (url) {
     const page = await graphJsonUrl(token, url);
     for (const item of page.value || []) {
-      if (item.file && item.name) {
-        files.push({ id: item.id, name: item.name });
+      if (item.name) {
+        items.push(item);
       }
     }
     url = page["@odata.nextLink"] || "";
   }
 
-  return files;
+  return items;
+}
+
+async function listDriveFolderItems(token, driveId, folderPath) {
+  const encodedPath = encodeGraphPath(folderPath);
+  const url = `${GRAPH_BASE_URL}/drives/${driveId}/root:/${encodedPath}:/children?$select=id,name,file,folder`;
+  return listDriveFolderItemsByUrl(token, url);
+}
+
+async function listDriveFolderItemsById(token, driveId, itemId) {
+  const url = `${GRAPH_BASE_URL}/drives/${driveId}/items/${itemId}/children?$select=id,name,file,folder`;
+  return listDriveFolderItemsByUrl(token, url);
+}
+
+function isAcuseWorkbook(item, acusePattern) {
+  const lowerName = String(item.name || "").toLowerCase();
+  return (
+    item.file &&
+    lowerName.endsWith(".xlsx") &&
+    !lowerName.startsWith("~$") &&
+    lowerName.includes(acusePattern)
+  );
+}
+
+async function findAcuseFilesRecursively(token, driveId, searchRootPath, acusePattern) {
+  const maxDepth = Number(getEnv("MS_GRAPH_ACUSES_SEARCH_DEPTH", "5")) || 5;
+  const rootItems = await listDriveFolderItems(token, driveId, searchRootPath);
+  const queue = rootItems
+    .filter((item) => item.folder)
+    .map((item) => ({ item, depth: 1 }));
+  const matches = rootItems.filter((item) => isAcuseWorkbook(item, acusePattern));
+
+  while (queue.length) {
+    const { item, depth } = queue.shift();
+    if (depth > maxDepth) {
+      continue;
+    }
+
+    const children = await listDriveFolderItemsById(token, driveId, item.id);
+    for (const child of children) {
+      if (isAcuseWorkbook(child, acusePattern)) {
+        matches.push(child);
+      }
+      if (child.folder) {
+        queue.push({ item: child, depth: depth + 1 });
+      }
+    }
+  }
+
+  return matches;
 }
 
 async function resolveAcuseFiles(token, driveId, folderPath) {
   const acusePattern = getEnv("MS_GRAPH_ACUSE_PATTERN", DEFAULT_ACUSE_PATTERN).toLowerCase();
-  const discovered = await listDriveFolderFiles(token, driveId, folderPath);
+  let discovered = [];
+
+  try {
+    discovered = await listDriveFolderItems(token, driveId, folderPath);
+  } catch (error) {
+    const searchRootPath = getEnv("MS_GRAPH_ACUSES_SEARCH_ROOT", "Facturación");
+    console.log(`[ms-files] no se pudo abrir ${folderPath}; buscando acuses dentro de ${searchRootPath}`);
+    discovered = await findAcuseFilesRecursively(token, driveId, searchRootPath, acusePattern);
+  }
+
   const acuseFiles = discovered
-    .filter((item) => {
-      const lowerName = item.name.toLowerCase();
-      return (
-        lowerName.endsWith(".xlsx") &&
-        !lowerName.startsWith("~$") &&
-        lowerName.includes(acusePattern)
-      );
-    })
+    .filter((item) => isAcuseWorkbook(item, acusePattern))
     .sort((a, b) => a.name.localeCompare(b.name, "es", { numeric: true, sensitivity: "base" }));
 
   return acuseFiles;
