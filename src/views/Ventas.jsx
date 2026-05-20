@@ -14,6 +14,114 @@ import { formatCOP, formatCOPFull, formatDate, formatInteger, formatPeriod } fro
 const TEAL = "#1D9E75";
 const CORAL = "#D85A30";
 
+function getStatusKey(status) {
+  const text = String(status || "").toLowerCase();
+  if (text.includes("rechaz")) {
+    return "Rechazado";
+  }
+  if (text.includes("revisi") || text.includes("pend")) {
+    return "En revision";
+  }
+  if (text.includes("aprob")) {
+    return "Aprobado";
+  }
+  return "En revision";
+}
+
+function getPositiveDocumentValue(row) {
+  return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+}
+
+function buildSalesAnalysisRows(rows = []) {
+  const totalBase = rows.reduce((sum, row) => sum + getPositiveDocumentValue(row), 0);
+  const providerMap = new Map();
+  const categoryMap = new Map();
+  const categoryProviderMap = new Map();
+
+  rows.forEach((row) => {
+    const provider = row.cliente || row.proveedor || "Sin cliente";
+    const category = row.categoria || "Sin categoría";
+    const value = getPositiveDocumentValue(row);
+
+    if (!providerMap.has(provider)) {
+      providerMap.set(provider, {
+        provider,
+        total: 0,
+        count: 0,
+        purchaseInvoiceTotal: 0,
+        purchaseInvoiceCount: 0,
+        creditNoteTotal: 0,
+        creditNoteCount: 0,
+        rejectedCount: 0,
+        reviewCount: 0,
+      });
+    }
+    const providerBucket = providerMap.get(provider);
+    providerBucket.total += value;
+    providerBucket.count += 1;
+    providerBucket.purchaseInvoiceTotal += value;
+    providerBucket.purchaseInvoiceCount += 1;
+
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, { category, total: 0, count: 0 });
+    }
+    const categoryBucket = categoryMap.get(category);
+    categoryBucket.total += value;
+    categoryBucket.count += 1;
+
+    if (!categoryProviderMap.has(category)) {
+      categoryProviderMap.set(category, new Map());
+    }
+    const providersByCategory = categoryProviderMap.get(category);
+    if (!providersByCategory.has(provider)) {
+      providersByCategory.set(provider, {
+        provider,
+        total: 0,
+        count: 0,
+        purchaseInvoiceTotal: 0,
+        purchaseInvoiceCount: 0,
+        creditNoteTotal: 0,
+        creditNoteCount: 0,
+        rejectedCount: 0,
+        reviewCount: 0,
+      });
+    }
+    const categoryProviderBucket = providersByCategory.get(provider);
+    categoryProviderBucket.total += value;
+    categoryProviderBucket.count += 1;
+    categoryProviderBucket.purchaseInvoiceTotal += value;
+    categoryProviderBucket.purchaseInvoiceCount += 1;
+  });
+
+  const mapRanking = (map, base, limit) =>
+    [...map.values()]
+      .map((item) => ({
+        ...item,
+        pct: base ? (item.total / base) * 100 : 0,
+        avgTicket: item.purchaseInvoiceCount ? item.purchaseInvoiceTotal / item.purchaseInvoiceCount : 0,
+        incidentCount: item.rejectedCount + item.reviewCount,
+      }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, limit);
+
+  const categories = [...categoryMap.values()]
+    .map((item) => ({ ...item, pct: totalBase ? (item.total / totalBase) * 100 : 0 }))
+    .sort((a, b) => b.total - a.total);
+
+  const providersByCategory = Object.fromEntries(
+    [...categoryProviderMap.entries()].map(([category, providers]) => {
+      const categoryTotal = [...providers.values()].reduce((sum, item) => sum + item.total, 0);
+      return [category, mapRanking(providers, categoryTotal, 5)];
+    })
+  );
+
+  return {
+    providers: mapRanking(providerMap, totalBase, 10),
+    categories,
+    providersByCategory,
+  };
+}
+
 function buildClientReconciliationRows(rows = []) {
   const buckets = new Map();
 
@@ -270,7 +378,7 @@ function DetalleVentas() {
 
 export default function Ventas({ isLoading = false }) {
   const [showDetail, setShowDetail] = useState(false);
-  const [selectedFlowStatus, setSelectedFlowStatus] = useState("Rechazado");
+  const [selectedFlowStatus, setSelectedFlowStatus] = useState(null);
   const detailRef = useRef(null);
 
   const periodContext = useVentasStore((state) => state.periodContext);
@@ -280,11 +388,28 @@ export default function Ventas({ isLoading = false }) {
   const filters = useVentasStore((state) => state.filters);
   const documentSummary = useVentasStore((state) => state.documentSummary);
   const documentStatus = useVentasStore((state) => state.documentStatus);
+  const purchaseInvoiceRows = useVentasStore((state) => state.purchaseInvoiceRows);
   const supplierAccountingRanking = useVentasStore((state) => state.supplierAccountingRanking);
   const supplierRankingByCategory = useVentasStore((state) => state.supplierRankingByCategory);
   const activeMonthDailySpend = useVentasStore((state) => state.activeMonthDailySpend);
   const setFilters = useVentasStore((state) => state.setFilters);
   const clientReconciliationRows = useMemo(() => buildClientReconciliationRows(filteredData), [filteredData]);
+  const statusAnalysis = useMemo(() => {
+    if (!selectedFlowStatus) {
+      return {
+        providers: supplierAccountingRanking,
+        categories: byCategory,
+        providersByCategory: supplierRankingByCategory,
+        count: purchaseInvoiceRows.length,
+      };
+    }
+
+    const rows = purchaseInvoiceRows.filter((row) => getStatusKey(row.estado) === selectedFlowStatus);
+    return {
+      ...buildSalesAnalysisRows(rows),
+      count: rows.length,
+    };
+  }, [byCategory, purchaseInvoiceRows, selectedFlowStatus, supplierAccountingRanking, supplierRankingByCategory]);
 
   const handleSelectDay = (date) => {
     const isSameSelectedDate =
@@ -402,16 +527,24 @@ export default function Ventas({ isLoading = false }) {
             <p className="text-sm text-[var(--txt2)]">Clientes principales y mezcla por categoría de ventas.</p>
           </div>
           <PurchaseAnalysisBlock
-            providers={supplierAccountingRanking}
-            providersByCategory={supplierRankingByCategory}
-            categories={byCategory}
+            providers={statusAnalysis.providers}
+            providersByCategory={statusAnalysis.providersByCategory}
+            categories={statusAnalysis.categories}
             onSelectCategory={(category) => setFilters({ category: category || "ALL", provider: "" })}
             onSelectProvider={(provider) => setFilters({ provider: filters.provider === provider ? "" : provider })}
             entityLabel="cliente"
             rankingTitle="Ranking de ventas por cliente"
-            rankingSubtitle="Clientes con mayor valor vendido."
+            rankingSubtitle={
+              selectedFlowStatus
+                ? `${statusAnalysis.count.toLocaleString("es-CO")} facturas en estado ${selectedFlowStatus.toLowerCase()}.`
+                : "Clientes con mayor valor vendido."
+            }
             mixTitle="Mix de ventas por categoría"
-            mixSubtitle="Ventas y notas crédito agrupadas por categoría."
+            mixSubtitle={
+              selectedFlowStatus
+                ? "Categorías de las facturas del estado seleccionado."
+                : "Ventas y notas crédito agrupadas por categoría."
+            }
           />
         </section>
 
