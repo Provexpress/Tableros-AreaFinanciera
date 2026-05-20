@@ -15,11 +15,6 @@ const DEFAULT_FILES = [
   "reporte semanal de facturacion.xlsx",
 ];
 
-const DEFAULT_ACUSE_FILES = [
-  "1.ACUSES ENERO 2026.xlsx",
-  "2.ACUSES FEBRERO 2026.xlsx",
-  "3.ACUSE MARZO 2026.xlsx",
-];
 const DEFAULT_ACUSE_PATTERN = "acuse";
 
 function getEnv(name, fallback = "") {
@@ -182,9 +177,7 @@ async function resolveAcuseFiles(token, driveId, folderPath) {
     })
     .sort((a, b) => a.name.localeCompare(b.name, "es", { numeric: true, sensitivity: "base" }));
 
-  return acuseFiles.length
-    ? acuseFiles
-    : DEFAULT_ACUSE_FILES.map((name) => ({ id: "", name }));
+  return acuseFiles;
 }
 
 async function main() {
@@ -209,7 +202,11 @@ async function main() {
 
   const acuseFiles = includeAcuses ? await resolveAcuseFiles(token, drive.id, folderPath) : [];
   if (includeAcuses) {
-    console.log(`[ms-files] acuses detectados: ${acuseFiles.map((item) => item.name).join(", ") || "ninguno"}`);
+    if (acuseFiles.length) {
+      console.log(`[ms-files] acuses detectados: ${acuseFiles.map((item) => item.name).join(", ")}`);
+    } else {
+      console.log("[ms-files] acuses detectados: ninguno en la carpeta configurada");
+    }
   }
 
   const fileJobs = [
