@@ -135,16 +135,31 @@ async function downloadDriveItem(token, driveId, driveItemPath, outputPath) {
   await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
 }
 
+async function downloadDriveItemById(token, driveId, itemId, displayName, outputPath) {
+  const response = await fetch(`${GRAPH_BASE_URL}/drives/${driveId}/items/${itemId}/content`, {
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`No se pudo descargar ${displayName}. HTTP ${response.status}: ${text.slice(0, 500)}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  await fs.mkdir(path.dirname(outputPath), { recursive: true });
+  await fs.writeFile(outputPath, Buffer.from(arrayBuffer));
+}
+
 async function listDriveFolderFiles(token, driveId, folderPath) {
   const encodedPath = encodeGraphPath(folderPath);
-  let url = `${GRAPH_BASE_URL}/drives/${driveId}/root:/${encodedPath}:/children?$select=name,file`;
+  let url = `${GRAPH_BASE_URL}/drives/${driveId}/root:/${encodedPath}:/children?$select=id,name,file`;
   const files = [];
 
   while (url) {
     const page = await graphJsonUrl(token, url);
     for (const item of page.value || []) {
       if (item.file && item.name) {
-        files.push(item.name);
+        files.push({ id: item.id, name: item.name });
       }
     }
     url = page["@odata.nextLink"] || "";
@@ -157,17 +172,19 @@ async function resolveAcuseFiles(token, driveId, folderPath) {
   const acusePattern = getEnv("MS_GRAPH_ACUSE_PATTERN", DEFAULT_ACUSE_PATTERN).toLowerCase();
   const discovered = await listDriveFolderFiles(token, driveId, folderPath);
   const acuseFiles = discovered
-    .filter((name) => {
-      const lowerName = name.toLowerCase();
+    .filter((item) => {
+      const lowerName = item.name.toLowerCase();
       return (
         lowerName.endsWith(".xlsx") &&
         !lowerName.startsWith("~$") &&
         lowerName.includes(acusePattern)
       );
     })
-    .sort((a, b) => a.localeCompare(b, "es", { numeric: true, sensitivity: "base" }));
+    .sort((a, b) => a.name.localeCompare(b.name, "es", { numeric: true, sensitivity: "base" }));
 
-  return acuseFiles.length ? acuseFiles : DEFAULT_ACUSE_FILES;
+  return acuseFiles.length
+    ? acuseFiles
+    : DEFAULT_ACUSE_FILES.map((name) => ({ id: "", name }));
 }
 
 async function main() {
@@ -192,16 +209,33 @@ async function main() {
 
   const acuseFiles = includeAcuses ? await resolveAcuseFiles(token, drive.id, folderPath) : [];
   if (includeAcuses) {
-    console.log(`[ms-files] acuses detectados: ${acuseFiles.join(", ") || "ninguno"}`);
+    console.log(`[ms-files] acuses detectados: ${acuseFiles.map((item) => item.name).join(", ") || "ninguno"}`);
   }
 
-  const files = [...new Set([...requiredFiles, ...acuseFiles, ...optionalFiles])];
+  const fileJobs = [
+    ...requiredFiles.map((name) => ({ name, itemId: "" })),
+    ...acuseFiles.map((item) => ({ name: item.name, itemId: item.id || "" })),
+    ...optionalFiles.map((name) => ({ name, itemId: "" })),
+  ];
+  const seenFiles = new Set();
+  const uniqueFileJobs = fileJobs.filter((job) => {
+    const key = job.name.toLowerCase();
+    if (seenFiles.has(key)) {
+      return false;
+    }
+    seenFiles.add(key);
+    return true;
+  });
 
-  for (const fileName of files) {
-    const driveItemPath = joinGraphPath(folderPath, fileName);
-    const outputPath = path.join(dataDir, fileName);
-    await downloadDriveItem(token, drive.id, driveItemPath, outputPath);
-    console.log(`[ms-files] descargado: ${fileName}`);
+  for (const file of uniqueFileJobs) {
+    const driveItemPath = joinGraphPath(folderPath, file.name);
+    const outputPath = path.join(dataDir, file.name);
+    if (file.itemId) {
+      await downloadDriveItemById(token, drive.id, file.itemId, file.name, outputPath);
+    } else {
+      await downloadDriveItem(token, drive.id, driveItemPath, outputPath);
+    }
+    console.log(`[ms-files] descargado: ${file.name}`);
   }
 }
 
