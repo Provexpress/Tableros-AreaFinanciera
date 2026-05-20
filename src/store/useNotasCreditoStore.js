@@ -27,6 +27,50 @@ function resolveDefaultYear(rawWeeks, meta) {
   return years[years.length - 1] || "ALL";
 }
 
+function getNcPeriod(row) {
+  const directPeriod = String(row.monthRef || row.monthKey || row.periodo || "").slice(0, 7);
+  if (/^\d{4}-\d{2}$/.test(directPeriod)) {
+    return directPeriod;
+  }
+
+  const datePeriod = String(row.fechaInicialIso || row.fechaIso || row.fecha || "").slice(0, 7);
+  if (/^\d{4}-\d{2}$/.test(datePeriod)) {
+    return datePeriod;
+  }
+
+  const year = Number(row.year || row.anio || 0);
+  const month = Number(row.monthNumber || row.mesNum || 0);
+  if (year > 0 && month >= 1 && month <= 12) {
+    return `${year}-${String(month).padStart(2, "0")}`;
+  }
+
+  return "";
+}
+
+function buildDefaultFilters(rawWeeks, rawNcRows, meta) {
+  const year = resolveDefaultYear(rawWeeks, meta);
+  const latestNcPeriod = [...new Set(rawNcRows.map(getNcPeriod).filter(Boolean))]
+    .filter((period) => year === "ALL" || period.startsWith(`${year}-`))
+    .sort((a, b) => a.localeCompare(b))
+    .pop();
+
+  if (!latestNcPeriod) {
+    return {
+      ...initialFilters,
+      year,
+      periodRange: [null, null],
+    };
+  }
+
+  return {
+    ...initialFilters,
+    year,
+    month: String(Number(latestNcPeriod.slice(5, 7))),
+    periodRange: [latestNcPeriod, latestNcPeriod],
+    selectedPeriods: [latestNcPeriod],
+  };
+}
+
 function sanitizeFilters(rawWeeks, filters, latestYear, meta) {
   const years = [...new Set(rawWeeks.map((row) => String(row.year)))];
   const next = { ...filters };
@@ -211,12 +255,7 @@ export const useNotasCreditoStore = create((set, get) => ({
     try {
       const { loadDefaultNotasExcel } = await import("@/utils/parseNotasCredito");
       const result = await loadDefaultNotasExcel();
-      const defaultYear = resolveDefaultYear(result.semanal, result.meta);
-      const filters = {
-        ...initialFilters,
-        year: defaultYear,
-        periodRange: [null, null],
-      };
+      const filters = buildDefaultFilters(result.semanal, result.ncDetail, result.meta);
       const computed = recompute(result.semanal, result.ncDetail, filters, null, result.meta);
 
       set({
@@ -248,12 +287,7 @@ export const useNotasCreditoStore = create((set, get) => ({
     try {
       const { parseNotasCreditoFiles } = await import("@/utils/parseNotasCredito");
       const result = await parseNotasCreditoFiles(files);
-      const defaultYear = resolveDefaultYear(result.semanal, result.meta);
-      const filters = {
-        ...initialFilters,
-        year: defaultYear,
-        periodRange: [null, null],
-      };
+      const filters = buildDefaultFilters(result.semanal, result.ncDetail, result.meta);
       const computed = recompute(result.semanal, result.ncDetail, filters, null, result.meta);
 
       set({
@@ -324,12 +358,7 @@ export const useNotasCreditoStore = create((set, get) => ({
 
   clearFilters: () => {
     const { rawWeeks, rawNcRows, sourceMeta } = get();
-    const defaultYear = resolveDefaultYear(rawWeeks, sourceMeta);
-    const filters = {
-      ...initialFilters,
-      year: defaultYear,
-      periodRange: [null, null],
-    };
+    const filters = buildDefaultFilters(rawWeeks, rawNcRows, sourceMeta);
     const computed = recompute(rawWeeks, rawNcRows, filters, null, sourceMeta);
 
     set({

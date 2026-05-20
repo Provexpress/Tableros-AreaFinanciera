@@ -51,10 +51,17 @@ export default function NotasCalendarBoard() {
             note: week.note,
             monthKey: raw?.monthKey || null,
             monthNumber: Number(raw?.monthNumber || 0),
+            fechaInicialIso: raw?.fechaInicialIso || "",
+            weekOfMonth: Number(raw?.weekOfMonth || 0),
             isSelected: selectedWeek === week.key,
           };
         })
-        .filter((week) => week.monthKey),
+        .filter((week) => week.monthKey)
+        .sort(
+          (a, b) =>
+            String(b.fechaInicialIso).localeCompare(String(a.fechaInicialIso)) ||
+            Number(b.weekOfMonth || 0) - Number(a.weekOfMonth || 0)
+        ),
     [rawWeekMap, selectedWeek, weekOptions]
   );
 
