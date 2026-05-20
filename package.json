@@ -11,7 +11,6 @@
     "build:pbi-cache": "node --experimental-specifier-resolution=node scripts/generate-pbi-cache.mjs",
     "sync:public-cache": "node scripts/sync-public-cache.mjs",
     "probe:pbi": "node scripts/probe-pbi-api.mjs",
-    "compare:pbi-compras": "node scripts/compare-pbi-compras.mjs",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

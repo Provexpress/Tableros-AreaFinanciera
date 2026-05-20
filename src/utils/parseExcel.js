@@ -33,7 +33,6 @@ export const COLUMNAS = {
 const VALID_START = dayjs("2024-01-01");
 const VALID_END = dayjs("2026-12-31");
 const MASTER_SHEET = "Facturas_Maestra";
-const SALES_SHEET_CANDIDATES = ["Ventas", "VENTAS", "FV", "Facturas Venta", "Facturas_Venta", "Facturas de Venta"];
 
 let xlsxModulePromise = null;
 let defaultExcelPromise = null;
@@ -363,102 +362,6 @@ function createInvoice(row, index) {
   };
 }
 
-function getFirstValue(row, names) {
-  for (const name of names) {
-    if (row[name] != null && row[name] !== "") {
-      return row[name];
-    }
-  }
-
-  const normalizedMap = new Map(
-    Object.keys(row).map((key) => [normalizeText(key), key])
-  );
-
-  for (const name of names) {
-    const key = normalizedMap.get(normalizeText(name));
-    if (key && row[key] != null && row[key] !== "") {
-      return row[key];
-    }
-  }
-
-  return null;
-}
-
-function createSalesInvoice(row, index) {
-  const rawDate = getFirstValue(row, ["fecha", "Fecha", "Fecha_Emision", "Fecha emision", "fecha_emision"]);
-  const parsedDate = parseSpreadsheetDate(rawDate);
-  const gross = parseFlexibleNumber(getFirstValue(row, ["monto bruto", "Monto bruto", "Total", "Valor bruto", "total"]), null);
-  const creditNotes = parseFlexibleNumber(getFirstValue(row, ["notas credito asociadas", "Notas credito asociadas", "NC", "Notas_Credito", "total nc"]), 0) || 0;
-  const documentNumber = cleanText(getFirstValue(row, ["numero factura venta", "Número factura venta", "Numero factura venta", "Factura", "Folio", "Numero"]));
-  const client = cleanText(getFirstValue(row, ["cliente", "Cliente", "Cliente (NIT + razon social)", "Cliente (NIT + razón social)", "Razon social", "Nombre cliente"]));
-  const category = cleanText(getFirstValue(row, ["categoria", "Categoría", "Categoria_Final"])) || "Otros";
-
-  if (!parsedDate?.isValid()) {
-    return { valid: false, reason: "invalid-date" };
-  }
-
-  if (!gross || gross <= 0 || !client) {
-    return { valid: false, reason: !client ? "missing-client" : "invalid-total" };
-  }
-
-  const common = {
-    fecha: parsedDate.toDate(),
-    fechaIso: parsedDate.format("YYYY-MM-DD"),
-    fechaRecepcion: parsedDate.toDate(),
-    fechaRecepcionIso: parsedDate.format("YYYY-MM-DD"),
-    categoria: normalizeCategory(category),
-    proveedor: client,
-    cliente: client,
-    estado: normalizeStatus(getFirstValue(row, ["estado", "Estado", "Estado_Final"])),
-    prefijo: "FV",
-    folio: documentNumber,
-    numeroDocumento: documentNumber || `FV-${index + 1}`,
-    nit: cleanText(getFirstValue(row, ["nit", "NIT", "NIT cliente", "NIT_Cliente"])),
-    periodo: parsedDate.format("YYYY-MM"),
-    anio: parsedDate.year(),
-    mesNum: parsedDate.month() + 1,
-    oc: "",
-    obs1: "",
-    obs2: "",
-    observacionContabilidad: "",
-    observacionRechazos: cleanText(getFirstValue(row, ["motivo rechazo", "Motivo rechazo", "Motivo_Rechazo"])),
-    conciliacion: "",
-    validacion: "",
-  };
-  const motivoRechazo = common.observacionRechazos;
-  const invoice = {
-    ...common,
-    id: `venta-${common.numeroDocumento}-${common.fechaIso}-${index}`,
-    total: gross,
-    totalOriginal: gross,
-    totalAjustado: gross,
-    tipoDoc: "Factura de venta",
-    tipoDocNormalizado: "Factura de venta",
-    signoDocumento: 1,
-    motivoRechazo,
-    observacion: motivoRechazo || "-",
-  };
-
-  if (creditNotes > 0) {
-    const credit = {
-      ...common,
-      id: `venta-nc-${common.numeroDocumento}-${common.fechaIso}-${index}`,
-      total: -Math.abs(creditNotes),
-      totalOriginal: Math.abs(creditNotes),
-      totalAjustado: -Math.abs(creditNotes),
-      tipoDoc: "Nota de credito de venta",
-      tipoDocNormalizado: "Nota de credito",
-      signoDocumento: -1,
-      numeroDocumento: `${common.numeroDocumento || `FV-${index + 1}`}-NC`,
-      motivoRechazo,
-      observacion: "NC asociada a factura de venta",
-    };
-    return { valid: true, values: [invoice, credit] };
-  }
-
-  return { valid: true, values: [invoice] };
-}
-
 export async function parseWorkbook(workbook, sourceName = "Control Facturas.xlsx") {
   const worksheet = workbook.Sheets[MASTER_SHEET];
   if (!worksheet) {
@@ -514,74 +417,6 @@ export async function parseWorkbook(workbook, sourceName = "Control Facturas.xls
   };
 }
 
-export async function parseVentasWorkbook(workbook, sourceName = "Control Facturas.xlsx") {
-  const sheetName = SALES_SHEET_CANDIDATES.find((name) => workbook.Sheets[name]);
-  if (!sheetName) {
-    return {
-      data: [],
-      meta: {
-        sourceName,
-        sheetName: null,
-        totalRows: 0,
-        validRows: 0,
-        skippedRows: 0,
-        range: { start: null, end: null },
-        stats: { missingSheet: true },
-        columns: [],
-      },
-    };
-  }
-
-  const rows = await sheetToJson(workbook.Sheets[sheetName]);
-  const parsed = [];
-  const stats = {
-    totalRows: rows.length,
-    invalidDate: 0,
-    invalidTotal: 0,
-    missingClient: 0,
-  };
-
-  rows.forEach((row, index) => {
-    const result = createSalesInvoice(row, index);
-    if (!result.valid) {
-      if (result.reason === "invalid-date") stats.invalidDate += 1;
-      if (result.reason === "invalid-total") stats.invalidTotal += 1;
-      if (result.reason === "missing-client") stats.missingClient += 1;
-      return;
-    }
-    parsed.push(...result.values);
-  });
-
-  parsed.sort((a, b) => a.periodo.localeCompare(b.periodo) || a.proveedor.localeCompare(b.proveedor));
-
-  return {
-    data: parsed,
-    meta: {
-      sourceName,
-      sheetName,
-      totalRows: rows.length,
-      validRows: parsed.length,
-      skippedRows: rows.length - parsed.length,
-      range: {
-        start: parsed[0]?.periodo || null,
-        end: parsed[parsed.length - 1]?.periodo || null,
-      },
-      stats,
-      columns: Object.keys(rows[0] || {}),
-    },
-  };
-}
-
-export async function parseExcelFile(file) {
-  const workbook = await readWorkbookFromFile(file);
-  return parseWorkbook(workbook, file.name);
-}
-
-export async function parseVentasExcelFile(file) {
-  const workbook = await readWorkbookFromFile(file);
-  return parseVentasWorkbook(workbook, file.name);
-}
-
 export async function loadDefaultExcel() {
   if (defaultExcelCache) {
     return defaultExcelCache;
@@ -610,9 +445,4 @@ export async function loadDefaultExcel() {
   }
 
   return defaultExcelPromise;
-}
-
-export async function loadDefaultVentasExcel() {
-  const workbook = await readWorkbookFromURL(DEFAULT_WORKBOOK_URL);
-  return parseVentasWorkbook(workbook, "Control Facturas.xlsx");
 }

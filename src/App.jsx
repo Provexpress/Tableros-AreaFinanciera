@@ -89,7 +89,6 @@ export default function App() {
     _filterPending: facturasFilterPending,
     error: facturasError,
     loadDefaultWorkbook,
-    loadWorkbookFile,
     clearFilters: clearFacturasFilters,
     setFocusPeriod: setFacturasFocusPeriod,
   } = useFacturasStore(
@@ -104,7 +103,6 @@ export default function App() {
       _filterPending: s._filterPending,
       error: s.error,
       loadDefaultWorkbook: s.loadDefaultWorkbook,
-      loadWorkbookFile: s.loadWorkbookFile,
       clearFilters: s.clearFilters,
       setFocusPeriod: s.setFocusPeriod,
     }))
@@ -416,7 +414,6 @@ export default function App() {
           clearFacturasFilters();
         },
         onClearFocus: null,
-        onUpload: null,
         showSidebar: true,
         emptyHint: "Verifica que los datos de compras, ventas y notas crédito estén listos en la carpeta Data.",
       };
@@ -460,7 +457,6 @@ export default function App() {
         focusLabel: null,
         onClearFilters: clearVentasFilters,
         onClearFocus: null,
-        onUpload: null,
         showSidebar: true,
         emptyHint: "Carga un archivo con datos de ventas",
       };
@@ -516,7 +512,6 @@ export default function App() {
         focusLabel: notasSelectedWeekMeta ? `${notasSelectedWeekMeta.label} ${notasSelectedWeekMeta.year}` : null,
         onClearFilters: clearNotasFilters,
         onClearFocus: clearNotasSelectedWeek,
-        onUpload: null,
         showSidebar: true,
         emptyHint: "Verifica que los Excel maestros semanales y de NC estén disponibles dentro de la carpeta Data.",
       };
@@ -591,7 +586,6 @@ export default function App() {
       focusLabel: facturasFocusPeriod !== "ALL" ? formatPeriod(facturasFocusPeriod) : null,
       onClearFilters: clearFacturasFilters,
       onClearFocus: () => setFacturasFocusPeriod("ALL"),
-      onUpload: null,
       showSidebar: true,
       emptyHint: "Verifica que la tabla maestra de facturas esté disponible dentro de la carpeta Data.",
     };
@@ -635,7 +629,6 @@ export default function App() {
     facturasHasActiveFilters,
     facturasFocusPeriod,
     clearFacturasFilters,
-    loadWorkbookFile,
     setFacturasFocusPeriod,
   ]);
 
@@ -646,7 +639,6 @@ export default function App() {
         routes={routes}
         title={shell.title}
         isLoading={shell.isLoading}
-        onUpload={shell.onUpload}
         onToggleSidebar={shell.showSidebar !== false ? () => setSidebarOpen(true) : null}
       />
 

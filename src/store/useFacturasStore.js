@@ -507,38 +507,6 @@ export const useFacturasStore = create((set, get) => ({
     }
   },
 
-  loadWorkbookFile: async (file) => {
-    if (!file) {
-      return;
-    }
-
-    set({ isLoading: true, error: null });
-    try {
-      const { parseExcelFile } = await import("@/utils/parseExcel");
-      const result = await parseExcelFile(file);
-      const periodRange = [result.meta.range.start, result.meta.range.end];
-      const filters = { ...initialFilters, periodRange };
-      const computed = recompute(result.data, filters, "ALL", result.meta);
-
-      set({
-        rawData: result.data,
-        sourceMeta: result.meta,
-        sourceName: file.name,
-        isLoading: false,
-        error: null,
-        ...computed,
-      });
-    } catch (error) {
-      set({
-        isLoading: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : "No fue posible procesar el archivo Excel cargado.",
-      });
-    }
-  },
-
   setFilters: (partial) => {
     const current = get().filters;
     const nextFilters = { ...current, ...partial };

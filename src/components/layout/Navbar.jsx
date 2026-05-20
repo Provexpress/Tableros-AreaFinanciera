@@ -1,6 +1,6 @@
-import { forwardRef, useRef } from "react";
+import { forwardRef } from "react";
 import { NavLink } from "react-router-dom";
-import { Menu, Upload } from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
@@ -8,11 +8,8 @@ const Navbar = forwardRef(function Navbar({
   routes,
   title,
   isLoading,
-  onUpload,
   onToggleSidebar,
 }, ref) {
-  const inputRef = useRef(null);
-
   return (
     <header
       ref={ref}
@@ -69,33 +66,6 @@ const Navbar = forwardRef(function Navbar({
                 ))}
               </div>
             </nav>
-
-            {onUpload ? (
-              <>
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept=".xlsx,.xls"
-                  className="hidden"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) {
-                      onUpload(file);
-                    }
-                    event.target.value = "";
-                  }}
-                />
-                <Button
-                  size="sm"
-                  onClick={() => inputRef.current?.click()}
-                  disabled={isLoading}
-                  className="disabled:opacity-50"
-                >
-                  <Upload className="h-4 w-4" />
-                  {isLoading ? "Cargando..." : "Cargar"}
-                </Button>
-              </>
-            ) : null}
           </div>
         </div>
       </div>
