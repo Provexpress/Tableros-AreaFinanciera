@@ -191,6 +191,7 @@ async function main() {
   const sitePath = getEnv("MS_GRAPH_SITE_PATH", "/sites/ProvexpressIntranet/Adminyfinanciero");
   const driveName = getEnv("MS_GRAPH_DRIVE_NAME", "Documentos compartidos");
   const folderPath = getEnv("MS_GRAPH_FOLDER_PATH", "Facturación/Director de Facturación");
+  const acusesFolderPath = getEnv("MS_GRAPH_ACUSES_FOLDER_PATH", folderPath);
   const requiredFiles = parseCsv(getEnv("MS_GRAPH_FILES", DEFAULT_FILES.join(",")));
   const optionalFiles = parseCsv(getEnv("MS_GRAPH_OPTIONAL_FILES", ""));
   const includeAcuses = getEnv("MS_GRAPH_DOWNLOAD_ACUSES", "false").toLowerCase() === "true";
@@ -200,12 +201,12 @@ async function main() {
   const drive = await getDrive(token, site.id, driveName);
   console.log(`[ms-files] biblioteca: ${drive.name}`);
 
-  const acuseFiles = includeAcuses ? await resolveAcuseFiles(token, drive.id, folderPath) : [];
+  const acuseFiles = includeAcuses ? await resolveAcuseFiles(token, drive.id, acusesFolderPath) : [];
   if (includeAcuses) {
     if (acuseFiles.length) {
-      console.log(`[ms-files] acuses detectados: ${acuseFiles.map((item) => item.name).join(", ")}`);
+      console.log(`[ms-files] acuses detectados en ${acusesFolderPath}: ${acuseFiles.map((item) => item.name).join(", ")}`);
     } else {
-      console.log("[ms-files] acuses detectados: ninguno en la carpeta configurada");
+      console.log(`[ms-files] acuses detectados: ninguno en ${acusesFolderPath}`);
     }
   }
 
