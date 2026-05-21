@@ -108,6 +108,13 @@ function normalizeCause(value) {
 function resolveBusinessWeekDate(startDate, endDate, yearValue) {
   const businessYear = Number(yearValue || startDate?.year() || endDate?.year() || 0);
 
+  if (startDate?.year() === businessYear && endDate?.year() === businessYear) {
+    if (startDate.format("YYYY-MM") !== endDate.format("YYYY-MM")) {
+      return endDate;
+    }
+    return startDate;
+  }
+
   if (startDate?.year() === businessYear) {
     return startDate;
   }
