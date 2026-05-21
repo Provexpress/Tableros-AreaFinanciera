@@ -41,7 +41,7 @@ function SummaryCard({ label, description, count, amount, helper = null, tone = 
               {formatCOPCompact(amount)}
             </div>
             {helper ? <div className="text-xs text-[var(--txt3)]">{helper}</div> : null}
-            <div className="flex items-center justify-between gap-3 rounded-[8px] border border-white/5 bg-[var(--bg)] px-3 py-2 text-sm">
+            <div className="flex items-center justify-between gap-3 rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] px-3 py-2 text-sm">
               <span className="min-w-0 text-[var(--txt2)]">Cantidad</span>
               <span className="shrink-0 font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                 {formatInteger(count)}

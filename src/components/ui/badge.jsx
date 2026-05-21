@@ -6,7 +6,7 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-white/10 bg-white/5 text-[var(--txt2)] hover:bg-white/8",
+        default: "border-[rgba(26,43,107,0.12)] bg-[var(--surface-3)] text-[var(--txt2)] hover:bg-[var(--surface-2)]",
         tech: "border-[var(--tec)]/30 bg-[color:rgb(79_142_247_/_0.12)] text-[var(--tec)] hover:border-[var(--tec)]/45",
         pac: "border-[var(--pac)]/30 bg-[color:rgb(52_200_138_/_0.12)] text-[var(--pac)] hover:border-[var(--pac)]/45",
         gasto: "border-[var(--gasto)]/30 bg-[color:rgb(245_166_35_/_0.12)] text-[var(--gasto)] hover:border-[var(--gasto)]/45",

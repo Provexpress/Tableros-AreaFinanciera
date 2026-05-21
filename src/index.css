@@ -5,27 +5,28 @@
 @tailwind utilities;
 
 :root {
-  --bg: #12151a;
-  --bg-rgb: 18 21 26;
-  --surface: #1a1e26;
-  --surface-2: #22272f;
-  --border: rgba(255, 255, 255, 0.08);
-  --txt: #e8eaef;
-  --txt2: #9ca3b4;
-  --txt3: #6b7280;
-  --tec: #4f8ef7;
-  --pac: #34c88a;
-  --gasto: #f5a623;
-  --serv: #a78bfa;
-  --pactec: #1fcbcb;
-  --nocat: #545869;
-  --success: #34c88a;
-  --warning: #f5a623;
-  --danger: #e05c5c;
-  --chart-grid: rgba(255, 255, 255, 0.09);
-  --chart-axis: #9ca3b4;
-  --chart-tooltip-bg: #22272f;
-  --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+  --bg: #f5f7fd;
+  --bg-rgb: 245 247 253;
+  --surface: #ffffff;
+  --surface-2: #eef3ff;
+  --surface-3: #f8faff;
+  --border: rgba(26, 43, 107, 0.12);
+  --txt: #1a2b6b;
+  --txt2: #677592;
+  --txt3: #8a94a9;
+  --tec: #1565c0;
+  --pac: #16a34a;
+  --gasto: #d97706;
+  --serv: #6a3fa0;
+  --pactec: #2abfdf;
+  --nocat: #9b9b9b;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #c62828;
+  --chart-grid: rgba(26, 43, 107, 0.1);
+  --chart-axis: #677592;
+  --chart-tooltip-bg: rgba(255, 255, 255, 0.96);
+  --chart-tooltip-border: rgba(26, 43, 107, 0.12);
   --chart-year-2024: var(--pac);
   --chart-year-2025: var(--tec);
   --chart-year-2026: var(--gasto);
@@ -72,10 +73,13 @@ body,
 
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(circle at top left, rgba(42, 191, 223, 0.16), transparent 28rem),
+    linear-gradient(180deg, #eef3ff 0%, #f8faff 42%, var(--bg) 100%);
   color: var(--txt);
   font-family: "DM Sans", sans-serif;
   font-weight: 400;
+  background-attachment: fixed;
 }
 
 button,
@@ -90,7 +94,7 @@ a {
 }
 
 ::selection {
-  background: rgba(79, 142, 247, 0.32);
+  background: rgba(21, 101, 192, 0.18);
 }
 
 :focus-visible {
@@ -104,22 +108,22 @@ a {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg);
+  background: rgba(238, 243, 255, 0.8);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(26, 43, 107, 0.16);
   border-radius: 999px;
   transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(26, 43, 107, 0.28);
 }
 
 .filter-sidebar-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: rgba(26, 43, 107, 0.18) transparent;
 }
 
 .filter-sidebar-scroll::-webkit-scrollbar {
@@ -131,12 +135,12 @@ a {
 }
 
 .filter-sidebar-scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(26, 43, 107, 0.16);
   border-radius: 999px;
 }
 
 .filter-sidebar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(26, 43, 107, 0.28);
 }
 
 .recharts-tooltip-wrapper {
@@ -175,8 +179,8 @@ a {
 }
 
 .filter-card:hover {
-  border-color: rgba(255, 255, 255, 0.15);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(21, 101, 192, 0.22);
+  background-color: rgba(238, 243, 255, 0.72);
 }
 
 /* ── Select element transitions ───────────────── */
@@ -191,7 +195,7 @@ select {
 
 .active-filter-pill:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 18px rgba(26, 43, 107, 0.1);
 }
 
 /* ── Stagger: KPI cards, grid items ─────────────── */
@@ -222,7 +226,7 @@ select {
 /* ── Number counter pulse on change ────────────── */
 @keyframes pulse-glow {
   0% { text-shadow: 0 0 0 rgba(79, 142, 247, 0); }
-  50% { text-shadow: 0 0 18px rgba(79, 142, 247, 0.35); }
+  50% { text-shadow: 0 0 18px rgba(21, 101, 192, 0.28); }
   100% { text-shadow: 0 0 0 rgba(79, 142, 247, 0); }
 }
 
@@ -265,9 +269,9 @@ select {
 }
 
 .chart-tooltip-panel {
-  background: rgba(24, 28, 36, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+  background: var(--chart-tooltip-bg);
+  border: 1px solid var(--chart-tooltip-border);
+  box-shadow: 0 18px 42px rgba(26, 43, 107, 0.12);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -300,9 +304,9 @@ select {
   height: 10px;
   border-radius: 999px;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.04)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.7), rgba(238, 243, 255, 0.92)),
     var(--surface-2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(26, 43, 107, 0.1);
 }
 
 .powerbi-range__selection {
@@ -311,8 +315,8 @@ select {
   height: 10px;
   transform: translateY(-50%);
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(79, 142, 247, 0.72), rgba(79, 142, 247, 0.9));
-  box-shadow: 0 0 0 1px rgba(79, 142, 247, 0.2), 0 6px 18px rgba(79, 142, 247, 0.18);
+  background: linear-gradient(90deg, rgba(21, 101, 192, 0.82), rgba(106, 63, 160, 0.78));
+  box-shadow: 0 0 0 1px rgba(21, 101, 192, 0.16), 0 8px 18px rgba(26, 43, 107, 0.12);
   transition: left 0.14s ease, width 0.14s ease;
   pointer-events: none;
 }
@@ -344,9 +348,9 @@ select {
   height: 18px;
   margin-top: -4px;
   border-radius: 999px;
-  border: 2px solid rgba(79, 142, 247, 0.8);
-  background: var(--txt);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(21, 101, 192, 0.85);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(26, 43, 107, 0.18);
   cursor: ew-resize;
 }
 
@@ -355,8 +359,8 @@ select {
   width: 18px;
   height: 18px;
   border-radius: 999px;
-  border: 2px solid rgba(79, 142, 247, 0.8);
-  background: var(--txt);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(21, 101, 192, 0.85);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(26, 43, 107, 0.18);
   cursor: ew-resize;
 }

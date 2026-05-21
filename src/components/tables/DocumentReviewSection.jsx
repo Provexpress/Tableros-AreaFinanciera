@@ -38,7 +38,7 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
             <button
               type="button"
               onClick={() => setVisibleCount((current) => Math.min(current + LOAD_MORE_STEP, rows.length))}
-              className="rounded-[8px] border border-white/8 bg-[var(--bg)] px-3 py-1.5 text-[var(--txt2)] transition-colors hover:border-white/14 hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
+              className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-white px-3 py-1.5 text-[var(--txt2)] transition-colors hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
             >
               Ver mas
             </button>
@@ -47,7 +47,7 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
             <button
               type="button"
               onClick={() => setVisibleCount(INITIAL_VISIBLE_ROWS)}
-              className="rounded-[8px] border border-white/8 bg-[var(--bg)] px-3 py-1.5 text-[var(--txt2)] transition-colors hover:border-white/14 hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
+              className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-white px-3 py-1.5 text-[var(--txt2)] transition-colors hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
             >
               Ver menos
             </button>
@@ -55,7 +55,7 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
         </div>
       </CardHeader>
       <CardContent>
-        <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-white/5">
+        <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <Table className="min-w-[620px] table-fixed">
             <thead>
               <tr>
@@ -74,7 +74,7 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
                 </tr>
               ) : (
                 visibleRows.map((row) => (
-                  <tr key={row.id} className="bg-[var(--bg)] even:bg-white/[0.01] hover:bg-[var(--surface-2)]">
+                  <tr key={row.id} className="bg-white even:bg-[var(--surface-3)] hover:bg-[var(--surface-2)]">
                     <TableCell className="whitespace-nowrap">{formatDate(row.fecha)}</TableCell>
                     <TableCell className="text-[var(--txt)]">
                       <div className="truncate" title={row.proveedor}>

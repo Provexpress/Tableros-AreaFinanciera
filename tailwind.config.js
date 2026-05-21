@@ -34,7 +34,7 @@ export default {
         mono: ["DM Mono", "monospace"],
       },
       boxShadow: {
-        panel: "0 18px 42px rgba(0, 0, 0, 0.28)",
+        panel: "0 18px 42px rgba(26, 43, 107, 0.08)",
       },
       borderRadius: {
         xl2: "10px",

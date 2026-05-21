@@ -32,7 +32,7 @@ function getDeltaMeta(value) {
 
 function EmptyState({ children }) {
   return (
-    <div className="rounded-[10px] border border-dashed border-white/10 px-4 py-5 text-sm text-[var(--txt3)]">
+    <div className="rounded-[10px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] px-4 py-5 text-sm text-[var(--txt3)]">
       {children}
     </div>
   );
@@ -40,7 +40,7 @@ function EmptyState({ children }) {
 
 function SummaryTile({ label, value, helper = null, toneClass = "text-[var(--txt)]" }) {
   return (
-    <div className="rounded-[10px] border border-white/8 bg-[var(--surface-2)] px-4 py-3">
+    <div className="rounded-[10px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-2)] px-4 py-3">
       <div className="text-[11px] uppercase tracking-[0.12em] text-[var(--txt3)]">{label}</div>
       <div className={cn("mt-2 text-lg font-medium", toneClass)}>{value}</div>
       {helper ? <div className="mt-1 text-xs text-[var(--txt3)]">{helper}</div> : null}
@@ -67,10 +67,10 @@ function DeltaList({ title, items, emptyMessage, selectedKey = null, onSelect = 
                 onClick={onSelect ? () => onSelect(item) : undefined}
                 className={cn(
                   "w-full rounded-[10px] border px-3 py-3 text-left",
-                  onSelect ? "cursor-pointer transition-colors hover:border-white/14 hover:bg-[var(--surface-2)]/88" : "cursor-default",
+                  onSelect ? "cursor-pointer transition-colors hover:border-[rgba(21,101,192,0.22)] hover:bg-[var(--surface-2)]/88" : "cursor-default",
                   selectedKey === item.key
                     ? "border-[var(--tec)]/28 bg-[color:rgb(79_142_247_/_0.08)]"
-                    : "border-white/8 bg-[var(--surface-2)]"
+                    : "border-[rgba(26,43,107,0.1)] bg-white"
                 )}
               >
                 <div className="flex items-start justify-between gap-3">

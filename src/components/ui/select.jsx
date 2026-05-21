@@ -6,7 +6,7 @@ export function Select({ className, children, ...props }) {
     <div className="relative w-full">
       <select
         className={cn(
-          "h-11 w-full appearance-none rounded-md border border-white/10 bg-[var(--surface-2)] px-3 pr-10 text-[15px] text-[var(--txt)] outline-none transition-all duration-150 focus:border-[var(--tec)] focus:ring-2 focus:ring-[var(--tec)]/20",
+          "h-11 w-full appearance-none rounded-md border border-[rgba(26,43,107,0.12)] bg-white px-3 pr-10 text-[15px] text-[var(--txt)] outline-none transition-all duration-150 focus:border-[var(--tec)] focus:ring-2 focus:ring-[var(--tec)]/16",
           className
         )}
         {...props}

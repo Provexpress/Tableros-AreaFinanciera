@@ -17,7 +17,7 @@ const Navbar = forwardRef(function Navbar({
     <header
       ref={ref}
       role="banner"
-      className="sticky top-0 z-30 border-b border-white/5 bg-[color:rgb(var(--bg-rgb)_/_0.92)] backdrop-blur"
+      className="sticky top-0 z-30 border-b border-[rgba(26,43,107,0.1)] bg-[rgba(255,255,255,0.88)] shadow-[0_12px_28px_rgba(26,43,107,0.06)] backdrop-blur"
     >
       <div className="px-4 py-3 sm:px-5 lg:px-6 xl:px-8">
         <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
@@ -35,16 +35,21 @@ const Navbar = forwardRef(function Navbar({
               </Button>
             ) : null}
 
-            <div className={cn(
-              "min-w-0 truncate text-sm font-medium text-[var(--txt)] sm:text-base",
-              isLoading && "opacity-70"
-            )}>
-              {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--tec)]" />
-                  {title}
-                </span>
-              ) : title}
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-[rgba(26,43,107,0.1)] bg-white shadow-[0_8px_20px_rgba(26,43,107,0.08)]">
+                <img src="/assets/provexpress-logo.webp" alt="" className="h-6 w-6 object-contain" />
+              </div>
+              <div className={cn(
+                "min-w-0 truncate text-sm font-semibold text-[var(--txt)] sm:text-base",
+                isLoading && "opacity-70"
+              )}>
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--tec)]" />
+                    {title}
+                  </span>
+                ) : title}
+              </div>
             </div>
           </div>
 
@@ -59,8 +64,8 @@ const Navbar = forwardRef(function Navbar({
                       cn(
                         "rounded-md border px-3 py-1.5 text-sm whitespace-nowrap transition-all duration-200",
                         isActive
-                          ? "border-[var(--tec)]/35 bg-[color:rgb(79_142_247_/_0.12)] text-[var(--txt)] shadow-sm"
-                          : "border-white/10 bg-[var(--surface)] text-[var(--txt2)] hover:border-white/20 hover:bg-[var(--surface-2)] hover:text-[var(--txt)] hover:shadow-sm"
+                          ? "border-transparent bg-[linear-gradient(135deg,#1a2b6b_0%,#1565c0_55%,#6a3fa0_100%)] text-white shadow-[0_10px_22px_rgba(26,43,107,0.16)]"
+                          : "border-[rgba(26,43,107,0.1)] bg-white text-[var(--txt2)] hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)] hover:shadow-sm"
                       )
                     }
                   >
@@ -71,12 +76,12 @@ const Navbar = forwardRef(function Navbar({
             </nav>
 
             {authEnabled && userEmail ? (
-              <div className="flex min-w-0 items-center gap-2 rounded-md border border-white/10 bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--txt2)]">
+              <div className="flex min-w-0 items-center gap-2 rounded-md border border-[rgba(26,43,107,0.1)] bg-white px-2 py-1.5 text-sm text-[var(--txt2)] shadow-[0_8px_20px_rgba(26,43,107,0.05)]">
                 <UserCircle className="h-4 w-4 shrink-0 text-[var(--tec)]" />
                 <span className="max-w-[180px] truncate">{userEmail}</span>
                 <button
                   type="button"
-                  className="rounded-sm p-1 text-[var(--txt2)] transition-colors hover:bg-white/5 hover:text-[var(--txt)]"
+                  className="rounded-sm p-1 text-[var(--txt2)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
                   onClick={signOut}
                   aria-label="Cerrar sesión"
                   title="Cerrar sesión"

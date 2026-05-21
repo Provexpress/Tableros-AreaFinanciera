@@ -82,7 +82,7 @@ export default function KpiCard({
     <Card
       className={cn(
         "relative overflow-hidden before:absolute before:right-0 before:top-0 before:h-full before:w-[3px]",
-        "transition-all duration-200 hover:translate-y-[-2px] hover:border-white/15 hover:shadow-lg",
+        "transition-all duration-200 hover:translate-y-[-2px] hover:border-[rgba(21,101,192,0.2)] hover:shadow-[0_18px_38px_rgba(26,43,107,0.12)]",
         toneMap[accentColor] || toneMap.blue,
         className
       )}

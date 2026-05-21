@@ -15,7 +15,7 @@ function FormulaStep({ label, value, helper, tone = "default" }) {
           : "text-[var(--txt)]";
 
   return (
-    <div className="min-w-0 flex-1 rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
+    <div className="min-w-0 flex-1 rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] p-3">
       <div className="text-[11px] uppercase tracking-[0.08em] text-[var(--txt3)]">{label}</div>
       <div className={cn("mt-1 font-mono text-lg font-medium [font-variant-numeric:tabular-nums]", toneClass)}>
         {value}
@@ -218,10 +218,10 @@ function EntityRow({ index, label, value, helper, active = false, onClick }) {
         "grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 rounded-[8px] border px-3 py-2.5 text-left transition",
         active
           ? "border-[var(--tec)] bg-[var(--tec)]/10"
-          : "border-white/8 bg-white/[0.03] hover:border-white/15 hover:bg-white/[0.05]"
+          : "border-[rgba(26,43,107,0.1)] bg-white hover:border-[rgba(21,101,192,0.22)] hover:bg-[var(--surface-2)]"
       )}
     >
-      <div className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-white/[0.05] text-xs font-medium text-[var(--txt2)]">
+      <div className="flex h-6 w-6 items-center justify-center rounded-[6px] bg-[var(--surface-2)] text-xs font-medium text-[var(--txt2)]">
         {index}
       </div>
       <div className="min-w-0">
@@ -258,7 +258,7 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar"
-              className="h-9 w-full rounded-[8px] border border-white/10 bg-white/[0.03] px-3 text-sm text-[var(--txt)] outline-none transition focus:border-[var(--tec)]/50"
+              className="h-9 w-full rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-white px-3 text-sm text-[var(--txt)] outline-none transition focus:border-[var(--tec)]/50"
             />
             <div className="max-h-[360px] space-y-2 overflow-auto pr-1">
             {visibleRows.map((row, index) => (
@@ -273,14 +273,14 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
               />
             ))}
             {!visibleRows.length ? (
-              <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
+              <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] px-3 py-4 text-sm text-[var(--txt2)]">
                 Sin coincidencias para la búsqueda.
               </div>
             ) : null}
             </div>
           </div>
         ) : (
-          <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
+          <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] px-3 py-4 text-sm text-[var(--txt2)]">
             {emptyText}
           </div>
         )}
@@ -323,7 +323,7 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
         <CardTitle>Diferencia entre compras y ventas</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-[8px] border border-white/8 bg-white/[0.03] p-4">
+        <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] p-4">
           <div className="text-xs uppercase tracking-[0.12em] text-[var(--txt3)]">Resultado neto</div>
           <div className={cn("mt-2 font-mono text-2xl font-semibold [font-variant-numeric:tabular-nums] sm:text-3xl", isVentaAbove ? "text-[#1D9E75]" : "text-[var(--danger)]")}>
             {formatCOPFull(diferenciaAbs)}
@@ -335,7 +335,7 @@ function ValueComparisonChart({ comprasSummary, ventasSummary }) {
 
         <div className="grid gap-3 md:grid-cols-3">
           {rows.map((row) => (
-            <div key={row.label} className="rounded-[8px] border border-white/8 bg-white/[0.03] p-3">
+            <div key={row.label} className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-white p-3">
               <div className="text-xs text-[var(--txt3)]">{row.label}</div>
               <div className={cn("mt-1 font-mono text-lg font-semibold [font-variant-numeric:tabular-nums]", row.tone)}>
                 {formatCOPCompact(row.value)}
@@ -368,9 +368,9 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
       </CardHeader>
       <CardContent>
         {selected && rows.length ? (
-          <div className="overflow-x-auto rounded-[8px] border border-white/8">
+          <div className="overflow-x-auto rounded-[8px] border border-[rgba(26,43,107,0.1)]">
             <table className="min-w-[640px] w-full text-sm">
-              <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
+              <thead className="bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                   <tr>
                     <th className="px-3 py-2">Categoría</th>
                   <th className="px-3 py-2 text-right">Registros</th>
@@ -379,13 +379,13 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
                   <th className="px-3 py-2 text-right">Neto</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/8">
+              <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
                 {rows.map((row) => (
                   <tr
                     key={row.key}
                     onClick={() => onSelectCategory(row)}
                     className={cn(
-                      "cursor-pointer bg-white/[0.02] transition hover:bg-white/[0.05]",
+                      "cursor-pointer bg-white transition hover:bg-[var(--surface-2)]",
                       selectedCategory?.key === row.key && "bg-[var(--tec)]/10"
                     )}
                   >
@@ -406,7 +406,7 @@ function CategoryDetailCard({ selected, type, rows, selectedCategory, onSelectCa
             </table>
           </div>
         ) : (
-          <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
+          <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] px-3 py-4 text-sm text-[var(--txt2)]">
             {selected ? "No hay detalle para esta selección." : "Elige un ítem de las tarjetas para abrir el detalle."}
           </div>
         )}
@@ -430,9 +430,9 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
       </CardHeader>
       <CardContent>
         {rows.length ? (
-          <div className="max-h-[360px] overflow-x-auto rounded-[8px] border border-white/8">
+          <div className="max-h-[360px] overflow-x-auto rounded-[8px] border border-[rgba(26,43,107,0.1)]">
             <table className="min-w-[720px] w-full text-sm">
-              <thead className="sticky top-0 bg-white/[0.05] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
+              <thead className="sticky top-0 bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                 <tr>
                   <th className="px-3 py-2">Fecha</th>
                   <th className="px-3 py-2">Documento</th>
@@ -442,9 +442,9 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
                   <th className="px-3 py-2 text-right">Valor</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/8">
+              <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
                 {rows.map((row) => (
-                  <tr key={row.key} className="bg-white/[0.02]">
+                  <tr key={row.key} className="bg-white even:bg-[var(--surface-3)]">
                     <td className="whitespace-nowrap px-3 py-2 text-[var(--txt2)]">{formatDate(row.date)}</td>
                     <td className="px-3 py-2 font-medium text-[var(--txt)]">{row.document}</td>
                     <td className="px-3 py-2 text-[var(--txt)]">
@@ -467,7 +467,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
             </table>
           </div>
         ) : (
-          <div className="rounded-[8px] border border-white/8 bg-white/[0.03] px-3 py-4 text-sm text-[var(--txt2)]">
+          <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] px-3 py-4 text-sm text-[var(--txt2)]">
             {selectedCategory ? "No hay movimientos para esta selección." : "Selecciona una fila para ver el detalle."}
           </div>
         )}
@@ -489,7 +489,7 @@ function SnapshotSkeleton() {
             <CardContent>
               <div className="grid gap-3 sm:grid-cols-2">
                 {Array.from({ length: 4 }).map((_, itemIndex) => (
-                  <div key={`tile-skeleton-${index}-${itemIndex}`} className="rounded-[12px] border border-white/8 bg-white/[0.03] p-4">
+                  <div key={`tile-skeleton-${index}-${itemIndex}`} className="rounded-[12px] border border-[rgba(26,43,107,0.1)] bg-white p-4">
                     <div className="skeleton h-3 w-24 rounded-full" />
                     <div className="mt-2 skeleton h-7 w-28 rounded-[8px]" />
                     <div className="mt-2 skeleton h-3 w-20 rounded-full" />
@@ -502,7 +502,7 @@ function SnapshotSkeleton() {
       </div>
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div key={`cross-skeleton-${index}`} className="rounded-[12px] border border-white/8 bg-white/[0.03] p-4">
+          <div key={`cross-skeleton-${index}`} className="rounded-[12px] border border-[rgba(26,43,107,0.1)] bg-white p-4">
             <div className="skeleton h-3 w-24 rounded-full" />
             <div className="mt-2 skeleton h-7 w-20 rounded-[8px]" />
           </div>
@@ -510,7 +510,7 @@ function SnapshotSkeleton() {
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div key={`status-skeleton-${index}`} className="rounded-[12px] border border-white/8 bg-white/[0.03] p-4">
+          <div key={`status-skeleton-${index}`} className="rounded-[12px] border border-[rgba(26,43,107,0.1)] bg-white p-4">
             <div className="skeleton h-3 w-24 rounded-full" />
             <div className="mt-2 skeleton h-3 w-full rounded-full" />
           </div>

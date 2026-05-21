@@ -100,7 +100,7 @@ export default function CreditNotesWeeklyChart({
         {isLoading ? (
           <div className="skeleton h-full rounded-[10px]" />
         ) : data.length === 0 ? (
-          <div className="flex h-full items-center justify-center rounded-[10px] border border-dashed border-white/10 text-sm text-[var(--txt3)]">
+          <div className="flex h-full items-center justify-center rounded-[10px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] text-sm text-[var(--txt3)]">
             No hay semanas dentro del periodo actual.
           </div>
         ) : (

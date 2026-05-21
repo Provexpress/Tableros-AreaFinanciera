@@ -42,7 +42,7 @@ export default function Dashboard({ isLoading = false }) {
       <section ref={detailRef} className="stagger-item stagger-delay-3">
         {showDetail ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-[8px] border border-white/8 bg-[var(--surface)]/60 px-4 py-2.5">
+            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-white px-4 py-2.5 shadow-[0_8px_20px_rgba(26,43,107,0.05)]">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-[var(--tec)]" />
                 <span className="text-sm font-medium text-[var(--txt)]">Detalle de compras</span>
@@ -57,7 +57,7 @@ export default function Dashboard({ isLoading = false }) {
           <button
             type="button"
             onClick={() => setShowDetail(true)}
-            className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-white/12 bg-[var(--surface)]/40 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-[var(--surface)]/60"
+            className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-[rgba(26,43,107,0.16)] bg-white/80 px-4 py-3 text-left transition-all hover:border-[rgba(21,101,192,0.24)] hover:bg-white hover:shadow-[0_10px_24px_rgba(26,43,107,0.06)]"
           >
             <span className="text-sm text-[var(--txt2)]">Detalle de compras</span>
             <span className="text-xs text-[var(--txt3)]">Opcional · expandir</span>

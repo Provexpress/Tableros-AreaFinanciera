@@ -298,7 +298,7 @@ export default function CreditNotesDetailTable({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="max-w-full overflow-x-auto rounded-[10px] border border-white/5">
+        <div className="max-w-full overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <Table className="min-w-[980px] table-fixed">
             <thead>
               <tr>
@@ -342,7 +342,7 @@ export default function CreditNotesDetailTable({
                 paginatedRows.map((row) => (
                   <tr
                     key={row.id}
-                    className="bg-[var(--bg)] odd:bg-[var(--bg)] even:bg-white/[0.01] transition-colors duration-150 hover:bg-[var(--surface-2)]"
+                    className="bg-white odd:bg-white even:bg-[var(--surface-3)] transition-colors duration-150 hover:bg-[var(--surface-2)]"
                   >
                     <TableCell>
                       <div className="whitespace-nowrap text-[var(--txt)]">

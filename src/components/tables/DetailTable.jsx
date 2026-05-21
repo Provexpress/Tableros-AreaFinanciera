@@ -153,8 +153,8 @@ export default function DetailTable({
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="relative max-w-full overflow-hidden rounded-[10px] border border-white/5">
-          <div className="pointer-events-none absolute right-0 top-0 z-10 flex h-full w-12 items-center justify-end bg-gradient-to-l from-[var(--bg)] to-transparent pr-2 text-[var(--txt3)]">
+        <div className="relative max-w-full overflow-hidden rounded-[10px] border border-[rgba(26,43,107,0.1)]">
+          <div className="pointer-events-none absolute right-0 top-0 z-10 flex h-full w-12 items-center justify-end bg-gradient-to-l from-white to-transparent pr-2 text-[var(--txt3)]">
             <MoveRight className="h-4 w-4" />
           </div>
           <div className="max-w-full overflow-x-auto">
@@ -195,7 +195,7 @@ export default function DetailTable({
               {paginated.map((row) => (
                 <tr
                   key={row.id}
-                  className="bg-[var(--bg)] odd:bg-[var(--bg)] even:bg-white/[0.01] transition-colors duration-150 hover:bg-[var(--surface-2)]"
+                  className="bg-white odd:bg-white even:bg-[var(--surface-3)] transition-colors duration-150 hover:bg-[var(--surface-2)]"
                 >
                   <TableCell className="whitespace-nowrap">
                     <Badge variant={getDocumentTypeVariant(row)}>{getDocumentTypeLabel(row)}</Badge>

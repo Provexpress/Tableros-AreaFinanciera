@@ -7,10 +7,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-white/10 bg-[var(--surface)] text-[var(--txt)] hover:bg-[var(--surface-2)] hover:border-white/15",
+          "border-[rgba(26,43,107,0.12)] bg-white text-[var(--txt)] shadow-[0_8px_20px_rgba(26,43,107,0.06)] hover:border-[rgba(21,101,192,0.22)] hover:bg-[var(--surface-2)]",
         secondary:
-          "border-white/10 bg-transparent text-[var(--txt2)] hover:bg-white/5 hover:text-[var(--txt)] hover:border-white/15",
-        ghost: "border-transparent bg-transparent text-[var(--txt2)] hover:bg-white/5 hover:text-[var(--txt)]",
+          "border-[rgba(26,43,107,0.1)] bg-[var(--surface-3)] text-[var(--txt2)] hover:border-[rgba(21,101,192,0.18)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)]",
+        ghost: "border-transparent bg-transparent text-[var(--txt2)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)]",
       },
       size: {
         sm: "h-8 px-3",

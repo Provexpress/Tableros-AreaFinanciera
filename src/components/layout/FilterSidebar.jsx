@@ -17,7 +17,7 @@ function SidebarContent({
   return (
     <div className="flex h-full min-h-0 flex-col">
       {mobile ? (
-        <div className="flex items-center justify-between border-b border-white/6 px-3 py-3">
+        <div className="flex items-center justify-between border-b border-[rgba(26,43,107,0.1)] px-3 py-3">
           <span className="text-sm font-medium text-[var(--txt)]">Filtros</span>
           <Button
             size="sm"
@@ -47,7 +47,7 @@ function SidebarContent({
       </div>
 
       {!mobile && (hasActiveFilters || focusLabel) ? (
-        <div className="border-t border-white/6 px-2.5 py-2.5">
+        <div className="border-t border-[rgba(26,43,107,0.1)] px-2.5 py-2.5">
           <div className="flex flex-wrap gap-2">
             {hasActiveFilters && (
               <Button
@@ -90,7 +90,7 @@ export default function FilterSidebar({
   return (
     <>
       <aside className="hidden lg:block lg:sticky lg:top-[var(--shell-offset)] lg:w-[208px] lg:shrink-0 lg:self-start xl:w-[224px] 2xl:w-[248px]">
-        <div className="flex h-[calc(100vh-var(--shell-offset)-12px)] max-h-[calc(100vh-var(--shell-offset)-12px)] overflow-hidden rounded-[8px] border border-white/8 bg-[var(--bg)]/82 shadow-panel backdrop-blur">
+        <div className="flex h-[calc(100vh-var(--shell-offset)-12px)] max-h-[calc(100vh-var(--shell-offset)-12px)] overflow-hidden rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-[rgba(255,255,255,0.78)] shadow-panel backdrop-blur">
           <SidebarContent
             datasetType={datasetType}
             hasActiveFilters={hasActiveFilters}
@@ -103,7 +103,7 @@ export default function FilterSidebar({
 
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-black/45 backdrop-blur-[4px] transition-all duration-200 lg:hidden",
+          "fixed inset-0 z-40 bg-[rgba(26,43,107,0.24)] backdrop-blur-[4px] transition-all duration-200 lg:hidden",
           mobileOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
         onClick={onClose}
@@ -115,7 +115,7 @@ export default function FilterSidebar({
         aria-modal="true"
         aria-label="Panel de filtros"
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-[min(92vw,320px)] border-r border-white/8 bg-[var(--bg)] shadow-2xl transition-transform duration-300 ease-out lg:hidden sm:w-[304px]",
+          "fixed inset-y-0 left-0 z-50 w-[min(92vw,320px)] border-r border-[rgba(26,43,107,0.12)] bg-white shadow-2xl transition-transform duration-300 ease-out lg:hidden sm:w-[304px]",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

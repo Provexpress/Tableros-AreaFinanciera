@@ -15,7 +15,7 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
         </p>
       </CardHeader>
       <CardContent>
-        <div className="max-w-full overflow-x-auto rounded-[10px] border border-white/5">
+        <div className="max-w-full overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <Table className="min-w-[520px] table-fixed">
             <thead>
               <tr>
@@ -48,7 +48,7 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
                           }
                         : undefined
                     }
-                    className={`bg-[var(--bg)] even:bg-white/[0.01] ${
+                    className={`bg-white even:bg-[var(--surface-3)] ${
                       onSelectProvider ? "cursor-pointer transition-colors hover:bg-[var(--surface-2)]" : "hover:bg-[var(--surface-2)]"
                     }`}
                   >
@@ -89,7 +89,7 @@ function CategoryMix({
       </CardHeader>
       <CardContent className="min-w-0">
         {!visibleRows.length ? (
-          <div className="rounded-[10px] border border-dashed border-white/10 px-4 py-7 text-sm text-[var(--txt3)]">
+          <div className="rounded-[10px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] px-4 py-7 text-sm text-[var(--txt3)]">
             Sin categorías en este periodo.
           </div>
         ) : (
@@ -107,7 +107,7 @@ function CategoryMix({
                   className={`w-full rounded-[8px] border px-3 py-2.5 text-left transition-colors ${
                     active
                       ? "border-[var(--tec)]/35 bg-[color:rgb(79_142_247_/_0.08)]"
-                      : "border-white/5 bg-[var(--bg)] hover:border-white/12 hover:bg-[var(--surface-2)]/55"
+                      : "border-[rgba(26,43,107,0.1)] bg-white hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)]/55"
                   }`}
                 >
                   <div className="mb-2 flex items-center justify-between gap-3">
@@ -122,7 +122,7 @@ function CategoryMix({
                       <div className="text-[10px] text-[var(--txt3)]">{formatPct(row.pct, { signed: false })}</div>
                     </div>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/6">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(26,43,107,0.08)]">
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
                   </div>
                 </button>

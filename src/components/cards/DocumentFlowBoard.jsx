@@ -37,8 +37,8 @@ export default function DocumentFlowBoard({
         </Badge>
       </CardHeader>
       <CardContent>
-        <div className="relative max-h-[360px] max-w-full overflow-hidden rounded-[10px] border border-white/5">
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-[var(--bg)] to-transparent" />
+        <div className="relative max-h-[360px] max-w-full overflow-hidden rounded-[10px] border border-[rgba(26,43,107,0.1)]">
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-white to-transparent" />
           <div className="max-h-[360px] max-w-full overflow-auto">
           <Table className={isSalesLayout ? "min-w-[1040px] table-fixed" : "min-w-[860px] table-fixed"}>
             <thead>
@@ -79,7 +79,7 @@ export default function DocumentFlowBoard({
                   const creditAmount = isCredit ? documentValue : 0;
 
                   return (
-                    <tr key={row.id} className="bg-[var(--bg)] even:bg-white/[0.01] hover:bg-[var(--surface-2)]">
+                    <tr key={row.id} className="bg-white even:bg-[var(--surface-3)] hover:bg-[var(--surface-2)]">
                       {isSalesLayout ? (
                         <>
                           <TableCell className="whitespace-nowrap">{formatDate(row.fecha)}</TableCell>

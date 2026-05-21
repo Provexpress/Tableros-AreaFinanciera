@@ -36,13 +36,13 @@ export default function ChartFrame({ className, fallback, children, zebra = fals
       {ready ? (
         <>
           {zebra ? (
-            <div className="pointer-events-none absolute inset-0 rounded-[10px] bg-[repeating-linear-gradient(180deg,rgba(255,255,255,0.035)_0px,rgba(255,255,255,0.035)_52px,transparent_52px,transparent_104px)]" />
+            <div className="pointer-events-none absolute inset-0 rounded-[10px] bg-[repeating-linear-gradient(180deg,rgba(26,43,107,0.035)_0px,rgba(26,43,107,0.035)_52px,transparent_52px,transparent_104px)]" />
           ) : null}
           <div className="relative h-full w-full min-w-0">{children(size)}</div>
         </>
       ) : (
         fallback || (
-          <div className="flex h-full items-center justify-center rounded-[10px] border border-dashed border-white/10 text-sm text-[var(--txt3)]">
+          <div className="flex h-full items-center justify-center rounded-[10px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] text-sm text-[var(--txt3)]">
             Preparando visual...
           </div>
         )

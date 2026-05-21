@@ -59,7 +59,7 @@ function DayTooltip({ active, payload }) {
   const row = payload[0]?.payload;
   if (!row) return null;
   return (
-    <div className="min-w-[180px] space-y-2 rounded-[12px] border border-white/12 bg-[var(--surface)] px-4 py-3 shadow-xl">
+    <div className="min-w-[180px] space-y-2 rounded-[12px] border border-[rgba(26,43,107,0.12)] bg-white px-4 py-3 shadow-[0_18px_42px_rgba(26,43,107,0.12)]">
       <div className="text-sm font-medium text-[var(--txt)]">{row.dateLabel}</div>
       <div className="flex items-center justify-between gap-4 text-sm">
         <span className="text-[var(--txt2)]">{row.valueLabel || "Compra neta"}</span>
@@ -70,7 +70,7 @@ function DayTooltip({ active, payload }) {
         <span className="font-mono text-[var(--txt)]">{row.count}</span>
       </div>
       {row.variationPct != null && (
-        <div className="flex items-center justify-between gap-4 text-sm border-t border-white/8 pt-2">
+        <div className="flex items-center justify-between gap-4 border-t border-[rgba(26,43,107,0.08)] pt-2 text-sm">
           <span className="text-[var(--txt2)]">vs anterior</span>
           <span className={cn("font-mono", row.variationPct >= 0 ? "text-[var(--success)]" : "text-[var(--danger)]")}>{formatPct(row.variationPct)}</span>
         </div>
@@ -84,7 +84,7 @@ function TrendTooltipContent({ active, payload }) {
   const row = payload[0]?.payload;
   if (!row) return null;
   return (
-    <div className="min-w-[200px] space-y-2 rounded-[12px] border border-white/12 bg-[var(--surface)] px-4 py-3 shadow-xl">
+    <div className="min-w-[200px] space-y-2 rounded-[12px] border border-[rgba(26,43,107,0.12)] bg-white px-4 py-3 shadow-[0_18px_42px_rgba(26,43,107,0.12)]">
       <div className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">{formatPeriod(row.period)}</div>
       <div className="flex items-center justify-between gap-4 text-sm">
         <span className="text-[var(--txt2)]">{row.valueLabel || "Compra neta"}</span>
@@ -105,7 +105,7 @@ function CompareTooltipContent({ active, payload, label }) {
   const items = payload.filter((entry) => Number.isFinite(Number(entry?.value))).sort((a, b) => String(a.dataKey).localeCompare(String(b.dataKey)));
   if (!items.length) return null;
   return (
-    <div className="min-w-[220px] space-y-2 rounded-[12px] border border-white/12 bg-[var(--surface)] px-4 py-3 shadow-xl">
+    <div className="min-w-[220px] space-y-2 rounded-[12px] border border-[rgba(26,43,107,0.12)] bg-white px-4 py-3 shadow-[0_18px_42px_rgba(26,43,107,0.12)]">
       <div className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">{label}</div>
       {items.map((item) => {
         const year = String(item.dataKey).replace("year_", "");
@@ -206,7 +206,7 @@ function TrendCard({
         {isLoading ? (
           <div className="skeleton h-[320px] rounded-[8px]" />
         ) : !data.length && !filteredDailyData.length ? (
-          <div className="flex h-[320px] items-center justify-center rounded-[8px] border border-dashed border-white/10 text-sm text-[var(--txt3)]">
+          <div className="flex h-[320px] items-center justify-center rounded-[8px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] text-sm text-[var(--txt3)]">
             Sin datos para graficar en este periodo.
           </div>
         ) : showDailyBars ? (

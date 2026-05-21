@@ -4,7 +4,7 @@ import { formatPeriod } from "@/utils/formatters";
 
 function FilterCard({ title, children }) {
   return (
-    <div className="rounded-[12px] border border-white/10 bg-white/[0.03] p-3">
+    <div className="filter-card rounded-[12px] border border-[rgba(26,43,107,0.12)] bg-white p-3 shadow-[0_8px_20px_rgba(26,43,107,0.04)]">
       <div className="mb-2 text-[10px] uppercase tracking-[0.14em] text-[var(--txt3)]">{title}</div>
       {children}
     </div>
@@ -101,7 +101,7 @@ export default function PeriodRangeControls({
       <FilterCard title={title}>
         {periods.length ? (
           <div className="space-y-3">
-            <div className="rounded-[8px] border border-white/8 bg-white/[0.025] px-3 py-2">
+            <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-2)] px-3 py-2">
               <div className="text-[10px] uppercase tracking-[0.12em] text-[var(--txt3)]">Periodo</div>
               <div className="mt-0.5 text-sm font-medium text-[var(--txt)]">
                 {formatPeriod(startPeriod)} - {formatPeriod(endPeriod)}
@@ -144,7 +144,7 @@ export default function PeriodRangeControls({
                 "w-full rounded-[8px] border px-3 py-2 text-sm transition",
                 selectedSinglePeriod === periods[periods.length - 1]
                   ? "border-[var(--tec)]/40 bg-[var(--tec)]/10 text-[var(--txt)]"
-                  : "border-white/8 bg-white/[0.02] text-[var(--txt2)] hover:border-white/16"
+                  : "border-[rgba(26,43,107,0.1)] bg-white text-[var(--txt2)] hover:border-[rgba(21,101,192,0.22)] hover:bg-[var(--surface-2)]"
               )}
             >
               Último mes disponible
@@ -165,7 +165,7 @@ export default function PeriodRangeControls({
               min={firstDate || undefined}
               max={lastDate || undefined}
               onChange={(event) => updateDateRange(event.target.value, endDate)}
-              className="h-9 w-full rounded-[8px] border border-white/10 bg-white/[0.03] px-2 text-sm text-[var(--txt)] outline-none"
+              className="h-9 w-full rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-white px-2 text-sm text-[var(--txt)] outline-none focus:border-[var(--tec)] focus:ring-2 focus:ring-[var(--tec)]/15"
             />
             <label className="block text-xs text-[var(--txt3)]">Fecha final</label>
             <input
@@ -174,7 +174,7 @@ export default function PeriodRangeControls({
               min={firstDate || undefined}
               max={lastDate || undefined}
               onChange={(event) => updateDateRange(startDate, event.target.value)}
-              className="h-9 w-full rounded-[8px] border border-white/10 bg-white/[0.03] px-2 text-sm text-[var(--txt)] outline-none"
+              className="h-9 w-full rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-white px-2 text-sm text-[var(--txt)] outline-none focus:border-[var(--tec)] focus:ring-2 focus:ring-[var(--tec)]/15"
             />
             <button
               type="button"
@@ -186,7 +186,7 @@ export default function PeriodRangeControls({
           </div>
         </FilterCard>
       ) : showDateControls ? (
-        <div className="rounded-[10px] border border-white/8 bg-white/[0.02] px-3 py-2 text-xs text-[var(--txt3)]">
+        <div className="rounded-[10px] border border-[rgba(26,43,107,0.1)] bg-[var(--surface-2)] px-3 py-2 text-xs text-[var(--txt3)]">
           Elige el mismo mes en desde/hasta para habilitar el rango de fechas.
         </div>
       ) : null}

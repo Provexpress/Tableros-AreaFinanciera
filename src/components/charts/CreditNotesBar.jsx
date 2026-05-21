@@ -29,7 +29,7 @@ export default function CreditNotesBar({
         {isLoading ? (
           <div className="skeleton h-[180px] rounded-[10px]" />
         ) : data.length === 0 ? (
-          <div className="flex min-h-[140px] items-center justify-center rounded-[10px] border border-dashed border-white/10 text-sm text-[var(--txt3)]">
+          <div className="flex min-h-[140px] items-center justify-center rounded-[10px] border border-dashed border-[rgba(26,43,107,0.14)] bg-[var(--surface-3)] text-sm text-[var(--txt3)]">
             {emptyMessage}
           </div>
         ) : (
@@ -44,7 +44,7 @@ export default function CreditNotesBar({
                 onClick={onSelect ? () => onSelect(item.key) : undefined}
                 className={cn(
                   "w-full rounded-[10px] border px-3 py-3.5 text-left transition-all duration-150",
-                  onSelect ? "cursor-pointer border-white/5 hover:border-white/8 hover:bg-[var(--surface-2)]/65" : "cursor-default border-white/5 bg-[var(--surface)]/18",
+                  onSelect ? "cursor-pointer border-[rgba(26,43,107,0.1)] hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)]/65" : "cursor-default border-[rgba(26,43,107,0.1)] bg-white",
                   isActive ? "border-[var(--tec)]/30 bg-[color:rgb(79_142_247_/_0.08)]" : "bg-transparent"
                 )}
               >
@@ -64,7 +64,7 @@ export default function CreditNotesBar({
                   </div>
                 </div>
 
-                <div className="h-2 overflow-hidden rounded-full bg-white/5">
+                <div className="h-2 overflow-hidden rounded-full bg-[rgba(26,43,107,0.08)]">
                   <div
                     className="h-full rounded-full transition-all duration-300"
                     style={{

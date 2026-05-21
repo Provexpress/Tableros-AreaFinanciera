@@ -199,9 +199,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
             />
           </div>
         </div>
-        <div className="overflow-x-auto rounded-[10px] border border-white/5">
+        <div className="overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <table className="min-w-[760px] w-full text-sm">
-            <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
+            <thead className="bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
               <tr>
                 <th className="px-3 py-2">Cliente</th>
                 <th className="px-3 py-2 text-right">FV</th>
@@ -211,7 +211,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                 <th className="px-3 py-2 text-right">Neto</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/8">
+            <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
               {!visibleRows.length ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
@@ -224,7 +224,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                   return (
                   <tr
                     key={row.cliente}
-                    className={`cursor-pointer bg-[var(--bg)] even:bg-white/[0.01] hover:bg-[var(--surface-2)] ${
+                    className={`cursor-pointer bg-white even:bg-[var(--surface-3)] hover:bg-[var(--surface-2)] ${
                       selected ? "outline outline-1 outline-[var(--tec)]/40" : ""
                     }`}
                     onClick={() => handleSelectClient(row.cliente)}
@@ -252,8 +252,8 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
           Mostrando {formatInteger(visibleRows.length)} de {formatInteger(filteredRows.length)} clientes.
         </div>
         {selectedClient ? (
-          <div className="rounded-[10px] border border-white/8 bg-white/[0.02]">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/8 px-3 py-2">
+          <div className="rounded-[10px] border border-[rgba(26,43,107,0.1)] bg-white">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[rgba(26,43,107,0.08)] bg-[var(--surface-3)] px-3 py-2">
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium text-[var(--txt)]" title={selectedClient}>
                   {selectedClient}
@@ -268,7 +268,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
             </div>
             <div className="max-h-[320px] overflow-auto">
               <table className="min-w-[860px] w-full text-sm">
-                <thead className="bg-white/[0.04] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
+                <thead className="bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                   <tr>
                     <th className="px-3 py-2">Fecha</th>
                     <th className="px-3 py-2">Doc</th>
@@ -278,12 +278,12 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                     <th className="px-3 py-2 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/8">
+                <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
                   {selectedRows.map((row) => {
                     const isCredit = Number(row.signoDocumento || 1) < 0;
                     const amount = Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
                     return (
-                      <tr key={row.id} className="bg-[var(--bg)] even:bg-white/[0.01]">
+                      <tr key={row.id} className="bg-white even:bg-[var(--surface-3)]">
                         <td className="px-3 py-2 whitespace-nowrap">{formatDate(row.fecha)}</td>
                         <td className="px-3 py-2">{isCredit ? "NC" : "FV"}</td>
                         <td className="px-3 py-2 font-mono text-xs text-[var(--txt2)]">
@@ -576,7 +576,7 @@ export default function Ventas({ isLoading = false }) {
       <section ref={detailRef}>
         {showDetail ? (
           <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-[8px] border border-white/8 bg-[var(--surface)]/60 px-4 py-2.5">
+            <div className="flex items-center justify-between rounded-[8px] border border-[rgba(26,43,107,0.12)] bg-white px-4 py-2.5 shadow-[0_8px_20px_rgba(26,43,107,0.05)]">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full" style={{ backgroundColor: TEAL }} />
                 <span className="text-sm font-medium text-[var(--txt)]">Detalle de ventas</span>
@@ -591,7 +591,7 @@ export default function Ventas({ isLoading = false }) {
           <button
             type="button"
             onClick={() => setShowDetail(true)}
-            className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-white/12 bg-[var(--surface)]/40 px-4 py-3 text-left transition-all hover:border-white/20 hover:bg-[var(--surface)]/60"
+            className="flex w-full items-center justify-between rounded-[8px] border border-dashed border-[rgba(26,43,107,0.16)] bg-white/80 px-4 py-3 text-left transition-all hover:border-[rgba(29,158,117,0.28)] hover:bg-white hover:shadow-[0_10px_24px_rgba(26,43,107,0.06)]"
           >
             <span className="text-sm text-[var(--txt2)]">Detalle de ventas</span>
             <span className="text-xs text-[var(--txt3)]">Opcional - expandir</span>

@@ -51,7 +51,7 @@ function LoadingShell({ sourceName }) {
             {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={`shell-skeleton-card-${index}`}
-                className="rounded-[8px] border border-white/5 bg-[var(--surface)] p-3"
+                className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-white p-3"
               >
                 <div className="skeleton mb-2 h-3 w-24 rounded-full" />
                 <div className="skeleton mb-2 h-7 w-2/3 rounded-[8px]" />
@@ -59,7 +59,7 @@ function LoadingShell({ sourceName }) {
               </div>
             ))}
           </div>
-          <div className="rounded-[8px] border border-white/5 bg-[var(--surface)] p-3">
+          <div className="rounded-[8px] border border-[rgba(26,43,107,0.1)] bg-white p-3">
             <div className="skeleton mb-4 h-4 w-48 rounded-full" />
             <div className="skeleton h-[240px] w-full rounded-[10px]" />
           </div>
@@ -633,7 +633,7 @@ export default function App() {
   ]);
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] text-[var(--txt)]" style={{ "--shell-offset": `${shellOffset}px` }}>
+    <div className="min-h-screen text-[var(--txt)]" style={{ "--shell-offset": `${shellOffset}px` }}>
       <Navbar
         ref={navbarRef}
         routes={routes}

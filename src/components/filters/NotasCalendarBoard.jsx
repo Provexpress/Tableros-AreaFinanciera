@@ -5,7 +5,7 @@ import { cn } from "@/utils/cn";
 
 function CalendarCard({ title, children, className = "" }) {
   return (
-    <div className={cn("rounded-[12px] border border-white/10 bg-white/[0.03] p-3", className)}>
+    <div className={cn("filter-card rounded-[12px] border border-[rgba(26,43,107,0.12)] bg-white p-3 shadow-[0_8px_20px_rgba(26,43,107,0.04)]", className)}>
       <div className="mb-2 text-[10px] uppercase tracking-[0.14em] text-[var(--txt3)]">{title}</div>
       {children}
     </div>
@@ -111,8 +111,8 @@ export default function NotasCalendarBoard() {
                   className={cn(
                     "flex w-full items-center justify-between rounded-[8px] border px-2.5 py-1.5 text-left transition-colors duration-150",
                     week.isSelected
-                      ? "border-[color:rgb(79_142_247_/_0.55)] bg-[color:rgb(79_142_247_/_0.18)] text-[var(--txt)]"
-                      : "border-white/8 bg-white/[0.02] text-[var(--txt2)] hover:border-white/15 hover:text-[var(--txt)]"
+                      ? "border-[var(--tec)]/45 bg-[var(--tec)]/12 text-[var(--txt)]"
+                      : "border-[rgba(26,43,107,0.1)] bg-white text-[var(--txt2)] hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)] hover:text-[var(--txt)]"
                   )}
                 >
                   <span className="text-sm">{week.label}</span>

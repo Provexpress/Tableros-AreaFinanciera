@@ -50,7 +50,7 @@ function ScopeCard({
       className={`relative overflow-hidden cursor-pointer select-none transition-all ${
         active
           ? "border-[var(--tec)]/35 bg-[color:rgb(79_142_247_/_0.06)] shadow-[0_0_0_1px_rgba(79,142,247,0.12)]"
-          : "hover:border-white/12 hover:bg-[var(--surface-2)]/45"
+          : "hover:border-[rgba(21,101,192,0.2)] hover:bg-[var(--surface-2)]/45"
       }`}
     >
       <span className={`absolute left-0 top-0 h-full w-[3px] ${accentClass}`} />
@@ -109,15 +109,15 @@ function DetailTable({
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--txt3)]">
-          <span className="rounded-full border border-white/8 bg-[var(--surface)] px-2.5 py-1">
+          <span className="rounded-full border border-[rgba(26,43,107,0.1)] bg-white px-2.5 py-1">
             {formatInteger(rows.length)} NC
           </span>
-          <span className="rounded-full border border-white/8 bg-[var(--surface)] px-2.5 py-1">
+          <span className="rounded-full border border-[rgba(26,43,107,0.1)] bg-white px-2.5 py-1">
             {formatCOPFull(totalValue)}
           </span>
         </div>
 
-        <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-white/5">
+        <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <Table className="min-w-[880px] table-fixed">
             <thead>
               <tr>
@@ -146,7 +146,7 @@ function DetailTable({
                 </tr>
               ) : (
                 rows.map((row) => (
-                  <tr key={row.id} className="bg-[var(--bg)] even:bg-white/[0.01] hover:bg-[var(--surface-2)]">
+                  <tr key={row.id} className="bg-white even:bg-[var(--surface-3)] hover:bg-[var(--surface-2)]">
                     <TableCell className="whitespace-nowrap">{formatDate(row.fechaInicialIso || row.monthRef)}</TableCell>
                     <TableCell>
                       <div className="truncate" title={row.weekLabel || row.monthLabel}>
