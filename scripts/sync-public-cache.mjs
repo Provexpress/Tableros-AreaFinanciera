@@ -7,6 +7,8 @@ const rootDir = path.resolve(__dirname, "..");
 const dataCacheDir = path.join(rootDir, "Data", "_cache");
 const publicDir = path.join(rootDir, "public");
 const publicCacheDir = path.join(publicDir, "_cache");
+const dataIconsDir = path.join(rootDir, "Data", "icons");
+const publicIconsDir = path.join(publicDir, "icons");
 const faviconSource = path.join(rootDir, "Data", "favicon.svg");
 const faviconTarget = path.join(publicDir, "favicon.svg");
 
@@ -29,6 +31,12 @@ async function main() {
     await fs.copyFile(faviconSource, faviconTarget);
   } catch {
     // Favicon is optional for local checks.
+  }
+
+  try {
+    await copyDir(dataIconsDir, publicIconsDir);
+  } catch {
+    // Icons are optional for local checks.
   }
 
   console.log("[public-cache] cache sincronizado en public/_cache");
