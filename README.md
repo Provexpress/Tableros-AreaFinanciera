@@ -71,3 +71,19 @@ Opcional:
 
 - Variable de repositorio `PBI_CACHE_MIN_YEAR=2024` o `2026`.
 - Variables `MS_GRAPH_*` si cambia la ruta de SharePoint.
+
+## Acceso Microsoft 365
+
+La app puede pedir inicio de sesión con Microsoft 365 y permitir solo correos definidos en variables de entorno:
+
+- `VITE_AUTH_ENABLED=true`
+- `VITE_MS_CLIENT_ID`
+- `VITE_MS_TENANT_ID`
+- `VITE_AUTH_ALLOWED_EMAILS=correo1@provexpress.com,correo2@provexpress.com`
+
+En Microsoft Entra ID, registrar estos Redirect URI como aplicación SPA:
+
+- `https://tableros-area-financiera.vercel.app`
+- `http://localhost:5173`
+
+Este control protege la interfaz del tablero. Para blindar también los JSON públicos de cache, esos archivos deben servirse detrás de una función o middleware con sesión.

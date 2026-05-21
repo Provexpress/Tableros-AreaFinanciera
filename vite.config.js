@@ -22,6 +22,7 @@ export default defineConfig({
           "vendor-xlsx": ["xlsx"],
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-charts": ["recharts"],
+          "vendor-auth": ["@azure/msal-browser"],
           "vendor-ui": ["lucide-react", "clsx", "tailwind-merge", "class-variance-authority"],
         },
       },

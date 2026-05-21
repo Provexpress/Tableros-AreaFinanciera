@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import { NavLink } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { LogOut, Menu, UserCircle } from "lucide-react";
+import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
 
@@ -10,6 +11,8 @@ const Navbar = forwardRef(function Navbar({
   isLoading,
   onToggleSidebar,
 }, ref) {
+  const { enabled: authEnabled, userEmail, signOut } = useAuth();
+
   return (
     <header
       ref={ref}
@@ -66,6 +69,22 @@ const Navbar = forwardRef(function Navbar({
                 ))}
               </div>
             </nav>
+
+            {authEnabled && userEmail ? (
+              <div className="flex min-w-0 items-center gap-2 rounded-md border border-white/10 bg-[var(--surface)] px-2 py-1.5 text-sm text-[var(--txt2)]">
+                <UserCircle className="h-4 w-4 shrink-0 text-[var(--tec)]" />
+                <span className="max-w-[180px] truncate">{userEmail}</span>
+                <button
+                  type="button"
+                  className="rounded-sm p-1 text-[var(--txt2)] transition-colors hover:bg-white/5 hover:text-[var(--txt)]"
+                  onClick={signOut}
+                  aria-label="Cerrar sesión"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
