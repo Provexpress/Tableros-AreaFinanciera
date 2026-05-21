@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   authConfig,
   getAccountEmail,
+  handleMsalRedirect,
   initializeMsal,
   isAuthConfigured,
   isEmailAllowed,
@@ -118,11 +119,7 @@ export function AuthProvider({ children }) {
       setError("");
       setStatus("loading");
       await initializeMsal();
-      const response = await msalInstance.loginPopup(loginRequest);
-      const nextAccount = response.account;
-      msalInstance.setActiveAccount(nextAccount);
-      setAccount(nextAccount);
-      setStatus("ready");
+      await msalInstance.loginRedirect(loginRequest);
     } catch (authError) {
       setStatus(account ? "ready" : "login");
       setError(authError?.message || "No fue posible iniciar sesión.");
@@ -140,7 +137,7 @@ export function AuthProvider({ children }) {
       await initializeMsal();
       const activeAccount = msalInstance.getActiveAccount() || account;
       if (activeAccount) {
-        await msalInstance.logoutPopup({ account: activeAccount });
+        await msalInstance.logoutRedirect({ account: activeAccount, postLogoutRedirectUri: window.location.origin });
       }
     } catch (authError) {
       setError(authError?.message || "No fue posible cerrar sesión.");
@@ -168,8 +165,9 @@ export function AuthProvider({ children }) {
 
       try {
         setError("");
-        await initializeMsal();
+        const redirectResponse = await handleMsalRedirect();
         const nextAccount =
+          redirectResponse?.account ||
           msalInstance.getActiveAccount() ||
           msalInstance.getAllAccounts()[0] ||
           null;
@@ -184,7 +182,11 @@ export function AuthProvider({ children }) {
         }
       } catch (authError) {
         if (active) {
-          setError(authError?.message || "No fue posible validar la sesión.");
+          const message = authError?.message || "No fue posible validar la sesión.";
+          if (message.includes("no_token_request_cache_error") && window.location.hash) {
+            window.history.replaceState(null, document.title, window.location.pathname + window.location.search);
+          }
+          setError(message);
           setStatus("login");
         }
       }

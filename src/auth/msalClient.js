@@ -52,11 +52,12 @@ export const msalInstance = isAuthConfigured
       auth: {
         clientId: authConfig.clientId,
         authority: `https://login.microsoftonline.com/${authConfig.tenantId}`,
-        redirectUri: `${window.location.origin}/auth.html`,
+        redirectUri: window.location.origin,
         postLogoutRedirectUri: window.location.origin,
+        navigateToLoginRequestUrl: false,
       },
       cache: {
-        cacheLocation: "localStorage",
+        cacheLocation: "sessionStorage",
         storeAuthStateInCookie: false,
       },
     })
@@ -73,6 +74,11 @@ export async function initializeMsal() {
   }
 
   return initializePromise;
+}
+
+export async function handleMsalRedirect() {
+  await initializeMsal();
+  return msalInstance.handleRedirectPromise();
 }
 
 export function isEmailAllowed(email) {
