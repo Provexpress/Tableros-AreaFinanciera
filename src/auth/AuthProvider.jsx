@@ -50,45 +50,45 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
         : "Acceso corporativo";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[var(--bg)] text-[var(--txt)]">
-      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(79,142,247,0.12),transparent_34%),linear-gradient(225deg,rgba(52,200,138,0.08),transparent_42%),linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] bg-[length:auto,auto,56px_56px,56px_56px]" />
+    <main
+      className="relative min-h-screen overflow-hidden bg-[#f5f7fd] text-[#1a2b6b]"
+      style={{ fontFamily: '"Futura PT", "Futura Std", Futura, "Twentieth Century", "DM Sans", sans-serif' }}
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_12%,rgba(106,63,160,0.13),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(42,191,223,0.16),transparent_30%),linear-gradient(180deg,#eef3ff_0%,#f4f7ff_42%,#f5f7fd_100%)]" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,#1a2b6b,#1565c0,#6a3fa0,#2abfdf)]" />
       <div className="relative flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
-        <section className="grid w-full max-w-[980px] overflow-hidden rounded-[14px] border border-white/10 bg-[color:rgb(var(--bg-rgb)_/_0.72)] shadow-[0_24px_80px_rgba(0,0,0,0.42)] backdrop-blur md:grid-cols-[1.05fr_0.95fr]">
-          <div className="hidden min-h-[520px] flex-col justify-between border-r border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))] p-8 md:flex">
+        <section className="grid w-full max-w-[980px] overflow-hidden rounded-[16px] border border-[rgba(26,43,107,0.12)] bg-[rgba(255,255,255,0.96)] shadow-[0_24px_54px_rgba(26,43,107,0.12)] backdrop-blur md:grid-cols-[1.05fr_0.95fr]">
+          <div className="hidden min-h-[520px] flex-col justify-between border-r border-[rgba(26,43,107,0.10)] bg-[linear-gradient(180deg,rgba(250,252,255,0.98),rgba(245,248,255,0.96))] p-8 md:flex">
             <div className="space-y-7">
               <div className="flex items-center gap-3">
                 <img
-                  src="/favicon.svg"
-                  alt="PX"
-                  className="h-12 w-12 rounded-[12px] shadow-[0_10px_28px_rgba(79,142,247,0.22)]"
+                  src="/assets/provexpress-logo.webp"
+                  alt="Provexpress"
+                  className="h-12 w-auto max-w-[210px] object-contain"
                 />
-                <div>
-                  <div className="text-sm font-medium text-[var(--txt)]">PROVEXPRESS SAS</div>
-                  <div className="text-xs uppercase tracking-[0.24em] text-[var(--txt3)]">Área financiera</div>
-                </div>
               </div>
 
               <div className="max-w-[430px] space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[var(--tec)]/25 bg-[color:rgb(79_142_247_/_0.10)] px-3 py-1 text-xs font-medium text-[var(--tec)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(21,101,192,0.16)] bg-[rgba(21,101,192,0.08)] px-3 py-1 text-xs font-bold text-[#1565c0]">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Tablero protegido
                 </div>
-                <h2 className="text-3xl font-medium leading-tight text-[var(--txt)]">
+                <h2 className="text-3xl font-bold leading-tight text-[#1a2b6b]">
                   Control financiero con acceso seguro.
                 </h2>
-                <p className="text-sm leading-6 text-[var(--txt2)]">
+                <p className="text-sm leading-6 text-[#677592]">
                   Consulta compras, ventas, notas crédito y consolidado desde una sesión corporativa autorizada.
                 </p>
               </div>
             </div>
 
-            <div className="grid gap-3 text-sm text-[var(--txt2)]">
-              <div className="flex items-center gap-3 rounded-[8px] border border-white/8 bg-black/10 px-3 py-3">
-                <BarChart3 className="h-4 w-4 text-[var(--tec)]" />
+            <div className="grid gap-3 text-sm text-[#677592]">
+              <div className="flex items-center gap-3 rounded-[10px] border border-[rgba(26,43,107,0.10)] bg-white/80 px-3 py-3 shadow-[0_10px_26px_rgba(26,43,107,0.06)]">
+                <BarChart3 className="h-4 w-4 text-[#1565c0]" />
                 Indicadores listos para revisión directiva.
               </div>
-              <div className="flex items-center gap-3 rounded-[8px] border border-white/8 bg-black/10 px-3 py-3">
-                <LockKeyhole className="h-4 w-4 text-[var(--pac)]" />
+              <div className="flex items-center gap-3 rounded-[10px] border border-[rgba(26,43,107,0.10)] bg-white/80 px-3 py-3 shadow-[0_10px_26px_rgba(26,43,107,0.06)]">
+                <LockKeyhole className="h-4 w-4 text-[#6a3fa0]" />
                 Acceso limitado a correos parametrizados.
               </div>
             </div>
@@ -98,37 +98,36 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
             <div className="w-full space-y-6">
               <div className="flex items-center justify-between gap-4 md:hidden">
                 <div className="flex items-center gap-3">
-                  <img src="/favicon.svg" alt="PX" className="h-10 w-10 rounded-[10px]" />
+                  <img src="/assets/provexpress-logo.webp" alt="Provexpress" className="h-10 w-auto max-w-[190px] object-contain" />
                   <div>
-                    <div className="text-sm font-medium text-[var(--txt)]">PROVEXPRESS SAS</div>
-                    <div className="text-xs text-[var(--txt3)]">Área financiera</div>
+                    <div className="text-xs font-bold uppercase text-[#6a3fa0]">Área financiera</div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[var(--surface-2)] px-3 py-1 text-xs text-[var(--txt2)]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(26,43,107,0.10)] bg-[#eef3ff] px-3 py-1 text-xs font-bold text-[#677592]">
                   {isBlocked || isConfigError ? (
-                    <ShieldAlert className="h-3.5 w-3.5 text-[var(--warning)]" />
+                    <ShieldAlert className="h-3.5 w-3.5 text-[#d97706]" />
                   ) : isLoading ? (
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--tec)]" />
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-[#1565c0]" />
                   ) : (
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[var(--pac)]" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[#16a34a]" />
                   )}
                   {statusLabel}
                 </div>
-                <h1 className="text-2xl font-medium leading-tight text-[var(--txt)]">{title}</h1>
-                <p className="max-w-[420px] text-sm leading-6 text-[var(--txt2)]">{description}</p>
+                <h1 className="text-2xl font-bold leading-tight text-[#1a2b6b]">{title}</h1>
+                <p className="max-w-[420px] text-sm leading-6 text-[#677592]">{description}</p>
               </div>
 
               {userEmail ? (
-                <div className="rounded-[8px] border border-white/8 bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--txt2)]">
-                  Sesión actual: <span className="font-medium text-[var(--txt)]">{userEmail}</span>
+                <div className="rounded-[10px] border border-[rgba(26,43,107,0.10)] bg-[#f4f7ff] px-3 py-2 text-sm text-[#677592]">
+                  Sesión actual: <span className="font-bold text-[#1a2b6b]">{userEmail}</span>
                 </div>
               ) : null}
 
               {error ? (
-                <div className="rounded-[8px] border border-[#D85A30]/30 bg-[#D85A30]/10 px-3 py-2 text-sm leading-6 text-[#f3b19b]">
+                <div className="rounded-[10px] border border-[#c62828]/20 bg-[#fdebea] px-3 py-2 text-sm leading-6 text-[#9f1f1f]">
                   {error}
                 </div>
               ) : null}
@@ -137,7 +136,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
                 {!isBlocked ? (
                   <Button
                     type="button"
-                    className="h-11 w-full border-[var(--tec)]/35 bg-[color:rgb(79_142_247_/_0.16)] text-[var(--txt)] hover:border-[var(--tec)]/55 hover:bg-[color:rgb(79_142_247_/_0.22)]"
+                    className="h-11 w-full rounded-[10px] border-[#6a3fa0] bg-[linear-gradient(135deg,#1a2b6b_0%,#1565c0_48%,#6a3fa0_100%)] font-bold text-white shadow-[0_14px_26px_rgba(26,43,107,0.16)] hover:border-[#6a3fa0] hover:brightness-105"
                     onClick={onSignIn}
                     disabled={isLoading || isConfigError}
                   >
@@ -148,11 +147,11 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
 
                 {isBlocked ? (
                   <>
-                    <Button type="button" className="h-11 w-full" onClick={onSignIn}>
+                    <Button type="button" className="h-11 w-full rounded-[10px] border-[#6a3fa0] bg-[#6a3fa0] font-bold text-white hover:bg-[#5f3198]" onClick={onSignIn}>
                       <LogIn className="h-4 w-4" />
                       Usar otra cuenta
                     </Button>
-                    <Button type="button" className="h-11 w-full" variant="secondary" onClick={onSignOut}>
+                    <Button type="button" className="h-11 w-full rounded-[10px] border-[rgba(26,43,107,0.12)] bg-white font-bold text-[#1a2b6b] hover:bg-[#eef3ff]" variant="secondary" onClick={onSignOut}>
                       <LogOut className="h-4 w-4" />
                       Salir
                     </Button>
@@ -160,7 +159,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
                 ) : null}
               </div>
 
-              <p className="text-xs leading-5 text-[var(--txt3)]">
+              <p className="text-xs leading-5 text-[#677592]">
                 El acceso se valida con Microsoft 365 y la lista de correos autorizados por la compañía.
               </p>
             </div>
