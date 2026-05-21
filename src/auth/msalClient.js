@@ -63,8 +63,6 @@ export const msalInstance = isAuthConfigured
   : null;
 
 let initializePromise = null;
-let redirectPromise = null;
-
 export async function initializeMsal() {
   if (!msalInstance) {
     throw new Error("Microsoft 365 no está configurado.");
@@ -75,16 +73,6 @@ export async function initializeMsal() {
   }
 
   return initializePromise;
-}
-
-export async function handleMsalRedirect() {
-  await initializeMsal();
-
-  if (!redirectPromise) {
-    redirectPromise = msalInstance.handleRedirectPromise();
-  }
-
-  return redirectPromise;
 }
 
 export function isEmailAllowed(email) {

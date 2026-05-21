@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   authConfig,
   getAccountEmail,
-  handleMsalRedirect,
   initializeMsal,
   isAuthConfigured,
   isEmailAllowed,
@@ -169,9 +168,8 @@ export function AuthProvider({ children }) {
 
       try {
         setError("");
-        const redirectResponse = await handleMsalRedirect();
+        await initializeMsal();
         const nextAccount =
-          redirectResponse?.account ||
           msalInstance.getActiveAccount() ||
           msalInstance.getAllAccounts()[0] ||
           null;
