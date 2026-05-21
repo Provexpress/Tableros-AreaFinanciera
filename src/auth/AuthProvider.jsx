@@ -62,7 +62,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
             <div className="space-y-7">
               <div className="flex items-center gap-3">
                 <img
-                  src="/icons/provex_icon_192.png"
+                  src="/assets/provexpress-logo.webp"
                   alt="Provexpress"
                   className="h-12 w-auto max-w-[210px] object-contain"
                 />
@@ -98,7 +98,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
             <div className="w-full space-y-6">
               <div className="flex items-center justify-between gap-4 md:hidden">
                 <div className="flex items-center gap-3">
-                  <img src="/icons/provex_icon_192.png" alt="Provexpress" className="h-10 w-auto max-w-[190px] object-contain" />
+                  <img src="/assets/provexpress-logo.webp" alt="Provexpress" className="h-10 w-auto max-w-[190px] object-contain" />
                   <div>
                     <div className="text-xs font-bold uppercase text-[#6a3fa0]">Área financiera</div>
                   </div>
