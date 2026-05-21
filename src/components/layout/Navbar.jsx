@@ -37,7 +37,7 @@ const Navbar = forwardRef(function Navbar({
 
             <div className="flex min-w-0 items-center gap-2.5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[9px] border border-[rgba(26,43,107,0.1)] bg-white shadow-[0_8px_20px_rgba(26,43,107,0.08)]">
-                <img src="/assets/provexpress-logo.webp" alt="" className="h-6 w-6 object-contain" />
+                <img src="/icons/provex_icon_32.png" alt="" className="h-6 w-6 object-contain" />
               </div>
               <div className={cn(
                 "min-w-0 truncate text-sm font-semibold text-[var(--txt)] sm:text-base",
