@@ -52,7 +52,7 @@ export const msalInstance = isAuthConfigured
       auth: {
         clientId: authConfig.clientId,
         authority: `https://login.microsoftonline.com/${authConfig.tenantId}`,
-        redirectUri: window.location.origin,
+        redirectUri: `${window.location.origin}/auth.html`,
         postLogoutRedirectUri: window.location.origin,
       },
       cache: {

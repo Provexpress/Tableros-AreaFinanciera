@@ -84,6 +84,8 @@ La app puede pedir inicio de sesión con Microsoft 365 y permitir solo correos d
 En Microsoft Entra ID, registrar estos Redirect URI como aplicación SPA:
 
 - `https://tableros-area-financiera.vercel.app`
+- `https://tableros-area-financiera.vercel.app/auth.html`
 - `http://localhost:5173`
+- `http://localhost:5173/auth.html`
 
 Este control protege la interfaz del tablero. Para blindar también los JSON públicos de cache, esos archivos deben servirse detrás de una función o middleware con sesión.
