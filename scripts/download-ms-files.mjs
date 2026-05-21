@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadEnvFile } from "./pbi-api-client.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
@@ -230,9 +231,10 @@ async function resolveAcuseFiles(token, driveId, folderPath) {
 }
 
 async function main() {
+  loadEnvFile(rootDir);
   const token = await requestToken();
   if (!token) {
-    console.log("[ms-files] sin credenciales Microsoft Graph; se usan los archivos locales de Data/");
+    console.log("[ms-files] sin credenciales Microsoft Graph; no se descargan Excel. Usa archivos locales en Data/ si necesitas regenerar caches.");
     return;
   }
 

@@ -4,6 +4,7 @@ dist/
 .claude/
 public/_cache/
 public/favicon.svg
+Data/*.xlsx
 .env
 .env.*
 !.env.example
