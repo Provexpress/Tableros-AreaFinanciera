@@ -8,9 +8,9 @@ on:
         required: false
         default: "2024"
   schedule:
-    - cron: "0 13 * * 1-5" # 8:00 a.m. Colombia
-    - cron: "0 18 * * 1-5" # 1:00 p.m. Colombia
-    - cron: "0 20 * * 1-5" # 3:00 p.m. Colombia
+    - cron: "17 13 * * 1-5" # 8:17 a.m. Colombia
+    - cron: "17 18 * * 1-5" # 1:17 p.m. Colombia
+    - cron: "17 20 * * 1-5" # 3:17 p.m. Colombia
 
 permissions:
   contents: write
