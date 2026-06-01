@@ -15,6 +15,10 @@ on:
     - cron: "17 20 * * 1-5" # 3:17 p.m. Colombia
     - cron: "42 20 * * 1-5" # respaldo 3:42 p.m. Colombia
 
+concurrency:
+  group: refresh-dashboard-data-cache
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -26,6 +30,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
 
       - name: Setup Node
         uses: actions/setup-node@v4
