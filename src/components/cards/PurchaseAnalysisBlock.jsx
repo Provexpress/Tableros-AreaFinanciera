@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableCell, TableHead } from "@/components/ui/table";
 import { formatCOPFull, formatPct, getCategoryColor } from "@/utils/formatters";
 
+function formatOptionalCOP(value, count = 0) {
+  return count ? formatCOPFull(value) : "-";
+}
+
 function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider = null, entityLabel = "proveedor", title = "Ranking de compras por proveedor", subtitle = null }) {
   const visibleRows = rows.slice(0, 5);
 
@@ -16,18 +20,19 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
       </CardHeader>
       <CardContent>
         <div className="max-w-full overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
-          <Table className="min-w-[520px] table-fixed">
+          <Table className="min-w-[680px] table-fixed">
             <thead>
               <tr>
                 <TableHead className="w-[72px]">Pos.</TableHead>
-                    <TableHead>{entityLabel[0].toUpperCase() + entityLabel.slice(1)}</TableHead>
-                <TableHead className="w-[160px] text-right">Monto total</TableHead>
+                <TableHead>{entityLabel[0].toUpperCase() + entityLabel.slice(1)}</TableHead>
+                <TableHead className="w-[160px] text-right">Sin IVA</TableHead>
+                <TableHead className="w-[160px] text-right">Con IVA</TableHead>
               </tr>
             </thead>
             <tbody>
               {!visibleRows.length ? (
                 <tr>
-                  <TableCell colSpan={3} className="py-7 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={4} className="py-7 text-center text-sm text-[var(--txt3)]">
                     Sin {entityLabel}s en este periodo.
                   </TableCell>
                 </tr>
@@ -60,6 +65,9 @@ function SupplierRanking({ rows = [], selectedCategory = null, onSelectProvider 
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                       {formatCOPFull(row.total)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                      {formatOptionalCOP(row.totalConIva, row.totalConIvaCount)}
                     </TableCell>
                   </tr>
                 ))

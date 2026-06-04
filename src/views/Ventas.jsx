@@ -32,6 +32,15 @@ function getPositiveDocumentValue(row) {
   return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
 }
 
+function getPositiveDocumentValueWithTax(row) {
+  const value = Number(row.totalConIvaOriginal ?? row.totalConIva);
+  return Number.isFinite(value) && value !== 0 ? Math.abs(value) : null;
+}
+
+function formatOptionalCOP(value) {
+  return value == null ? "-" : formatCOPFull(value);
+}
+
 function buildSalesAnalysisRows(rows = []) {
   const totalBase = rows.reduce((sum, row) => sum + getPositiveDocumentValue(row), 0);
   const providerMap = new Map();
@@ -42,13 +51,17 @@ function buildSalesAnalysisRows(rows = []) {
     const provider = row.cliente || row.proveedor || "Sin cliente";
     const category = row.categoria || "Sin categoría";
     const value = getPositiveDocumentValue(row);
+    const valueWithTax = getPositiveDocumentValueWithTax(row);
 
     if (!providerMap.has(provider)) {
       providerMap.set(provider, {
         provider,
         total: 0,
+        totalConIva: 0,
+        totalConIvaCount: 0,
         count: 0,
         purchaseInvoiceTotal: 0,
+        purchaseInvoiceTotalConIva: 0,
         purchaseInvoiceCount: 0,
         creditNoteTotal: 0,
         creditNoteCount: 0,
@@ -58,15 +71,24 @@ function buildSalesAnalysisRows(rows = []) {
     }
     const providerBucket = providerMap.get(provider);
     providerBucket.total += value;
+    if (valueWithTax != null) {
+      providerBucket.totalConIva += valueWithTax;
+      providerBucket.totalConIvaCount += 1;
+      providerBucket.purchaseInvoiceTotalConIva += valueWithTax;
+    }
     providerBucket.count += 1;
     providerBucket.purchaseInvoiceTotal += value;
     providerBucket.purchaseInvoiceCount += 1;
 
     if (!categoryMap.has(category)) {
-      categoryMap.set(category, { category, total: 0, count: 0 });
+      categoryMap.set(category, { category, total: 0, totalConIva: 0, totalConIvaCount: 0, count: 0 });
     }
     const categoryBucket = categoryMap.get(category);
     categoryBucket.total += value;
+    if (valueWithTax != null) {
+      categoryBucket.totalConIva += valueWithTax;
+      categoryBucket.totalConIvaCount += 1;
+    }
     categoryBucket.count += 1;
 
     if (!categoryProviderMap.has(category)) {
@@ -77,8 +99,11 @@ function buildSalesAnalysisRows(rows = []) {
       providersByCategory.set(provider, {
         provider,
         total: 0,
+        totalConIva: 0,
+        totalConIvaCount: 0,
         count: 0,
         purchaseInvoiceTotal: 0,
+        purchaseInvoiceTotalConIva: 0,
         purchaseInvoiceCount: 0,
         creditNoteTotal: 0,
         creditNoteCount: 0,
@@ -88,6 +113,11 @@ function buildSalesAnalysisRows(rows = []) {
     }
     const categoryProviderBucket = providersByCategory.get(provider);
     categoryProviderBucket.total += value;
+    if (valueWithTax != null) {
+      categoryProviderBucket.totalConIva += valueWithTax;
+      categoryProviderBucket.totalConIvaCount += 1;
+      categoryProviderBucket.purchaseInvoiceTotalConIva += valueWithTax;
+    }
     categoryProviderBucket.count += 1;
     categoryProviderBucket.purchaseInvoiceTotal += value;
     categoryProviderBucket.purchaseInvoiceCount += 1;
@@ -131,6 +161,8 @@ function buildClientReconciliationRows(rows = []) {
       buckets.set(cliente, {
         cliente,
         facturas: 0,
+        facturasConIva: 0,
+        facturasConIvaCount: 0,
         notasCredito: 0,
         neto: 0,
         cantidadFV: 0,
@@ -140,6 +172,7 @@ function buildClientReconciliationRows(rows = []) {
 
     const bucket = buckets.get(cliente);
     const value = Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+    const valueWithTax = getPositiveDocumentValueWithTax(row);
     const signed = Number(row.total || 0);
     const isCredit = Number(row.signoDocumento || 1) < 0;
 
@@ -148,6 +181,10 @@ function buildClientReconciliationRows(rows = []) {
       bucket.cantidadNC += 1;
     } else {
       bucket.facturas += value;
+      if (valueWithTax != null) {
+        bucket.facturasConIva += valueWithTax;
+        bucket.facturasConIvaCount += 1;
+      }
       bucket.cantidadFV += 1;
     }
     bucket.neto += signed;
@@ -200,13 +237,14 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
           </div>
         </div>
         <div className="overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
-          <table className="min-w-[760px] w-full text-sm">
+          <table className="min-w-[940px] w-full text-sm">
             <thead className="bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
               <tr>
                 <th className="px-3 py-2">Cliente</th>
                 <th className="px-3 py-2 text-right">FV</th>
                 <th className="px-3 py-2 text-right">NC</th>
-                <th className="px-3 py-2 text-right">Venta bruta</th>
+                <th className="px-3 py-2 text-right">Venta sin IVA</th>
+                <th className="px-3 py-2 text-right">Venta con IVA</th>
                 <th className="px-3 py-2 text-right">Notas crédito</th>
                 <th className="px-3 py-2 text-right">Neto</th>
               </tr>
@@ -214,7 +252,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
             <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
               {!visibleRows.length ? (
                 <tr>
-                  <td colSpan={6} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
+                  <td colSpan={7} className="px-3 py-7 text-center text-sm text-[var(--txt3)]">
                     {normalizedQuery ? "Sin clientes para esa búsqueda." : "Sin clientes en el periodo seleccionado."}
                   </td>
                 </tr>
@@ -237,6 +275,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                     <td className="px-3 py-2 text-right font-mono text-[var(--txt2)]">{formatInteger(row.cantidadFV)}</td>
                     <td className="px-3 py-2 text-right font-mono text-[var(--danger)]">{formatInteger(row.cantidadNC)}</td>
                     <td className="px-3 py-2 text-right font-mono text-[var(--txt)]">{formatCOPFull(row.facturas)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-[var(--txt2)]">
+                      {formatOptionalCOP(row.facturasConIvaCount ? row.facturasConIva : null)}
+                    </td>
                     <td className="px-3 py-2 text-right font-mono text-[var(--danger)]">
                       {row.notasCredito ? formatCOPFull(row.notasCredito) : "Sin NC"}
                     </td>
@@ -267,13 +308,14 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
               </Button>
             </div>
             <div className="max-h-[320px] overflow-auto">
-              <table className="min-w-[860px] w-full text-sm">
+              <table className="min-w-[980px] w-full text-sm">
                 <thead className="bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                   <tr>
                     <th className="px-3 py-2">Fecha</th>
                     <th className="px-3 py-2">Doc</th>
                     <th className="px-3 py-2">Factura / NC</th>
-                    <th className="px-3 py-2 text-right">Monto factura</th>
+                    <th className="px-3 py-2 text-right">FV sin IVA</th>
+                    <th className="px-3 py-2 text-right">FV con IVA</th>
                     <th className="px-3 py-2 text-right">Monto NC</th>
                     <th className="px-3 py-2 text-right">Total</th>
                   </tr>
@@ -282,6 +324,7 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                   {selectedRows.map((row) => {
                     const isCredit = Number(row.signoDocumento || 1) < 0;
                     const amount = Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
+                    const amountWithTax = getPositiveDocumentValueWithTax(row);
                     return (
                       <tr key={row.id} className="bg-white even:bg-[var(--surface-3)]">
                         <td className="px-3 py-2 whitespace-nowrap">{formatDate(row.fecha)}</td>
@@ -291,6 +334,9 @@ function ClientReconciliationPanel({ rows = [], documents = [] }) {
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-[var(--txt)]">
                           {isCredit ? "-" : formatCOPFull(amount)}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono text-[var(--txt2)]">
+                          {isCredit ? "-" : formatOptionalCOP(amountWithTax)}
                         </td>
                         <td className="px-3 py-2 text-right font-mono text-[var(--danger)]">
                           {isCredit ? formatCOPFull(amount) : "-"}

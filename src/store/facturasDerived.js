@@ -57,6 +57,20 @@ function getDocumentValue(row) {
   return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
 }
 
+function getDocumentValueWithTax(row) {
+  const value = Number(row.totalConIvaOriginal ?? row.totalConIva);
+  return Number.isFinite(value) && value !== 0 ? Math.abs(value) : null;
+}
+
+function getNetValueWithTax(row) {
+  const value = getDocumentValueWithTax(row);
+  if (value == null) {
+    return null;
+  }
+
+  return Number(row.total || 0) < 0 ? -value : value;
+}
+
 function getNetValue(row) {
   return Number(row.total || 0);
 }
@@ -93,28 +107,42 @@ function createSupplierBucket(provider) {
   return {
     provider,
     total: 0,
+    totalConIva: 0,
+    totalConIvaCount: 0,
     count: 0,
     purchaseInvoiceTotal: 0,
+    purchaseInvoiceTotalConIva: 0,
     purchaseInvoiceCount: 0,
     creditNoteTotal: 0,
+    creditNoteTotalConIva: 0,
     creditNoteCount: 0,
     rejectedCount: 0,
     reviewCount: 0,
   };
 }
 
-function accumulateSupplierBucket(bucket, netValue, docValue, isCredit, isPurchase, statusKey) {
+function accumulateSupplierBucket(bucket, netValue, docValue, netValueWithTax, docValueWithTax, isCredit, isPurchase, statusKey) {
   bucket.total += netValue;
   bucket.count += 1;
+  if (netValueWithTax != null) {
+    bucket.totalConIva += netValueWithTax;
+    bucket.totalConIvaCount += 1;
+  }
 
   if (isCredit) {
     bucket.creditNoteCount += 1;
     bucket.creditNoteTotal += docValue;
+    if (docValueWithTax != null) {
+      bucket.creditNoteTotalConIva += docValueWithTax;
+    }
   }
 
   if (isPurchase) {
     bucket.purchaseInvoiceCount += 1;
     bucket.purchaseInvoiceTotal += docValue;
+    if (docValueWithTax != null) {
+      bucket.purchaseInvoiceTotalConIva += docValueWithTax;
+    }
   }
 
   if (statusKey === "Rechazado") {
@@ -418,6 +446,8 @@ function computeAllMetrics(data) {
   for (const row of data) {
     const netValue = getNetValue(row);
     const docValue = getDocumentValue(row);
+    const netValueWithTax = getNetValueWithTax(row);
+    const docValueWithTax = getDocumentValueWithTax(row);
     const statusKey = getStatusKey(row.estado);
     const isCredit = isCreditNote(row);
     const isDebit = isDebitNote(row);
@@ -486,15 +516,23 @@ function computeAllMetrics(data) {
     if (statusKey === "Aprobado") trendBucket.approvedValue += docValue;
 
     if (!categoryMap.has(row.categoria)) {
-      categoryMap.set(row.categoria, { category: row.categoria, total: 0, count: 0 });
+      categoryMap.set(row.categoria, { category: row.categoria, total: 0, totalConIva: 0, totalConIvaCount: 0, count: 0 });
     }
     categoryMap.get(row.categoria).total += netValue;
+    if (netValueWithTax != null) {
+      categoryMap.get(row.categoria).totalConIva += netValueWithTax;
+      categoryMap.get(row.categoria).totalConIvaCount += 1;
+    }
     categoryMap.get(row.categoria).count += 1;
 
     if (!providerMap.has(row.proveedor)) {
-      providerMap.set(row.proveedor, { provider: row.proveedor, total: 0, count: 0 });
+      providerMap.set(row.proveedor, { provider: row.proveedor, total: 0, totalConIva: 0, totalConIvaCount: 0, count: 0 });
     }
     providerMap.get(row.proveedor).total += netValue;
+    if (netValueWithTax != null) {
+      providerMap.get(row.proveedor).totalConIva += netValueWithTax;
+      providerMap.get(row.proveedor).totalConIvaCount += 1;
+    }
     providerMap.get(row.proveedor).count += 1;
 
     if (!providerTotalsByPeriod.has(row.periodo)) {
@@ -506,7 +544,16 @@ function computeAllMetrics(data) {
     if (!supplierMap.has(row.proveedor)) {
       supplierMap.set(row.proveedor, createSupplierBucket(row.proveedor));
     }
-    accumulateSupplierBucket(supplierMap.get(row.proveedor), netValue, docValue, isCredit, isPurchase, statusKey);
+    accumulateSupplierBucket(
+      supplierMap.get(row.proveedor),
+      netValue,
+      docValue,
+      netValueWithTax,
+      docValueWithTax,
+      isCredit,
+      isPurchase,
+      statusKey
+    );
 
     if (!categoryProviderMap.has(row.categoria)) {
       categoryProviderMap.set(row.categoria, new Map());
@@ -515,7 +562,16 @@ function computeAllMetrics(data) {
     if (!categoryProviders.has(row.proveedor)) {
       categoryProviders.set(row.proveedor, createSupplierBucket(row.proveedor));
     }
-    accumulateSupplierBucket(categoryProviders.get(row.proveedor), netValue, docValue, isCredit, isPurchase, statusKey);
+    accumulateSupplierBucket(
+      categoryProviders.get(row.proveedor),
+      netValue,
+      docValue,
+      netValueWithTax,
+      docValueWithTax,
+      isCredit,
+      isPurchase,
+      statusKey
+    );
 
     if (statusKey === "Rechazado") {
       const reason = row.motivoRechazo || row.observacion || "Sin motivo registrado";

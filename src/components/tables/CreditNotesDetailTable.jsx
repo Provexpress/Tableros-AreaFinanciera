@@ -34,6 +34,10 @@ function getSortableValue(row, key) {
   return String(row[key] || "");
 }
 
+function formatReplacementReference(value) {
+  return value || "NC sin referenciación";
+}
+
 export default function CreditNotesDetailTable({
   rows,
   hasDetailContext = false,
@@ -157,7 +161,7 @@ export default function CreditNotesDetailTable({
         row.weekLabel,
         row.nc,
         row.factura,
-        row.reemplazadaPor,
+        formatReplacementReference(row.reemplazadaPor),
         row.cliente,
         row.asesor,
         row.causa,
@@ -366,8 +370,8 @@ export default function CreditNotesDetailTable({
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
-                      <div className="truncate" title={row.reemplazadaPor}>
-                        {row.reemplazadaPor || "-"}
+                      <div className="truncate" title={formatReplacementReference(row.reemplazadaPor)}>
+                        {formatReplacementReference(row.reemplazadaPor)}
                       </div>
                     </TableCell>
                     <TableCell className="text-[var(--txt)]">

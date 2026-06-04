@@ -10,6 +10,15 @@ const STATUS_CONFIG = {
   ALL: { title: "todos los estados", label: "Todos", variant: "default" },
 };
 
+function getAmountWithTax(row) {
+  const value = Number(row.totalConIva ?? row.totalConIvaOriginal);
+  return Number.isFinite(value) && value !== 0 ? value : null;
+}
+
+function formatOptionalCOP(value) {
+  return value == null ? "-" : formatCOPFull(value);
+}
+
 export default function DocumentFlowBoard({
   rowsByStatus = { Rechazado: [], "En revision": [], Aprobado: [] },
   selectedStatus = "Rechazado",
@@ -40,7 +49,7 @@ export default function DocumentFlowBoard({
         <div className="relative max-h-[360px] max-w-full overflow-hidden rounded-[10px] border border-[rgba(26,43,107,0.1)]">
           <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-white to-transparent" />
           <div className="max-h-[360px] max-w-full overflow-auto">
-          <Table className={isSalesLayout ? "min-w-[1040px] table-fixed" : "min-w-[860px] table-fixed"}>
+          <Table className={isSalesLayout ? "min-w-[1180px] table-fixed" : "min-w-[1010px] table-fixed"}>
             <thead>
               {isSalesLayout ? (
                 <tr>
@@ -48,7 +57,8 @@ export default function DocumentFlowBoard({
                   <TableHead className="w-[150px]">Doc. factura</TableHead>
                   <TableHead className="w-[136px]">Nota credito</TableHead>
                   <TableHead className="w-[24%]">{entityLabel}</TableHead>
-                  <TableHead className="w-[148px] text-right">Monto factura</TableHead>
+                  <TableHead className="w-[148px] text-right">Factura sin IVA</TableHead>
+                  <TableHead className="w-[148px] text-right">Factura con IVA</TableHead>
                   <TableHead className="w-[132px] text-right">Monto NC</TableHead>
                   <TableHead className="w-[132px] text-right">Total</TableHead>
                 </tr>
@@ -57,7 +67,8 @@ export default function DocumentFlowBoard({
                   <TableHead className="w-[136px]">Doc</TableHead>
                   <TableHead className="w-[28%]">{entityLabel}</TableHead>
                   <TableHead className="w-[100px]">Fecha</TableHead>
-                  <TableHead className="w-[148px] text-right">Monto</TableHead>
+                  <TableHead className="w-[148px] text-right">Sin IVA</TableHead>
+                  <TableHead className="w-[148px] text-right">Con IVA</TableHead>
                   <TableHead className="w-[34%]">Motivo / obs.</TableHead>
                 </tr>
               )}
@@ -65,7 +76,7 @@ export default function DocumentFlowBoard({
             <tbody>
               {!selectedRows.length ? (
                 <tr>
-                  <TableCell colSpan={isSalesLayout ? 7 : 5} className="py-8 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={isSalesLayout ? 8 : 6} className="py-8 text-center text-sm text-[var(--txt3)]">
                     Sin documentos en este estado.
                   </TableCell>
                 </tr>
@@ -76,6 +87,7 @@ export default function DocumentFlowBoard({
                   const invoiceNumber = isCredit ? row.validacion || row.factura || "-" : row.numeroDocumento || row.folio || "-";
                   const creditNumber = isCredit ? row.numeroDocumento || row.folio || "-" : "-";
                   const invoiceAmount = isCredit ? 0 : documentValue;
+                  const invoiceAmountWithTax = isCredit ? null : getAmountWithTax(row);
                   const creditAmount = isCredit ? documentValue : 0;
 
                   return (
@@ -100,6 +112,9 @@ export default function DocumentFlowBoard({
                           </TableCell>
                           <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                             {formatCOPFull(invoiceAmount)}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                            {formatOptionalCOP(invoiceAmountWithTax)}
                           </TableCell>
                           <TableCell className="whitespace-nowrap text-right font-mono text-[var(--danger)] [font-variant-numeric:tabular-nums]">
                             {formatCOPFull(creditAmount)}
@@ -134,6 +149,9 @@ export default function DocumentFlowBoard({
                           <TableCell className="whitespace-nowrap">{formatDate(row.fecha)}</TableCell>
                           <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                             {formatCOPFull(row.totalOriginal ?? row.total)}
+                          </TableCell>
+                          <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                            {formatOptionalCOP(getAmountWithTax(row))}
                           </TableCell>
                           <TableCell>
                             <div className="truncate" title={row.motivoRechazo || row.observacion}>

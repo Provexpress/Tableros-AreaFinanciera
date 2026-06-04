@@ -22,6 +22,10 @@ function buildCauseMatcher(causeKey) {
   return () => true;
 }
 
+function formatReplacementReference(value) {
+  return value || "NC sin referenciación";
+}
+
 function ScopeCard({
   title,
   amount,
@@ -163,8 +167,8 @@ function DetailTable({
                       </div>
                     </TableCell>
                     <TableCell className="font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
-                      <div className="truncate" title={row.reemplazadaPor}>
-                        {row.reemplazadaPor || "-"}
+                      <div className="truncate" title={formatReplacementReference(row.reemplazadaPor)}>
+                        {formatReplacementReference(row.reemplazadaPor)}
                       </div>
                     </TableCell>
                     <TableCell>

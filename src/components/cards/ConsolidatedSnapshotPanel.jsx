@@ -232,6 +232,11 @@ function getRowCategory(row, type) {
   return type === "purchase" ? row.categoria || "Sin categoría" : row.categoria || row.causa || row.concepto || "Sin categoría";
 }
 
+function getValueWithTax(row) {
+  const value = Number(row.totalConIva ?? row.totalConIvaOriginal);
+  return Number.isFinite(value) && value !== 0 ? value : null;
+}
+
 function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }) {
   if (!selectedEntity || !selectedCategory) {
     return [];
@@ -255,6 +260,7 @@ function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }
           reference: row.oc || row.estado || "-",
           quantityLabel: isCredit ? "NC" : "FC",
           value: Number(row.total || 0),
+          valueWithTax: getValueWithTax(row),
         };
       }
 
@@ -266,6 +272,7 @@ function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }
         reference: row.estado || row.factura || row.reemplazadaPor || row.asesor || "-",
         quantityLabel: Number(row.signoDocumento || 1) < 0 ? "NC" : "FV",
         value: Number(row.total || row.valor || 0),
+        valueWithTax: getValueWithTax(row),
       };
     })
     .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
@@ -503,7 +510,7 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
       <CardContent>
         {rows.length ? (
           <div className="max-h-[360px] overflow-x-auto rounded-[8px] border border-[rgba(26,43,107,0.1)]">
-            <table className="min-w-[720px] w-full text-sm">
+            <table className="min-w-[860px] w-full text-sm">
               <thead className="sticky top-0 bg-[var(--surface-2)] text-left text-xs uppercase tracking-[0.08em] text-[var(--txt3)]">
                 <tr>
                   <th className="px-3 py-2">Fecha</th>
@@ -511,7 +518,8 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
                   <th className="px-3 py-2">Detalle</th>
                   <th className="px-3 py-2">Referencia</th>
                   <th className="px-3 py-2 text-right">Tipo</th>
-                  <th className="px-3 py-2 text-right">Valor</th>
+                  <th className="px-3 py-2 text-right">Sin IVA</th>
+                  <th className="px-3 py-2 text-right">Con IVA</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[rgba(26,43,107,0.08)]">
@@ -532,6 +540,9 @@ function MovementDetailCard({ selectedEntity, selectedCategory, type, rows }) {
                     <td className="px-3 py-2 text-right text-[var(--txt2)]">{row.quantityLabel}</td>
                     <td className="px-3 py-2 text-right font-mono font-semibold text-[var(--txt)]">
                       {formatCOPCompact(row.value)}
+                    </td>
+                    <td className="px-3 py-2 text-right font-mono text-[var(--txt2)]">
+                      {row.valueWithTax == null ? "-" : formatCOPCompact(row.valueWithTax)}
                     </td>
                   </tr>
                 ))}
