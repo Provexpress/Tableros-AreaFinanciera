@@ -19,6 +19,31 @@ function cloneRange(value) {
   return Array.isArray(value) ? [value[0] || null, value[1] || null] : [null, null];
 }
 
+function sameList(left = [], right = []) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
+function sameRange(left = [], right = []) {
+  return (left?.[0] || null) === (right?.[0] || null) && (left?.[1] || null) === (right?.[1] || null);
+}
+
+function sameCalendarFilters(current = null, next = null) {
+  if (!current || !next) {
+    return current === next;
+  }
+
+  return (
+    current.year === next.year &&
+    current.month === next.month &&
+    current.semester === next.semester &&
+    current.quarter === next.quarter &&
+    sameRange(current.periodRange, next.periodRange) &&
+    sameRange(current.dateRange, next.dateRange) &&
+    sameList(current.selectedPeriods || [], next.selectedPeriods || []) &&
+    sameList(current.selectedDates || [], next.selectedDates || [])
+  );
+}
+
 export function hasCalendarFilterKeys(partial = {}) {
   return CALENDAR_KEYS.some((key) => Object.prototype.hasOwnProperty.call(partial, key));
 }
@@ -64,10 +89,15 @@ export const useCalendarSyncStore = create((set, get) => ({
   revision: 0,
   setCalendarFilters: (filters, source = "unknown", options = {}) => {
     const nextFilters = pickCalendarFilters(filters, options);
+    const current = get();
+    if (current.source === source && sameCalendarFilters(current.filters, nextFilters)) {
+      return;
+    }
+
     set({
       filters: nextFilters,
       source,
-      revision: get().revision + 1,
+      revision: current.revision + 1,
     });
   },
 }));

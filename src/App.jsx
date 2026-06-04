@@ -384,7 +384,7 @@ export default function App() {
       return;
     }
 
-    setNotasFilters(syncedNotasFilters);
+    setNotasFilters({ ...syncedNotasFilters, _skipCalendarSync: true });
   }, [
     facturasFilters.month,
     facturasFilters.periodRange,
