@@ -100,6 +100,11 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shellOffset, setShellOffset] = useState(88);
   const navbarRef = useRef(null);
+  const lastAppliedCalendarRevisionRef = useRef({
+    facturas: 0,
+    ventas: 0,
+    notas: 0,
+  });
   const {
     filters: sharedCalendarFilters,
     source: sharedCalendarSource,
@@ -274,27 +279,33 @@ export default function App() {
     const facturasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: true });
     if (
       sharedCalendarSource !== "facturas" &&
+      lastAppliedCalendarRevisionRef.current.facturas !== sharedCalendarRevision &&
       facturasRawData.length &&
       !sameCalendarFilters(facturasFilters, facturasCalendar, { includeDates: true })
     ) {
+      lastAppliedCalendarRevisionRef.current.facturas = sharedCalendarRevision;
       setFacturasFilters({ ...facturasCalendar, _skipCalendarSync: true });
     }
 
     const ventasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: true });
     if (
       sharedCalendarSource !== "ventas" &&
+      lastAppliedCalendarRevisionRef.current.ventas !== sharedCalendarRevision &&
       ventasRawData.length &&
       !sameCalendarFilters(ventasFilters, ventasCalendar, { includeDates: true })
     ) {
+      lastAppliedCalendarRevisionRef.current.ventas = sharedCalendarRevision;
       setVentasFilters({ ...ventasCalendar, _skipCalendarSync: true });
     }
 
     const notasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: false });
     if (
       sharedCalendarSource !== "notas" &&
+      lastAppliedCalendarRevisionRef.current.notas !== sharedCalendarRevision &&
       notasRawWeeks.length &&
       !sameCalendarFilters(notasFilters, notasCalendar, { includeDates: false })
     ) {
+      lastAppliedCalendarRevisionRef.current.notas = sharedCalendarRevision;
       setNotasFilters({ ...notasCalendar, _skipCalendarSync: true });
     }
   }, [
