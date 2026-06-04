@@ -48,27 +48,82 @@ function FormulaRow({ title, first, second, result }) {
   );
 }
 
+function formatCountLabel(count, singular, plural) {
+  const numericCount = Number(count || 0);
+  return `${formatInteger(numericCount)} ${numericCount === 1 ? singular : plural}`;
+}
+
+function getEntityNit(row) {
+  return String(row?.nit || row?.identificacion || row?.Identificacion || "").trim();
+}
+
+function getEntityName(row, type) {
+  if (type === "purchase") {
+    return row?.proveedor || "Sin proveedor";
+  }
+
+  return row?.cliente || row?.proveedor || "Sin cliente";
+}
+
+function getEntityKey(row, type) {
+  const nit = getEntityNit(row);
+  return nit ? `nit:${nit}` : `name:${getEntityName(row, type)}`;
+}
+
+function addEntityName(bucket, label) {
+  const name = label || bucket.label;
+  bucket.names.set(name, (bucket.names.get(name) || 0) + 1);
+}
+
+function getPreferredEntityLabel(bucket) {
+  return [...bucket.names.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] || bucket.label;
+}
+
+function formatEntityNits(nits) {
+  const values = [...nits].filter(Boolean).sort();
+  if (!values.length) return "";
+  if (values.length <= 2) return values.join(", ");
+  return `${values.slice(0, 2).join(", ")} +${values.length - 2}`;
+}
+
+function finalizeEntityRows(rows) {
+  return rows
+    .map((bucket) => ({
+      ...bucket,
+      label: getPreferredEntityLabel(bucket),
+      nit: formatEntityNits(bucket.nits),
+      names: undefined,
+      nits: undefined,
+    }))
+    .sort((a, b) => b.total - a.total || b.count - a.count);
+}
+
 function buildClientRanking(rows = []) {
   const totals = new Map();
 
   rows.forEach((row) => {
-    const key = row.cliente || row.proveedor || "Sin cliente";
+    const key = getEntityKey(row, "sale");
+    const label = getEntityName(row, "sale");
     if (!totals.has(key)) {
       totals.set(key, {
         key,
-        label: key,
+        label,
+        names: new Map(),
+        nits: new Set(),
         total: 0,
         count: 0,
       });
     }
 
     const bucket = totals.get(key);
+    addEntityName(bucket, label);
+    const nit = getEntityNit(row);
+    if (nit) bucket.nits.add(nit);
     bucket.total += Number(row.total || row.valor || 0);
     bucket.count += 1;
   });
 
-  return [...totals.values()]
-    .sort((a, b) => b.total - a.total || b.count - a.count);
+  return finalizeEntityRows([...totals.values()]);
 }
 
 function buildPurchaseEntities(rows = [], fallbackRanking = []) {
@@ -76,11 +131,14 @@ function buildPurchaseEntities(rows = [], fallbackRanking = []) {
     const totals = new Map();
 
     rows.forEach((row) => {
-      const key = row.proveedor || "Sin proveedor";
+      const key = getEntityKey(row, "purchase");
+      const label = getEntityName(row, "purchase");
       if (!totals.has(key)) {
         totals.set(key, {
           key,
-          label: key,
+          label,
+          names: new Map(),
+          nits: new Set(),
           total: 0,
           count: 0,
           purchaseInvoiceCount: 0,
@@ -93,6 +151,9 @@ function buildPurchaseEntities(rows = [], fallbackRanking = []) {
       const isCredit = Number(row.signoDocumento || 1) < 0 || type.includes("nota de cr");
       const bucket = totals.get(key);
 
+      addEntityName(bucket, label);
+      const nit = getEntityNit(row);
+      if (nit) bucket.nits.add(nit);
       bucket.total += value;
       bucket.count += 1;
       if (isCredit) {
@@ -102,12 +163,13 @@ function buildPurchaseEntities(rows = [], fallbackRanking = []) {
       }
     });
 
-    return [...totals.values()].sort((a, b) => b.total - a.total || b.count - a.count);
+    return finalizeEntityRows([...totals.values()]);
   }
 
   return fallbackRanking.map((row) => ({
     key: row.provider || "Sin proveedor",
     label: row.provider || "Sin proveedor",
+    nit: row.nit || "",
     total: Number(row.total || 0),
     count: Number(row.count || 0),
     purchaseInvoiceCount: Number(row.purchaseInvoiceCount || 0),
@@ -131,7 +193,7 @@ function buildCategoryBreakdown({ rows = [], selected, type }) {
   const totals = new Map();
 
   rows.forEach((row) => {
-    const entityKey = type === "purchase" ? row.proveedor || "Sin proveedor" : row.cliente || row.proveedor || "Sin cliente";
+    const entityKey = getEntityKey(row, type);
     if (entityKey !== selected.key) {
       return;
     }
@@ -177,7 +239,7 @@ function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }
 
   return rows
     .filter((row) => {
-      const entityKey = type === "purchase" ? row.proveedor || "Sin proveedor" : row.cliente || row.proveedor || "Sin cliente";
+      const entityKey = getEntityKey(row, type);
       return entityKey === selectedEntity.key && getRowCategory(row, type) === selectedCategory.key;
     })
     .map((row) => {
@@ -209,7 +271,9 @@ function buildCategoryRows({ rows = [], selectedEntity, selectedCategory, type }
     .sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
 }
 
-function EntityRow({ index, label, value, helper, active = false, onClick }) {
+function EntityRow({ index, label, nit, value, helper, active = false, onClick }) {
+  const title = nit ? `${label}\nNIT: ${nit}` : label;
+
   return (
     <button
       type="button"
@@ -225,9 +289,14 @@ function EntityRow({ index, label, value, helper, active = false, onClick }) {
         {index}
       </div>
       <div className="min-w-0">
-        <div className="truncate text-sm font-medium text-[var(--txt)]" title={label}>
+        <div className="truncate text-sm font-medium text-[var(--txt)]" title={title}>
           {label}
         </div>
+        {nit ? (
+          <div className="truncate text-xs font-medium text-[var(--txt2)]" title={`NIT: ${nit}`}>
+            NIT: {nit}
+          </div>
+        ) : null}
         <div className="text-xs text-[var(--txt3)]">{helper}</div>
       </div>
       <div className="font-mono text-sm font-medium text-[var(--txt)] [font-variant-numeric:tabular-nums]">
@@ -242,7 +311,9 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
   const visibleRows = useMemo(() => {
     const needle = query.trim().toLowerCase();
     if (!needle) return rows;
-    return rows.filter((row) => String(row.label || "").toLowerCase().includes(needle));
+    return rows.filter((row) =>
+      `${row.label || ""} ${row.nit || ""}`.toLowerCase().includes(needle)
+    );
   }, [query, rows]);
 
   return (
@@ -266,6 +337,7 @@ function EntityCard({ title, subtitle, rows, selected, onSelect, emptyText }) {
                 key={row.key || row.provider || row.label || index}
                 index={index + 1}
                 label={row.label}
+                nit={row.nit}
                 value={formatCOPCompact(row.total)}
                 helper={`${formatInteger(row.count)} registros`}
                 active={selected?.key === row.key}
@@ -607,7 +679,7 @@ export default function ConsolidatedSnapshotPanel({
           second={{
             label: "Notas crédito",
             value: formatCOPCompact(comprasSummary.creditNoteTotal),
-            helper: `${formatInteger(comprasSummary.creditNoteCount)} ajust?s`,
+            helper: formatCountLabel(comprasSummary.creditNoteCount, "ajuste", "ajustes"),
             tone: "danger",
           }}
           result={{

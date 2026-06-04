@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { buildNotasDerivedState } from "@/utils/notasCreditoAggregations";
 import { FILTER_BATCH_IDLE_STATE, scheduleBatchedFilterRecompute } from "@/store/filterBatcher";
+import {
+  applySharedCalendarFilters,
+  getSharedCalendarFilters,
+  hasCalendarFilterKeys,
+  saveSharedCalendarFilters,
+} from "@/store/useCalendarSyncStore";
 
 const initialFilters = {
   year: "2026",
@@ -45,6 +51,10 @@ function getNcPeriod(row) {
   }
 
   return "";
+}
+
+function sameRange(left = [], right = []) {
+  return (left?.[0] || null) === (right?.[0] || null) && (left?.[1] || null) === (right?.[1] || null);
 }
 
 function buildDefaultFilters(rawWeeks, rawNcRows, meta) {
@@ -255,7 +265,11 @@ export const useNotasCreditoStore = create((set, get) => ({
     try {
       const { loadDefaultNotasExcel } = await import("@/utils/parseNotasCredito");
       const result = await loadDefaultNotasExcel();
-      const filters = buildDefaultFilters(result.semanal, result.ncDetail, result.meta);
+      const filters = applySharedCalendarFilters(
+        buildDefaultFilters(result.semanal, result.ncDetail, result.meta),
+        getSharedCalendarFilters(),
+        { includeDates: false }
+      );
       const computed = recompute(result.semanal, result.ncDetail, filters, null, result.meta);
 
       set({
@@ -287,7 +301,11 @@ export const useNotasCreditoStore = create((set, get) => ({
     try {
       const { parseNotasCreditoFiles } = await import("@/utils/parseNotasCredito");
       const result = await parseNotasCreditoFiles(files);
-      const filters = buildDefaultFilters(result.semanal, result.ncDetail, result.meta);
+      const filters = applySharedCalendarFilters(
+        buildDefaultFilters(result.semanal, result.ncDetail, result.meta),
+        getSharedCalendarFilters(),
+        { includeDates: false }
+      );
       const computed = recompute(result.semanal, result.ncDetail, filters, null, result.meta);
 
       set({
@@ -311,14 +329,33 @@ export const useNotasCreditoStore = create((set, get) => ({
   },
 
   setFilters: (partial) => {
-    const nextFilters = { ...get().filters, ...partial };
+    const { _skipCalendarSync = false, ...partialFilters } = partial;
+    const currentFilters = get().filters;
+    const nextFilters = { ...currentFilters, ...partialFilters };
+
+    if (
+      nextFilters.year === currentFilters.year &&
+      nextFilters.month === currentFilters.month &&
+      nextFilters.semester === currentFilters.semester &&
+      nextFilters.quarter === currentFilters.quarter &&
+      nextFilters.impactKey === currentFilters.impactKey &&
+      nextFilters.responsible === currentFilters.responsible &&
+      sameRange(nextFilters.periodRange, currentFilters.periodRange) &&
+      sameList(nextFilters.selectedPeriods || [], currentFilters.selectedPeriods || [])
+    ) {
+      return;
+    }
+
+    if (!_skipCalendarSync && hasCalendarFilterKeys(partialFilters)) {
+      saveSharedCalendarFilters(nextFilters, "notas", { includeDates: false });
+    }
     const shouldResetSelectedWeek =
-      Object.prototype.hasOwnProperty.call(partial, "year") ||
-      Object.prototype.hasOwnProperty.call(partial, "month") ||
-      Object.prototype.hasOwnProperty.call(partial, "semester") ||
-      Object.prototype.hasOwnProperty.call(partial, "quarter") ||
-      Object.prototype.hasOwnProperty.call(partial, "periodRange") ||
-      Object.prototype.hasOwnProperty.call(partial, "selectedPeriods");
+      Object.prototype.hasOwnProperty.call(partialFilters, "year") ||
+      Object.prototype.hasOwnProperty.call(partialFilters, "month") ||
+      Object.prototype.hasOwnProperty.call(partialFilters, "semester") ||
+      Object.prototype.hasOwnProperty.call(partialFilters, "quarter") ||
+      Object.prototype.hasOwnProperty.call(partialFilters, "periodRange") ||
+      Object.prototype.hasOwnProperty.call(partialFilters, "selectedPeriods");
 
     set({
       filters: nextFilters,
@@ -359,6 +396,7 @@ export const useNotasCreditoStore = create((set, get) => ({
   clearFilters: () => {
     const { rawWeeks, rawNcRows, sourceMeta } = get();
     const filters = buildDefaultFilters(rawWeeks, rawNcRows, sourceMeta);
+    saveSharedCalendarFilters(filters, "notas", { includeDates: false });
     const computed = recompute(rawWeeks, rawNcRows, filters, null, sourceMeta);
 
     set({

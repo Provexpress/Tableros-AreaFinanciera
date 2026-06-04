@@ -4,6 +4,7 @@ import { useShallow } from "zustand/react/shallow";
 import FilterSidebar from "@/components/layout/FilterSidebar";
 import Navbar from "@/components/layout/Navbar";
 import { Card, CardContent } from "@/components/ui/card";
+import { pickCalendarFilters, useCalendarSyncStore } from "@/store/useCalendarSyncStore";
 import { useFacturasStore } from "@/store/useFacturasStore";
 import { useNotasCreditoStore } from "@/store/useNotasCreditoStore";
 import { useVentasStore } from "@/store/useVentasStore";
@@ -36,6 +37,28 @@ const MONTH_LABELS = {
   "11": "Noviembre",
   "12": "Diciembre",
 };
+
+function sameList(left = [], right = []) {
+  return left.length === right.length && left.every((value, index) => value === right[index]);
+}
+
+function sameRange(left = [], right = []) {
+  return (left?.[0] || null) === (right?.[0] || null) && (left?.[1] || null) === (right?.[1] || null);
+}
+
+function sameCalendarFilters(current = {}, next = {}, { includeDates = true } = {}) {
+  return (
+    current.year === next.year &&
+    current.month === next.month &&
+    current.semester === next.semester &&
+    current.quarter === next.quarter &&
+    sameRange(current.periodRange, next.periodRange) &&
+    sameList(current.selectedPeriods || [], next.selectedPeriods || []) &&
+    (!includeDates ||
+      (sameRange(current.dateRange, next.dateRange) &&
+        sameList(current.selectedDates || [], next.selectedDates || [])))
+  );
+}
 
 function LoadingShell({ sourceName }) {
   return (
@@ -77,6 +100,17 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [shellOffset, setShellOffset] = useState(88);
   const navbarRef = useRef(null);
+  const {
+    filters: sharedCalendarFilters,
+    source: sharedCalendarSource,
+    revision: sharedCalendarRevision,
+  } = useCalendarSyncStore(
+    useShallow((s) => ({
+      filters: s.filters,
+      source: s.source,
+      revision: s.revision,
+    }))
+  );
 
   const {
     rawData: facturasRawData,
@@ -90,6 +124,7 @@ export default function App() {
     error: facturasError,
     loadDefaultWorkbook,
     clearFilters: clearFacturasFilters,
+    setFilters: setFacturasFilters,
     setFocusPeriod: setFacturasFocusPeriod,
   } = useFacturasStore(
     useShallow((s) => ({
@@ -104,6 +139,7 @@ export default function App() {
       error: s.error,
       loadDefaultWorkbook: s.loadDefaultWorkbook,
       clearFilters: s.clearFilters,
+      setFilters: s.setFilters,
       setFocusPeriod: s.setFocusPeriod,
     }))
   );
@@ -153,6 +189,7 @@ export default function App() {
     error: ventasError,
     loadDefaultVentas,
     clearFilters: clearVentasFilters,
+    setFilters: setVentasFilters,
   } = useVentasStore(
     useShallow((s) => ({
       rawData: s.rawData,
@@ -163,6 +200,7 @@ export default function App() {
       error: s.error,
       loadDefaultVentas: s.loadDefaultVentas,
       clearFilters: s.clearFilters,
+      setFilters: s.setFilters,
     }))
   );
 
@@ -227,6 +265,52 @@ export default function App() {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!sharedCalendarFilters || !sharedCalendarRevision) {
+      return;
+    }
+
+    const facturasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: true });
+    if (
+      sharedCalendarSource !== "facturas" &&
+      facturasRawData.length &&
+      !sameCalendarFilters(facturasFilters, facturasCalendar, { includeDates: true })
+    ) {
+      setFacturasFilters({ ...facturasCalendar, _skipCalendarSync: true });
+    }
+
+    const ventasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: true });
+    if (
+      sharedCalendarSource !== "ventas" &&
+      ventasRawData.length &&
+      !sameCalendarFilters(ventasFilters, ventasCalendar, { includeDates: true })
+    ) {
+      setVentasFilters({ ...ventasCalendar, _skipCalendarSync: true });
+    }
+
+    const notasCalendar = pickCalendarFilters(sharedCalendarFilters, { includeDates: false });
+    if (
+      sharedCalendarSource !== "notas" &&
+      notasRawWeeks.length &&
+      !sameCalendarFilters(notasFilters, notasCalendar, { includeDates: false })
+    ) {
+      setNotasFilters({ ...notasCalendar, _skipCalendarSync: true });
+    }
+  }, [
+    facturasFilters,
+    facturasRawData.length,
+    notasFilters,
+    notasRawWeeks.length,
+    setFacturasFilters,
+    setNotasFilters,
+    setVentasFilters,
+    sharedCalendarFilters,
+    sharedCalendarRevision,
+    sharedCalendarSource,
+    ventasFilters,
+    ventasRawData.length,
+  ]);
 
   useEffect(() => {
     if (!isComparisonRoute || !facturasRawData.length || !notasRawWeeks.length) {

@@ -195,16 +195,16 @@ export default function WeekVariationPanel({
 
         <div className="grid gap-4 2xl:grid-cols-2">
           <DeltaList
-            title="Causas que empeoraron"
+            title="Causas con mayor incremento"
             items={variation.worseningCauses || []}
-            emptyMessage="No hubo causas que subieran frente a la semana anterior."
+            emptyMessage="No hubo incrementos por causa frente a la semana anterior."
             selectedKey={selectedCauseKey}
             onSelect={onSelectCause}
           />
           <DeltaList
-            title="Responsables que empeoraron"
+            title="Responsables con mayor incremento"
             items={variation.worseningResponsibles || []}
-            emptyMessage="No hubo comerciales que subieran frente a la semana anterior."
+            emptyMessage="No hubo incrementos por responsable frente a la semana anterior."
             selectedKey={selectedResponsibleKey}
             onSelect={onSelectResponsible}
           />

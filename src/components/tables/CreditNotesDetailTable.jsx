@@ -96,6 +96,7 @@ export default function CreditNotesDetailTable({
       return [
         row.nc,
         row.factura,
+        row.reemplazadaPor,
         row.cliente,
         row.asesor,
         row.causa,
@@ -149,13 +150,14 @@ export default function CreditNotesDetailTable({
   }
 
   function exportCsv() {
-    const header = ["Fecha", "Semana", "NC", "Factura", "Cliente", "Asesor", "Causa", "Valor", "Observacion"];
+    const header = ["Fecha", "Semana", "NC", "Factura", "Reemplazada por", "Cliente", "Asesor", "Causa", "Valor", "Observacion"];
     const lines = sortedRows.map((row) =>
       [
         row.fechaInicialIso,
         row.weekLabel,
         row.nc,
         row.factura,
+        row.reemplazadaPor,
         row.cliente,
         row.asesor,
         row.causa,
@@ -299,7 +301,7 @@ export default function CreditNotesDetailTable({
 
       <CardContent className="space-y-4">
         <div className="max-w-full overflow-x-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
-          <Table className="min-w-[980px] table-fixed">
+          <Table className="min-w-[1120px] table-fixed">
             <thead>
               <tr>
                 <TableHead onClick={() => toggleSort("fecha")} className="w-[118px] cursor-pointer">
@@ -307,6 +309,9 @@ export default function CreditNotesDetailTable({
                 </TableHead>
                 <TableHead onClick={() => toggleSort("factura")} className="w-[172px] cursor-pointer">
                   Factura
+                </TableHead>
+                <TableHead onClick={() => toggleSort("reemplazadaPor")} className="w-[156px] cursor-pointer">
+                  Reemplazada por
                 </TableHead>
                 <TableHead onClick={() => toggleSort("cliente")} className="w-[19%] cursor-pointer">
                   Cliente
@@ -328,13 +333,13 @@ export default function CreditNotesDetailTable({
             <tbody>
               {!hasDetailContext ? (
                 <tr>
-                  <TableCell colSpan={7} className="py-8 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={8} className="py-8 text-center text-sm text-[var(--txt3)]">
                     Selecciona una semana desde la tendencia o toca una causa, cliente o responsable para abrir el detalle.
                   </TableCell>
                 </tr>
               ) : paginatedRows.length === 0 ? (
                 <tr>
-                  <TableCell colSpan={7} className="py-8 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={8} className="py-8 text-center text-sm text-[var(--txt3)]">
                     No hay notas crédito para los filtros activos en esta selección.
                   </TableCell>
                 </tr>
@@ -358,7 +363,11 @@ export default function CreditNotesDetailTable({
                       </div>
                       <div className="truncate text-[11px] text-[var(--txt3)]" title={`NC ${row.nc || "-"}`}>
                         NC {row.nc || "-"}
-                        {row.reemplazadaPor ? ` -> ${row.reemplazadaPor}` : ""}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                      <div className="truncate" title={row.reemplazadaPor}>
+                        {row.reemplazadaPor || "-"}
                       </div>
                     </TableCell>
                     <TableCell className="text-[var(--txt)]">

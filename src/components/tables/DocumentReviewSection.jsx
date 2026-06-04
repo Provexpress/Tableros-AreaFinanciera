@@ -7,6 +7,15 @@ function getDocumentAmount(row) {
   return Math.abs(Number(row.totalOriginal ?? row.total ?? 0));
 }
 
+function getDocumentAmountWithTax(row) {
+  const value = Number(row.totalConIvaOriginal ?? row.totalConIva);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function formatOptionalCOP(value) {
+  return value == null ? "-" : formatCOPFull(value);
+}
+
 function getDocumentNumber(row) {
   return row.numeroDocumento || row.folio || "-";
 }
@@ -56,19 +65,20 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
       </CardHeader>
       <CardContent>
         <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
-          <Table className="min-w-[620px] table-fixed">
+          <Table className="min-w-[760px] table-fixed">
             <thead>
               <tr>
                 <TableHead className="w-[92px]">Fecha</TableHead>
                 <TableHead className="w-[38%]">{entityLabel}</TableHead>
                 <TableHead className="w-[152px]">{numberLabel}</TableHead>
-                <TableHead className="w-[148px] text-right">Monto</TableHead>
+                <TableHead className="w-[148px] text-right">Sin IVA</TableHead>
+                <TableHead className="w-[148px] text-right">Con IVA</TableHead>
               </tr>
             </thead>
             <tbody>
               {!visibleRows.length ? (
                 <tr>
-                  <TableCell colSpan={4} className="py-7 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={5} className="py-7 text-center text-sm text-[var(--txt3)]">
                     Sin documentos para los filtros actuales.
                   </TableCell>
                 </tr>
@@ -88,6 +98,9 @@ function DocumentTable({ title, subtitle, rows, numberLabel, entityLabel = "Prov
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                       {formatCOPFull(getDocumentAmount(row))}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                      {formatOptionalCOP(getDocumentAmountWithTax(row))}
                     </TableCell>
                   </tr>
                 ))

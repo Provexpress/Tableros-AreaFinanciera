@@ -40,6 +40,15 @@ function csvValue(value) {
   return `"${String(value ?? "").replace(/"/g, '""')}"`;
 }
 
+function getAmountWithTax(row) {
+  const value = Number(row.totalConIva ?? row.totalConIvaOriginal);
+  return Number.isFinite(value) && value !== 0 ? value : null;
+}
+
+function formatOptionalCOP(value) {
+  return value == null ? "-" : formatCOPFull(value);
+}
+
 export default function DetailTable({
   rows,
   search,
@@ -61,6 +70,9 @@ export default function DetailTable({
       const direction = sort.direction === "asc" ? 1 : -1;
       if (sort.key === "total") {
         return (Number(a.total || 0) - Number(b.total || 0)) * direction;
+      }
+      if (sort.key === "totalConIva") {
+        return (Number(getAmountWithTax(a) || 0) - Number(getAmountWithTax(b) || 0)) * direction;
       }
       if (sort.key === "fecha") {
         return String(a.fechaIso || "").localeCompare(String(b.fechaIso || "")) * direction;
@@ -94,7 +106,8 @@ export default function DetailTable({
       "Proveedor",
       "Categoría",
       "Estado",
-      "Monto",
+      "Monto_sin_IVA",
+      "Monto_con_IVA",
       "Observacion",
       "Motivo_Rechazo",
     ];
@@ -108,6 +121,7 @@ export default function DetailTable({
         row.categoria,
         row.estado,
         row.total,
+        getAmountWithTax(row),
         row.observacion,
         row.motivoRechazo,
       ]
@@ -158,7 +172,7 @@ export default function DetailTable({
             <MoveRight className="h-4 w-4" />
           </div>
           <div className="max-w-full overflow-x-auto">
-          <Table className="min-w-[1120px] table-fixed">
+          <Table className="min-w-[1260px] table-fixed">
             <thead>
               <tr>
                 <TableHead className="w-[84px]">Tipo</TableHead>
@@ -179,7 +193,10 @@ export default function DetailTable({
                   Estado
                 </TableHead>
                 <TableHead onClick={() => toggleSort("total")} className="w-[148px] cursor-pointer text-right">
-                  Monto
+                  Monto sin IVA
+                </TableHead>
+                <TableHead onClick={() => toggleSort("totalConIva")} className="w-[148px] cursor-pointer text-right">
+                  Con IVA
                 </TableHead>
                 <TableHead className="w-[25%]">Observacion / motivo</TableHead>
               </tr>
@@ -187,7 +204,7 @@ export default function DetailTable({
             <tbody>
               {paginated.length === 0 && (
                 <tr>
-                  <TableCell colSpan={9} className="py-8 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={10} className="py-8 text-center text-sm text-[var(--txt3)]">
                     No hay documentos para los filtros actuales.
                   </TableCell>
                 </tr>
@@ -220,6 +237,9 @@ export default function DetailTable({
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt)] [font-variant-numeric:tabular-nums]">
                     {formatCOPFull(row.total)}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-right font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                    {formatOptionalCOP(getAmountWithTax(row))}
                   </TableCell>
                   <TableCell>
                     <div className="truncate" title={row.motivoRechazo || row.observacion}>

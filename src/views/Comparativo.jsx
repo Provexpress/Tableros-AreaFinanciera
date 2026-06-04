@@ -261,6 +261,7 @@ export default function Comparativo() {
   const commonPeriodSet = useMemo(() => new Set(commonPeriods), [commonPeriods]);
   const selectedPeriodSet = useMemo(() => new Set(facturasFilters.selectedPeriods || []), [facturasFilters.selectedPeriods]);
   const selectedDateSet = useMemo(() => new Set(facturasFilters.selectedDates || []), [facturasFilters.selectedDates]);
+  const [selectedPeriodStart, selectedPeriodEnd] = facturasFilters.periodRange || [null, null];
 
   const matchesCalendarFilters = (row) => {
     const period = getPeriod(row);
@@ -271,6 +272,10 @@ export default function Comparativo() {
       const month = String(Number(period.slice(5, 7) || row?.mesNum || 0));
       if (month !== String(Number(facturasFilters.month))) return false;
     }
+    if (!selectedPeriodSet.size && facturasFilters.month === "ALL") {
+      if (selectedPeriodStart && period < selectedPeriodStart) return false;
+      if (selectedPeriodEnd && period > selectedPeriodEnd) return false;
+    }
 
     if (!matchesSelectedDates(row, selectedDateSet)) return false;
 
@@ -279,16 +284,16 @@ export default function Comparativo() {
 
   const purchaseRows = useMemo(
     () => purchase2026Rows.filter(matchesCalendarFilters),
-    [purchase2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month]
+    [purchase2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month, selectedPeriodStart, selectedPeriodEnd]
   );
 
   const rawSalesRows = useMemo(
     () => sales2026Rows.filter(matchesCalendarFilters),
-    [sales2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month]
+    [sales2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month, selectedPeriodStart, selectedPeriodEnd]
   );
   const rawSalesCreditRows = useMemo(
     () => salesCredit2026Rows.filter(matchesCalendarFilters),
-    [salesCredit2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month]
+    [salesCredit2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month, selectedPeriodStart, selectedPeriodEnd]
   );
   const resolveSalesClient = useMemo(() => buildClientResolver(rawSalesRows), [rawSalesRows]);
 

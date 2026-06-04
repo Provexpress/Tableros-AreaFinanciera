@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { applyFacturasFilters, computeFacturasDerivedState } from "@/store/facturasDerived";
 import {
+  applySharedCalendarFilters,
+  getSharedCalendarFilters,
+  hasCalendarFilterKeys,
+  saveSharedCalendarFilters,
+} from "@/store/useCalendarSyncStore";
+import {
   getFacturasDatesForPeriod,
   getFacturasPeriodDefaults,
   getFacturasPeriods,
@@ -41,6 +47,8 @@ function mapVentasAcusesRows(rows = []) {
     const fecha = fechaIso ? new Date(`${fechaIso}T00:00:00`) : null;
     const cliente = row.nombreCliente || row.clienteNormalizado || "Sin cliente";
     const observacion = row.observaciones || row.estadoAcuse || "-";
+    const ivaValor = Number(row.iva || 0);
+    const totalConIva = Number(row.total || 0);
 
     return {
       id: row.llaveDocumento || `venta-acuse-${row.numeroDocumento || index}`,
@@ -48,9 +56,12 @@ function mapVentasAcusesRows(rows = []) {
       fechaIso,
       fechaRecepcion: row.fechaRecepcion ? new Date(String(row.fechaRecepcion).replace(" ", "T")) : fecha,
       fechaRecepcionIso: row.fechaRecepcion || fechaIso,
-      total: Number(row.total || 0),
-      totalOriginal: Number(row.total || 0),
-      totalAjustado: Number(row.total || 0),
+      total: totalConIva,
+      totalOriginal: totalConIva,
+      totalAjustado: totalConIva,
+      ivaValor,
+      totalConIva,
+      totalConIvaOriginal: Math.abs(totalConIva),
       categoria: "Ventas",
       proveedor: cliente,
       cliente,
@@ -149,6 +160,9 @@ function enrichInvoicesWithAcuseStatus(invoiceRows = [], acuseRows = []) {
       motivoRechazo: acuse.motivoRechazo || invoice.motivoRechazo,
       observacion: acuse.observacion || invoice.observacion,
       fuenteAcuse: acuse.fuenteArchivo || acuse.fuenteHoja || "Acuses Excel",
+      ivaValor: Number(acuse.ivaValor || 0),
+      totalConIva: Number(acuse.totalConIva || acuse.total || invoice.total || 0),
+      totalConIvaOriginal: Math.abs(Number(acuse.totalConIva || acuse.total || invoice.totalOriginal || invoice.total || 0)),
     };
   });
 }
@@ -509,7 +523,8 @@ export const useVentasStore = create((set, get) => ({
           ventasAcuseRows: acuseRows.length,
         },
       };
-      const computed = recompute(data, filters, "ALL", sourceMeta);
+      const syncedFilters = applySharedCalendarFilters(filters, getSharedCalendarFilters(), { includeDates: true });
+      const computed = recompute(data, syncedFilters, "ALL", sourceMeta);
       set({
         rawData: data,
         sourceMeta,
@@ -527,8 +542,9 @@ export const useVentasStore = create((set, get) => ({
   },
 
   setFilters: (partial) => {
+    const { _skipCalendarSync = false, ...partialFilters } = partial;
     const current = get().filters;
-    const nextFilters = { ...current, ...partial };
+    const nextFilters = { ...current, ...partialFilters };
     if (
       nextFilters.year === current.year &&
       nextFilters.month === current.month &&
@@ -540,6 +556,9 @@ export const useVentasStore = create((set, get) => ({
     ) {
       return;
     }
+    if (!_skipCalendarSync && hasCalendarFilterKeys(partialFilters)) {
+      saveSharedCalendarFilters(nextFilters, "ventas", { includeDates: true });
+    }
     const computed = recompute(get().rawData, nextFilters, get().focusPeriod, get().sourceMeta);
     set(computed);
   },
@@ -547,6 +566,7 @@ export const useVentasStore = create((set, get) => ({
   clearFilters: () => {
     const range = get().sourceMeta?.range || { start: null, end: null };
     const filters = { ...initialFilters, periodRange: [range.start, range.end] };
+    saveSharedCalendarFilters(filters, "ventas", { includeDates: true });
     set(recompute(get().rawData, filters, "ALL", get().sourceMeta));
   },
 }));

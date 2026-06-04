@@ -2,6 +2,12 @@ import { create } from "zustand";
 import { applyFacturasFilters, computeFacturasDerivedState } from "@/store/facturasDerived";
 import { FILTER_BATCH_IDLE_STATE, scheduleBatchedFilterRecompute } from "@/store/filterBatcher";
 import {
+  applySharedCalendarFilters,
+  getSharedCalendarFilters,
+  hasCalendarFilterKeys,
+  saveSharedCalendarFilters,
+} from "@/store/useCalendarSyncStore";
+import {
   getFacturasDatesForPeriod,
   getFacturasPeriodDefaults,
   getFacturasPeriods,
@@ -153,6 +159,19 @@ function getNetValue(row) {
   return Number(row.total || 0);
 }
 
+function getSignedTaxValue(invoice, documentTotalWithTax) {
+  const sign = Number(invoice.signoDocumento || 1) < 0 ? -1 : 1;
+  const baseValue = Math.abs(Number(invoice.totalOriginal ?? invoice.total ?? 0));
+  const totalWithTax = Math.abs(Number(documentTotalWithTax || 0));
+  const taxValue = Math.max(0, totalWithTax - baseValue);
+
+  return {
+    ivaValor: taxValue * sign,
+    totalConIva: totalWithTax * sign,
+    totalConIvaOriginal: totalWithTax,
+  };
+}
+
 function normalizeCategoryLabel(value) {
   const text = String(value || "").trim();
   const normalized = text
@@ -277,6 +296,7 @@ function enrichApiPurchasesWithExcelStatus(apiRows = [], excelRows = []) {
       motivoRechazo: excelDocument.motivoRechazo || invoice.motivoRechazo,
       observacion: excelDocument.observacion || invoice.observacion,
       fuenteEstadoDocumental: excelDocument.fuenteArchivo || "Control Facturas.xlsx",
+      ...getSignedTaxValue(invoice, excelDocument.totalOriginal ?? excelDocument.total),
     };
   });
 }
@@ -485,7 +505,11 @@ export const useFacturasStore = create((set, get) => ({
       const apiResult = await loadDefaultComprasPbi().catch(() => null);
       const result = apiResult ? mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) : excelResult;
       const periodRange = [result.meta.range.start, result.meta.range.end];
-      const filters = { ...initialFilters, periodRange };
+      const filters = applySharedCalendarFilters(
+        { ...initialFilters, periodRange },
+        getSharedCalendarFilters(),
+        { includeDates: true }
+      );
       const computed = recompute(result.data, filters, "ALL", result.meta);
 
       set({
@@ -508,8 +532,9 @@ export const useFacturasStore = create((set, get) => ({
   },
 
   setFilters: (partial) => {
+    const { _skipCalendarSync = false, ...partialFilters } = partial;
     const current = get().filters;
-    const nextFilters = { ...current, ...partial };
+    const nextFilters = { ...current, ...partialFilters };
 
     if (
       nextFilters.year === current.year &&
@@ -528,6 +553,9 @@ export const useFacturasStore = create((set, get) => ({
     }
 
     set({ filters: nextFilters });
+    if (!_skipCalendarSync && hasCalendarFilterKeys(partialFilters)) {
+      saveSharedCalendarFilters(nextFilters, "facturas", { includeDates: true });
+    }
 
     scheduleBatchedFilterRecompute({
       get,
@@ -551,6 +579,7 @@ export const useFacturasStore = create((set, get) => ({
       ...initialFilters,
       periodRange: [range.start, range.end],
     };
+    saveSharedCalendarFilters(filters, "facturas", { includeDates: true });
     const computed = recompute(get().rawData, filters, "ALL", get().sourceMeta);
 
     set({

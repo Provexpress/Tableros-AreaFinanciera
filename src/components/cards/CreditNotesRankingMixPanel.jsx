@@ -118,13 +118,14 @@ function DetailTable({
         </div>
 
         <div className="max-h-[360px] max-w-full overflow-auto rounded-[10px] border border-[rgba(26,43,107,0.1)]">
-          <Table className="min-w-[880px] table-fixed">
+          <Table className="min-w-[1030px] table-fixed">
             <thead>
               <tr>
                 <TableHead className="w-[120px]">Fecha</TableHead>
                 <TableHead className="w-[124px]">Semana</TableHead>
                 <TableHead className="w-[120px]">NC</TableHead>
                 <TableHead className="w-[148px]">Factura</TableHead>
+                <TableHead className="w-[156px]">Reemplazada por</TableHead>
                 <TableHead className="w-[22%]">Cliente</TableHead>
                 <TableHead className="w-[160px]">Asesor</TableHead>
                 <TableHead className="w-[160px]">{causeHeader}</TableHead>
@@ -134,13 +135,13 @@ function DetailTable({
             <tbody>
               {isLoading ? (
                 <tr>
-                  <TableCell colSpan={8} className="py-8">
+                  <TableCell colSpan={9} className="py-8">
                     <div className="skeleton h-24 rounded-[10px]" />
                   </TableCell>
                 </tr>
               ) : !rows.length ? (
                 <tr>
-                  <TableCell colSpan={8} className="py-8 text-center text-sm text-[var(--txt3)]">
+                  <TableCell colSpan={9} className="py-8 text-center text-sm text-[var(--txt3)]">
                     {emptyMessage}
                   </TableCell>
                 </tr>
@@ -159,6 +160,11 @@ function DetailTable({
                     <TableCell>
                       <div className="truncate text-[var(--txt)]" title={row.factura}>
                         {row.factura || "-"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-mono text-[var(--txt2)] [font-variant-numeric:tabular-nums]">
+                      <div className="truncate" title={row.reemplazadaPor}>
+                        {row.reemplazadaPor || "-"}
                       </div>
                     </TableCell>
                     <TableCell>
