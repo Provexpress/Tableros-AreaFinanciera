@@ -57,6 +57,10 @@ function sameRange(left = [], right = []) {
   return (left?.[0] || null) === (right?.[0] || null) && (left?.[1] || null) === (right?.[1] || null);
 }
 
+function sameList(left = [], right = []) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
 function buildDefaultFilters(rawWeeks, rawNcRows, meta) {
   const year = resolveDefaultYear(rawWeeks, meta);
   const latestNcPeriod = [...new Set(rawNcRows.map(getNcPeriod).filter(Boolean))]
