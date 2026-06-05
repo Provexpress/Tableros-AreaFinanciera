@@ -8,12 +8,12 @@ on:
         required: false
         default: "2024"
   schedule:
-    - cron: "17 13 * * 1-5" # 8:17 a.m. Colombia
-    - cron: "42 13 * * 1-5" # respaldo 8:42 a.m. Colombia
-    - cron: "17 18 * * 1-5" # 1:17 p.m. Colombia
-    - cron: "42 18 * * 1-5" # respaldo 1:42 p.m. Colombia
-    - cron: "17 20 * * 1-5" # 3:17 p.m. Colombia
-    - cron: "42 20 * * 1-5" # respaldo 3:42 p.m. Colombia
+    - cron: "15 10 * * 1-5" # 5:15 a.m. Colombia; apunta a 8:17 a.m.
+    - cron: "0 11 * * 1-5" # 6:00 a.m. Colombia; respaldo para 8:42 a.m.
+    - cron: "15 16 * * 1-5" # 11:15 a.m. Colombia; apunta a 1:17 p.m.
+    - cron: "35 16 * * 1-5" # 11:35 a.m. Colombia; respaldo para 1:42 p.m.
+    - cron: "10 18 * * 1-5" # 1:10 p.m. Colombia; apunta a 3:17 p.m.
+    - cron: "50 18 * * 1-5" # 1:50 p.m. Colombia; respaldo para 3:42 p.m.
 
 concurrency:
   group: refresh-dashboard-data-cache
