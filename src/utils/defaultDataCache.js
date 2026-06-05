@@ -8,6 +8,33 @@ export function createDataCacheEnvelope(payload) {
   };
 }
 
+export function getLatestDataCacheGeneratedAt(...values) {
+  const latestTimestamp = values.reduce((latest, value) => {
+    const timestamp = Date.parse(value || "");
+    if (!Number.isFinite(timestamp)) {
+      return latest;
+    }
+
+    return latest === null || timestamp > latest ? timestamp : latest;
+  }, null);
+
+  return latestTimestamp === null ? null : new Date(latestTimestamp).toISOString();
+}
+
+function attachDataCacheMetadata(payload, generatedAt) {
+  if (!generatedAt || !payload || typeof payload !== "object" || Array.isArray(payload)) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    meta: {
+      ...(payload.meta || {}),
+      cacheGeneratedAt: generatedAt,
+    },
+  };
+}
+
 export function extractDataCachePayload(candidate, validator) {
   if (!candidate || candidate.cacheVersion !== DEFAULT_DATA_CACHE_VERSION) {
     return null;
@@ -17,7 +44,7 @@ export function extractDataCachePayload(candidate, validator) {
     return null;
   }
 
-  return candidate.payload ?? null;
+  return attachDataCacheMetadata(candidate.payload ?? null, candidate.generatedAt);
 }
 
 export async function readDataCacheFromURL(url, validator) {

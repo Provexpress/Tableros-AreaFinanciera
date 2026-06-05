@@ -14,6 +14,7 @@ import {
   isSingleValueRange,
   sameRange,
 } from "@/utils/facturasTime";
+import { getLatestDataCacheGeneratedAt } from "@/utils/defaultDataCache";
 
 const initialFilters = {
   year: "ALL",
@@ -511,6 +512,12 @@ export const useVentasStore = create((set, get) => ({
       const filters = { ...initialFilters, periodRange: [rangeStart, rangeEnd] };
       const sourceMeta = {
         ...result.meta,
+        cacheGeneratedAt: getLatestDataCacheGeneratedAt(
+          result.meta?.cacheGeneratedAt,
+          pbiResult?.meta?.cacheGeneratedAt,
+          acusesResult?.meta?.cacheGeneratedAt,
+          notasResult?.meta?.cacheGeneratedAt
+        ),
         sourceName: `${result.meta.sourceName}${pbiResult ? " + NC venta Excel" : ""}`,
         range: { start: rangeStart, end: rangeEnd },
         validRows: data.length,

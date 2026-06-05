@@ -8,6 +8,7 @@ import { pickCalendarFilters, useCalendarSyncStore } from "@/store/useCalendarSy
 import { useFacturasStore } from "@/store/useFacturasStore";
 import { useNotasCreditoStore } from "@/store/useNotasCreditoStore";
 import { useVentasStore } from "@/store/useVentasStore";
+import { getLatestDataCacheGeneratedAt } from "@/utils/defaultDataCache";
 import { formatPeriod, formatRangeLabel } from "@/utils/formatters";
 import { getFacturasDatesForPeriod, isSingleValueRange } from "@/utils/facturasTime";
 
@@ -488,6 +489,20 @@ export default function App() {
     );
   }, [ventasFilters, ventasSourceMeta]);
 
+  const lastUpdatedAt = useMemo(
+    () =>
+      getLatestDataCacheGeneratedAt(
+        facturasSourceMeta?.cacheGeneratedAt,
+        ventasSourceMeta?.cacheGeneratedAt,
+        notasSourceMeta?.cacheGeneratedAt
+      ),
+    [
+      facturasSourceMeta?.cacheGeneratedAt,
+      ventasSourceMeta?.cacheGeneratedAt,
+      notasSourceMeta?.cacheGeneratedAt,
+    ]
+  );
+
   const shell = useMemo(() => {
     if (isComparisonRoute) {
       return {
@@ -734,6 +749,7 @@ export default function App() {
         routes={routes}
         title={shell.title}
         isLoading={shell.isLoading}
+        lastUpdatedAt={lastUpdatedAt}
         onToggleSidebar={shell.showSidebar !== false ? () => setSidebarOpen(true) : null}
       />
 

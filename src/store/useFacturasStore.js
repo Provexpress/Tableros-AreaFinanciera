@@ -15,6 +15,7 @@ import {
   isSingleValueRange,
   sameRange,
 } from "@/utils/facturasTime";
+import { getLatestDataCacheGeneratedAt } from "@/utils/defaultDataCache";
 
 const initialFilters = {
   year: "ALL",
@@ -394,6 +395,10 @@ function mergeApiPurchasesWithExcelCreditNotes(apiResult, excelResult) {
     data,
     meta: {
       ...apiResult.meta,
+      cacheGeneratedAt: getLatestDataCacheGeneratedAt(
+        apiResult.meta?.cacheGeneratedAt,
+        excelResult?.meta?.cacheGeneratedAt
+      ),
       sourceName: `${apiResult.meta?.sourceName || "API de compras PBI"} + NC compra Excel`,
       validRows: data.length,
       skippedRows: apiResult.meta?.skippedRows || 0,

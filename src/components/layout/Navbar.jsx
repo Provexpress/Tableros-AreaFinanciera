@@ -1,17 +1,43 @@
 import { forwardRef } from "react";
 import { NavLink } from "react-router-dom";
-import { LogOut, Menu, UserCircle } from "lucide-react";
+import { Clock, LogOut, Menu, UserCircle } from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/cn";
+
+const LAST_UPDATED_FORMATTER = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "America/Bogota",
+  day: "numeric",
+  month: "short",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+const LAST_UPDATED_FULL_FORMATTER = new Intl.DateTimeFormat("es-CO", {
+  timeZone: "America/Bogota",
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
+function formatLastUpdated(value, formatter) {
+  const timestamp = Date.parse(value || "");
+  if (!Number.isFinite(timestamp)) {
+    return "";
+  }
+
+  return formatter.format(new Date(timestamp));
+}
 
 const Navbar = forwardRef(function Navbar({
   routes,
   title,
   isLoading,
+  lastUpdatedAt,
   onToggleSidebar,
 }, ref) {
   const { enabled: authEnabled, userEmail, signOut } = useAuth();
+  const lastUpdatedLabel = formatLastUpdated(lastUpdatedAt, LAST_UPDATED_FORMATTER);
+  const lastUpdatedTitle = formatLastUpdated(lastUpdatedAt, LAST_UPDATED_FULL_FORMATTER);
 
   return (
     <header
@@ -74,6 +100,16 @@ const Navbar = forwardRef(function Navbar({
                 ))}
               </div>
             </nav>
+
+            {lastUpdatedLabel ? (
+              <div
+                className="flex min-w-0 items-center gap-1.5 rounded-md border border-[rgba(21,101,192,0.14)] bg-[rgba(21,101,192,0.06)] px-2 py-1.5 text-xs font-medium text-[var(--txt2)]"
+                title={`Ultima actualizacion de datos: ${lastUpdatedTitle}`}
+              >
+                <Clock className="h-3.5 w-3.5 shrink-0 text-[var(--tec)]" />
+                <span className="whitespace-nowrap">Actualizado {lastUpdatedLabel}</span>
+              </div>
+            ) : null}
 
             {authEnabled && userEmail ? (
               <div className="flex min-w-0 items-center gap-2 rounded-md border border-[rgba(26,43,107,0.1)] bg-white px-2 py-1.5 text-sm text-[var(--txt2)] shadow-[0_8px_20px_rgba(26,43,107,0.05)]">
