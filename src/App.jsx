@@ -492,7 +492,7 @@ export default function App() {
     if (isComparisonRoute) {
       return {
         datasetType: "comparativo",
-        title: "PX / Consolidado compras y ventas",
+        title: "Provex Finance / Consolidado",
         subtitle: "Compras y ventas en un solo resumen",
         sourceName: "Compras + Ventas",
         rangeLabel: "Corte consolidado",
@@ -539,7 +539,7 @@ export default function App() {
 
       return {
         datasetType: "ventas",
-        title: "PX / Ventas",
+        title: "Provex Finance / Ventas",
         subtitle: "Facturas, notas crédito y venta neta",
         sourceName: ventasSourceName,
         rangeLabel: formatRangeLabel(ventasFilters.periodRange?.[0], ventasFilters.periodRange?.[1]),
@@ -594,7 +594,7 @@ export default function App() {
 
       return {
         datasetType: "notas",
-        title: "PX / CONTROL DE VENTAS",
+        title: "Provex Finance / Notas crédito",
         subtitle: "Seguimiento semanal de facturación, NC y refacturación",
         sourceName: notasSourceName,
         rangeLabel: notasHeaderRangeLabel,
@@ -660,7 +660,7 @@ export default function App() {
 
     return {
       datasetType: "facturas",
-      title: "PX / Compras",
+      title: "Provex Finance / Compras",
       subtitle: "Facturas, notas crédito y compra neta",
       sourceName: facturasSourceName,
       rangeLabel: facturasFilters.selectedDates?.length

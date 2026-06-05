@@ -31,7 +31,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
       ? "Correo no autorizado"
       : isConfigError
         ? "Login sin configurar"
-        : "Ingresar al tablero";
+        : "Ingresar a Provex Finance";
 
   const description = isLoading
     ? "Estamos revisando tu sesión de Microsoft 365."
@@ -71,7 +71,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
               <div className="max-w-[430px] space-y-4">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[rgba(21,101,192,0.16)] bg-[rgba(21,101,192,0.08)] px-3 py-1 text-xs font-bold text-[#1565c0]">
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  Tablero protegido
+                  Provex Finance
                 </div>
                 <h2 className="text-3xl font-bold leading-tight text-[#1a2b6b]">
                   Control financiero con acceso seguro.
@@ -100,7 +100,7 @@ function AuthScreen({ mode, userEmail, error, onSignIn, onSignOut }) {
                 <div className="flex items-center gap-3">
                   <img src="/assets/provexpress-logo.webp" alt="Provexpress" className="h-10 w-auto max-w-[190px] object-contain" />
                   <div>
-                    <div className="text-xs font-bold uppercase text-[#6a3fa0]">Área financiera</div>
+                    <div className="text-xs font-bold uppercase text-[#6a3fa0]">Provex Finance</div>
                   </div>
                 </div>
               </div>

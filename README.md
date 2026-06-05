@@ -1,4 +1,4 @@
-# Tablero Corporativo Control de Facturas
+# Provex Finance
 
 Dashboard financiero para compras, ventas, notas crédito y consolidado.
 
