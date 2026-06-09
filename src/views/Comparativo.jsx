@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import ConsolidatedSnapshotPanel from "@/components/cards/ConsolidatedSnapshotPanel";
 import { useFacturasStore } from "@/store/useFacturasStore";
-import { useNotasCreditoStore } from "@/store/useNotasCreditoStore";
 import { useVentasStore } from "@/store/useVentasStore";
 import { formatPeriod } from "@/utils/formatters";
 
@@ -233,11 +232,9 @@ export default function Comparativo() {
   const facturasRawData = useFacturasStore((state) => state.rawData);
   const facturasFilters = useFacturasStore((state) => state.filters);
   const ventasRawData = useVentasStore((state) => state.rawData);
-  const notasRawNcRows = useNotasCreditoStore((state) => state.rawNcRows);
   const facturasLoading = useFacturasStore((state) => state.isLoading);
   const ventasLoading = useVentasStore((state) => state.isLoading);
-  const notasLoading = useNotasCreditoStore((state) => state.isLoading);
-  const isLoading = facturasLoading || ventasLoading || notasLoading;
+  const isLoading = facturasLoading || ventasLoading;
 
   const purchase2026Rows = useMemo(
     () => facturasRawData.filter((row) => getYear(row) === "2026"),
@@ -247,11 +244,6 @@ export default function Comparativo() {
     () => ventasRawData.filter((row) => getYear(row) === "2026"),
     [ventasRawData]
   );
-  const salesCredit2026Rows = useMemo(
-    () => notasRawNcRows.filter((row) => getYear(row) === "2026"),
-    [notasRawNcRows]
-  );
-
   const commonPeriods = useMemo(() => {
     const purchasePeriods = new Set(purchase2026Rows.map(getPeriod).filter(Boolean));
     const salesPeriods = new Set(sales2026Rows.map(getPeriod).filter(Boolean));
@@ -291,15 +283,9 @@ export default function Comparativo() {
     () => sales2026Rows.filter(matchesCalendarFilters),
     [sales2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month, selectedPeriodStart, selectedPeriodEnd]
   );
-  const rawSalesCreditRows = useMemo(
-    () => salesCredit2026Rows.filter(matchesCalendarFilters),
-    [salesCredit2026Rows, commonPeriodSet, selectedPeriodSet, selectedDateSet, facturasFilters.month, selectedPeriodStart, selectedPeriodEnd]
-  );
-  const resolveSalesClient = useMemo(() => buildClientResolver(rawSalesRows), [rawSalesRows]);
-
   const salesRows = useMemo(
-    () => [...adaptSalesRows(rawSalesRows), ...adaptSalesCreditRows(rawSalesCreditRows, resolveSalesClient)],
-    [rawSalesCreditRows, rawSalesRows, resolveSalesClient]
+    () => adaptSalesRows(rawSalesRows),
+    [rawSalesRows]
   );
   const comprasSummary = useMemo(() => calculateResumen(purchaseRows), [purchaseRows]);
   const ventasSummary = useMemo(() => calculateResumen(salesRows), [salesRows]);
