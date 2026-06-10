@@ -168,108 +168,6 @@ function enrichInvoicesWithAcuseStatus(invoiceRows = [], acuseRows = []) {
   });
 }
 
-function normalizeClientMatchKey(value) {
-  return String(value || "")
-    .toUpperCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^A-Z0-9]+/g, " ")
-    .replace(/\b(SAS|SA|S A S|S A|LTDA|LTD|SUCURSAL|COLOMBIA|DE|DEL|LA|EL|LOS|LAS)\b/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function tokenScore(sourceTokens, targetTokens) {
-  if (!sourceTokens.length || !targetTokens.length) return 0;
-  const targetSet = new Set(targetTokens);
-  const matches = sourceTokens.filter((token) => targetSet.has(token)).length;
-  return matches / sourceTokens.length;
-}
-
-function buildClientResolver(rows = []) {
-  const candidates = new Map();
-
-  rows.forEach((row) => {
-    const label = row.cliente || row.proveedor || "Sin cliente";
-    const key = normalizeClientMatchKey(label);
-    if (!key || candidates.has(label)) return;
-    candidates.set(label, { label, key, tokens: key.split(" ").filter(Boolean) });
-  });
-
-  const candidateRows = [...candidates.values()];
-  const exact = new Map(candidateRows.map((row) => [row.key, row.label]));
-
-  return (value) => {
-    const rawLabel = value || "Sin cliente";
-    const key = normalizeClientMatchKey(rawLabel);
-    if (!key) return rawLabel;
-    if (exact.has(key)) return exact.get(key);
-
-    const direct = candidateRows.find((row) => row.key.includes(key) || key.includes(row.key));
-    if (direct) return direct.label;
-
-    const sourceTokens = key.split(" ").filter(Boolean);
-    const scored = candidateRows
-      .map((row) => ({ row, score: tokenScore(sourceTokens, row.tokens) }))
-      .filter((item) => item.score >= 0.65)
-      .sort((a, b) => b.score - a.score || b.row.key.length - a.row.key.length);
-
-    return scored[0]?.row.label || rawLabel;
-  };
-}
-
-function getNcPeriod(row) {
-  const rawPeriod = String(row.monthRef || row.fechaInicialIso || "").trim();
-  return /^\d{4}-\d{2}/.test(rawPeriod) ? rawPeriod.slice(0, 7) : "";
-}
-
-function mapVentasCreditRows(rows = [], resolveClient = (value) => value || "Sin cliente") {
-  return rows.map((row, index) => {
-    const value = Math.abs(Number(row.valor || 0));
-    const cliente = resolveClient(row.cliente);
-    const periodo = getNcPeriod(row);
-    const fechaIso = row.monthRef || row.fechaFinalIso || row.fechaInicialIso || "";
-    const monthNumber = Number(row.monthNumber || periodo.slice(5, 7) || 0);
-
-    return {
-      id: row.id || `venta-nc-${row.nc || index}`,
-      fecha: fechaIso ? new Date(`${fechaIso}T00:00:00`) : null,
-      fechaIso,
-      fechaRecepcion: fechaIso ? new Date(`${fechaIso}T00:00:00`) : null,
-      fechaRecepcionIso: fechaIso,
-      total: -value,
-      totalOriginal: value,
-      totalAjustado: -value,
-      categoria: "Ventas",
-      proveedor: cliente,
-      cliente,
-      clienteNormalizado: cliente,
-      estado: "Aprobado",
-      tipoDoc: "Nota credito de venta",
-      tipoDocNormalizado: "Nota de credito de venta",
-      signoDocumento: -1,
-      prefijo: "NC",
-      folio: row.nc || "",
-      numeroDocumento: row.nc || "-",
-      nit: "",
-      periodo,
-      anio: Number(row.year || periodo.slice(0, 4) || 0),
-      mesNum: monthNumber,
-      oc: "",
-      obs1: row.causa || "",
-      obs2: row.observacion || "",
-      observacionContabilidad: "",
-      observacionRechazos: "",
-      conciliacion: "",
-      validacion: row.factura || "",
-      motivoRechazo: "",
-      observacion: row.observacion || row.concepto || row.causa || "-",
-      fuenteArchivo: "NOTAS CREDITO 2026.xlsx",
-      fuenteHoja: row.hojaOrigen || "Maestro_NC",
-    };
-  });
-}
-
 function sameList(left = [], right = []) {
   return left.length === right.length && left.every((value, index) => value === right[index]);
 }
@@ -488,11 +386,9 @@ export const useVentasStore = create((set, get) => ({
     try {
       const { loadDefaultVentasPbi } = await import("@/utils/parseVentasPbi");
       const { loadDefaultVentasAcuses } = await import("@/utils/parseVentasAcuses");
-      const { loadDefaultNotasExcel } = await import("@/utils/parseNotasCredito");
-      const [pbiResult, acusesResult, notasResult] = await Promise.all([
+      const [pbiResult, acusesResult] = await Promise.all([
         loadDefaultVentasPbi().catch(() => null),
         loadDefaultVentasAcuses().catch(() => null),
-        loadDefaultNotasExcel().catch(() => ({ ncDetail: [] })),
       ]);
       const result = pbiResult || acusesResult;
       if (!result) {
@@ -500,13 +396,13 @@ export const useVentasStore = create((set, get) => ({
       }
       const acuseRows = acusesResult?.data?.length ? mapVentasAcusesRows(acusesResult.data) : [];
       const facturasVenta = pbiResult ? enrichInvoicesWithAcuseStatus(pbiResult.data, acuseRows) : mapVentasAcusesRows(result.data);
-      const resolveClient = buildClientResolver(facturasVenta);
-      const notasCreditoVenta = mapVentasCreditRows(notasResult.ncDetail, resolveClient);
-      const data = [...facturasVenta, ...notasCreditoVenta].sort(
+      const data = [...facturasVenta].sort(
         (a, b) =>
           String(a.periodo || "").localeCompare(String(b.periodo || "")) ||
           String(a.proveedor || "").localeCompare(String(b.proveedor || ""))
       );
+      const ventasNcRows = data.filter((row) => Number(row.signoDocumento || 1) < 0).length;
+      const ventasFvRows = data.length - ventasNcRows;
       const rangeStart = data[0]?.periodo || result.meta.range.start;
       const rangeEnd = data[data.length - 1]?.periodo || result.meta.range.end;
       const filters = { ...initialFilters, periodRange: [rangeStart, rangeEnd] };
@@ -515,18 +411,17 @@ export const useVentasStore = create((set, get) => ({
         cacheGeneratedAt: getLatestDataCacheGeneratedAt(
           result.meta?.cacheGeneratedAt,
           pbiResult?.meta?.cacheGeneratedAt,
-          acusesResult?.meta?.cacheGeneratedAt,
-          notasResult?.meta?.cacheGeneratedAt
+          acusesResult?.meta?.cacheGeneratedAt
         ),
-        sourceName: `${result.meta.sourceName}${pbiResult ? " + NC venta Excel" : ""}`,
+        sourceName: result.meta.sourceName,
         range: { start: rangeStart, end: rangeEnd },
         validRows: data.length,
         stats: {
           ...(result.meta.stats || {}),
           ventasFvSource: pbiResult ? "API de ventas PBI" : "Acuses Excel",
-          ventasNcSource: "NOTAS CREDITO 2026.xlsx",
-          ventasFvRows: facturasVenta.length,
-          ventasNcRows: notasCreditoVenta.length,
+          ventasNcSource: pbiResult ? "API de ventas PBI" : "Acuses Excel",
+          ventasFvRows,
+          ventasNcRows,
           ventasAcuseRows: acuseRows.length,
         },
       };

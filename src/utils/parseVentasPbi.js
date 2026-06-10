@@ -68,6 +68,10 @@ function getDominantCategory(bucket) {
   return [...bucket.categoryTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "Ventas";
 }
 
+function isCreditNoteBucket(bucket) {
+  return bucket.total < 0 || String(bucket.prefix || "").toUpperCase().startsWith("NC");
+}
+
 function bucketToInvoice(bucket, index, options = {}) {
   const parsedDate = bucket.parsedDate;
   const validStart = getValidStart(options);
@@ -80,7 +84,7 @@ function bucketToInvoice(bucket, index, options = {}) {
     return { valid: false, reason: "outside-range" };
   }
 
-  if (!bucket.total || bucket.total <= 0) {
+  if (!bucket.total) {
     return { valid: false, reason: "invalid-total" };
   }
 
@@ -90,6 +94,8 @@ function bucketToInvoice(bucket, index, options = {}) {
 
   const numeroDocumento = [bucket.prefix, bucket.number].filter(Boolean).join("-") || bucket.number || `FV-${index + 1}`;
   const productSample = [...bucket.products].slice(0, 4).join(" | ");
+  const isCreditNote = isCreditNoteBucket(bucket);
+  const totalOriginal = Math.abs(bucket.total);
 
   return {
     valid: true,
@@ -100,7 +106,7 @@ function bucketToInvoice(bucket, index, options = {}) {
       fechaRecepcion: parsedDate.toDate(),
       fechaRecepcionIso: parsedDate.format("YYYY-MM-DD"),
       total: bucket.total,
-      totalOriginal: bucket.total,
+      totalOriginal,
       totalAjustado: bucket.total,
       costoProducto: bucket.cost,
       margenBruto: bucket.total - bucket.cost,
@@ -109,9 +115,9 @@ function bucketToInvoice(bucket, index, options = {}) {
       cliente: bucket.client,
       clienteNormalizado: bucket.client,
       estado: "Aprobado",
-      tipoDoc: "Factura de venta",
-      tipoDocNormalizado: "Factura de venta",
-      signoDocumento: 1,
+      tipoDoc: isCreditNote ? "Nota crédito de venta" : "Factura de venta",
+      tipoDocNormalizado: isCreditNote ? "Nota de crédito de venta" : "Factura de venta",
+      signoDocumento: isCreditNote ? -1 : 1,
       prefijo: bucket.prefix,
       folio: bucket.number,
       numeroDocumento,
@@ -150,7 +156,7 @@ export function parseVentasPbiRows(rows = [], sourceName = "API de ventas PBI", 
     bucket.cost += parseFlexibleNumber(row.Costo_Producto, 0) || 0;
     bucket.units += parseFlexibleNumber(row.Unidades, 0) || 0;
     bucket.lineCount += 1;
-    bucket.categoryTotals.set(category, (bucket.categoryTotals.get(category) || 0) + amount);
+    bucket.categoryTotals.set(category, (bucket.categoryTotals.get(category) || 0) + Math.abs(amount));
     const product = cleanText(row.Producto);
     if (product) bucket.products.add(product);
     buckets.set(key, bucket);
