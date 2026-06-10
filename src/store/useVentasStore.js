@@ -228,7 +228,7 @@ function mapVentasCreditRows(rows = [], resolveClient = (value) => value || "Sin
     const value = Math.abs(Number(row.valor || 0));
     const cliente = resolveClient(row.cliente);
     const periodo = getNcPeriod(row);
-    const fechaIso = row.fechaInicialIso || row.monthRef || "";
+    const fechaIso = row.monthRef || row.fechaFinalIso || row.fechaInicialIso || "";
     const monthNumber = Number(row.monthNumber || periodo.slice(5, 7) || 0);
 
     return {
