@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createDataCacheEnvelope } from "../src/utils/defaultDataCache.js";
 import { parseComprasPbiRows } from "../src/utils/parseComprasPbi.js";
 import { parseVentasPbiRows } from "../src/utils/parseVentasPbi.js";
+import { enrichRentalAnalytics } from "../src/utils/rentalCategory.js";
 import { extractRows, loadEnvFile, requestPbiService, requestPbiToken } from "./pbi-api-client.mjs";
 
 const modulePath = fileURLToPath(import.meta.url);
@@ -43,10 +44,10 @@ function isInPublishedRange(row, minYear) {
 
 export function mergePbiCachePayload(existingPayload, batchPayload, { minYear = 2024 } = {}) {
   const existingRows = Array.isArray(existingPayload?.data)
-    ? existingPayload.data.filter((row) => isInPublishedRange(row, minYear))
+    ? existingPayload.data.filter((row) => isInPublishedRange(row, minYear)).map(enrichRentalAnalytics)
     : [];
   const batchRows = Array.isArray(batchPayload?.data)
-    ? batchPayload.data.filter((row) => isInPublishedRange(row, minYear))
+    ? batchPayload.data.filter((row) => isInPublishedRange(row, minYear)).map(enrichRentalAnalytics)
     : [];
   const byDocument = new Map();
 
@@ -73,6 +74,7 @@ export function mergePbiCachePayload(existingPayload, batchPayload, { minYear = 
     start: data[0]?.periodo || null,
     end: data[data.length - 1]?.periodo || null,
   };
+  const rentalDocuments = data.filter((row) => row.esRenta).length;
 
   return {
     data,
@@ -89,12 +91,19 @@ export function mergePbiCachePayload(existingPayload, batchPayload, { minYear = 
         batchDocuments: batchRows.length,
         replacedDocuments,
         mergedDocuments: data.length,
+        rentalDocuments,
       },
       cachePolicy: {
         ...(existingPayload?.meta?.cachePolicy || {}),
         ...(batchPayload?.meta?.cachePolicy || {}),
         minYear,
         mode: "incremental-merge",
+        categoryFields: {
+          dashboard: "categoria",
+          analytics: "categoriaAnalitica",
+          original: "categoriaOriginal",
+          rentalFlag: "esRenta",
+        },
       },
     },
   };
@@ -217,6 +226,8 @@ async function buildServiceCache({ token, serviceName, cachePath, parser }) {
   const rows = extractRows(payload);
   const cacheBase = await readCacheBase(cachePath);
   const existing = cacheBase.payload;
+  const needsAnalyticsMigration =
+    existing?.meta?.cachePolicy?.categoryFields?.analytics !== "categoriaAnalitica";
 
   if (cacheBase.recovered) {
     console.warn(
@@ -226,11 +237,13 @@ async function buildServiceCache({ token, serviceName, cachePath, parser }) {
 
   if (!rows.length) {
     if (existing?.data?.length) {
-      if (cacheBase.recovered) {
+      if (cacheBase.recovered || needsAnalyticsMigration) {
         const restored = mergePbiCachePayload(null, existing, { minYear });
         restored.meta.cachePolicy.historyRecoveryCompleted = true;
-        restored.meta.cachePolicy.recoveredFromGitHistory = true;
-        restored.meta.stats.recoveredHistoricalDocuments = restored.data.length;
+        if (cacheBase.recovered) {
+          restored.meta.cachePolicy.recoveredFromGitHistory = true;
+          restored.meta.stats.recoveredHistoricalDocuments = restored.data.length;
+        }
         await writeCacheFile(cachePath, restored);
       }
       console.warn(
@@ -244,6 +257,11 @@ async function buildServiceCache({ token, serviceName, cachePath, parser }) {
   const batch = parser(rows, undefined, { minYear });
   if (!batch.data.length) {
     if (existing?.data?.length) {
+      if (needsAnalyticsMigration) {
+        const migrated = mergePbiCachePayload(null, existing, { minYear });
+        migrated.meta.cachePolicy.historyRecoveryCompleted = true;
+        await writeCacheFile(cachePath, migrated);
+      }
       console.warn(
         `[pbi-cache] ${serviceName}: el lote no produjo documentos validos; se conserva la cache existente (${existing.data.length} documentos)`
       );

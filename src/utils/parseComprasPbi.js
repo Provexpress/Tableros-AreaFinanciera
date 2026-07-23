@@ -1,6 +1,7 @@
 import { dayjs, parseSpreadsheetDate } from "./dateUtils.js";
 import { readDataCacheFromURL } from "./defaultDataCache.js";
 import { parseFlexibleNumber } from "./numberUtils.js";
+import { containsRentalText, RENTAL_ANALYTIC_CATEGORY } from "./rentalCategory.js";
 import { cleanText, normalizeText } from "./textUtils.js";
 
 export const COMPRAS_PBI_CACHE_URL = "/_cache/compras-pbi.json";
@@ -63,6 +64,8 @@ function createBucket(row, index, sign) {
     number,
     nit: cleanText(row.Identificacion),
     categoryTotals: new Map(),
+    sourceCategoryTotals: new Map(),
+    isRental: false,
     total: 0,
     sign,
     units: 0,
@@ -73,6 +76,10 @@ function createBucket(row, index, sign) {
 
 function getDominantCategory(bucket) {
   return [...bucket.categoryTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "Otros";
+}
+
+function getDominantSourceCategory(bucket) {
+  return [...bucket.sourceCategoryTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "";
 }
 
 function bucketToInvoice(bucket, index, options = {}) {
@@ -100,6 +107,7 @@ function bucketToInvoice(bucket, index, options = {}) {
 
   const numeroDocumento = [bucket.prefix, bucket.number].filter(Boolean).join("-") || bucket.number || `FC-${index + 1}`;
   const productSample = [...bucket.products].slice(0, 4).join(" | ");
+  const category = getDominantCategory(bucket);
 
   return {
     valid: true,
@@ -112,7 +120,10 @@ function bucketToInvoice(bucket, index, options = {}) {
       total,
       totalOriginal,
       totalAjustado: total,
-      categoria: getDominantCategory(bucket),
+      categoria: category,
+      categoriaOriginal: getDominantSourceCategory(bucket) || category,
+      categoriaAnalitica: bucket.isRental ? RENTAL_ANALYTIC_CATEGORY : category,
+      esRenta: bucket.isRental,
       proveedor: bucket.provider,
       estado: "Aprobado",
       tipoDoc: signoDocumento < 0 ? "Nota crédito de compra" : "Factura de compra",
@@ -155,11 +166,21 @@ export function parseComprasPbiRows(rows = [], sourceName = "API de compras PBI"
       bucket.sign = -1;
     }
     const category = normalizeCategory(row.Categoria);
+    const sourceCategory = cleanText(row.Categoria);
     const absoluteAmount = Math.abs(amount);
     bucket.total += absoluteAmount;
     bucket.units += parseFlexibleNumber(row.Unidades, 0) || 0;
     bucket.lineCount += 1;
     bucket.categoryTotals.set(category, (bucket.categoryTotals.get(category) || 0) + absoluteAmount);
+    if (sourceCategory) {
+      bucket.sourceCategoryTotals.set(
+        sourceCategory,
+        (bucket.sourceCategoryTotals.get(sourceCategory) || 0) + absoluteAmount
+      );
+    }
+    if (containsRentalText(row.Categoria, row.SubCategoria, row.Producto)) {
+      bucket.isRental = true;
+    }
     const product = cleanText(row.Producto);
     if (product) bucket.products.add(product);
     buckets.set(key, bucket);
