@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { createDataCacheEnvelope } from "../src/utils/defaultDataCache.js";
 import { parseComprasPbiRows } from "../src/utils/parseComprasPbi.js";
@@ -111,6 +112,100 @@ async function readCacheFile(cachePath) {
   }
 }
 
+export function readLargestHistoricalCache(cachePath) {
+  const relativeCachePath = path.relative(rootDir, cachePath).split(path.sep).join("/");
+
+  try {
+    const rawHistory = execFileSync(
+      "git",
+      ["log", "--all", "--format=", "--raw", "--no-abbrev", "--", relativeCachePath],
+      { cwd: rootDir, encoding: "utf8", maxBuffer: 16 * 1024 * 1024 }
+    );
+    const objectIds = new Set();
+
+    rawHistory.split(/\r?\n/).forEach((line) => {
+      const match = line.match(/^:\d+ \d+ ([0-9a-f]{40}) ([0-9a-f]{40})/i);
+      if (!match) return;
+      [match[1], match[2]].forEach((objectId) => {
+        if (!/^0+$/.test(objectId)) {
+          objectIds.add(objectId);
+        }
+      });
+    });
+
+    if (!objectIds.size) {
+      return null;
+    }
+
+    const objectInfo = execFileSync(
+      "git",
+      ["cat-file", "--batch-check=%(objectname) %(objecttype) %(objectsize)"],
+      {
+        cwd: rootDir,
+        encoding: "utf8",
+        input: `${[...objectIds].join("\n")}\n`,
+        maxBuffer: 16 * 1024 * 1024,
+      }
+    );
+    const candidates = objectInfo
+      .split(/\r?\n/)
+      .map((line) => {
+        const [objectId, objectType, rawSize] = line.trim().split(/\s+/);
+        return { objectId, objectType, size: Number(rawSize) };
+      })
+      .filter((item) => item.objectType === "blob" && Number.isFinite(item.size))
+      .sort((a, b) => b.size - a.size);
+
+    for (const candidate of candidates) {
+      try {
+        const content = execFileSync("git", ["cat-file", "blob", candidate.objectId], {
+          cwd: rootDir,
+          encoding: "utf8",
+          maxBuffer: 512 * 1024 * 1024,
+        });
+        const envelope = JSON.parse(content);
+        if (envelope?.cacheVersion === 1 && Array.isArray(envelope?.payload?.data) && envelope.payload.data.length) {
+          return {
+            payload: envelope.payload,
+            objectId: candidate.objectId,
+          };
+        }
+      } catch {
+        // Try the next historical blob if this object is not a valid cache.
+      }
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+async function readCacheBase(cachePath) {
+  const current = await readCacheFile(cachePath);
+  const minDocuments = Number(process.env.PBI_CACHE_RECOVERY_MIN_DOCUMENTS || 1000);
+  const recoveryCompleted = current?.meta?.cachePolicy?.historyRecoveryCompleted === true;
+  const shouldRecover =
+    !recoveryCompleted ||
+    !current?.data?.length ||
+    (Number.isFinite(minDocuments) && current.data.length < minDocuments);
+
+  if (!shouldRecover) {
+    return { payload: current, recovered: false, objectId: null };
+  }
+
+  const historical = readLargestHistoricalCache(cachePath);
+  if (historical?.payload?.data?.length > (current?.data?.length || 0)) {
+    return {
+      payload: historical.payload,
+      recovered: true,
+      objectId: historical.objectId,
+    };
+  }
+
+  return { payload: current, recovered: false, objectId: null };
+}
+
 async function writeCacheFile(cachePath, payload) {
   await fs.mkdir(path.dirname(cachePath), { recursive: true });
   await fs.writeFile(cachePath, JSON.stringify(createDataCacheEnvelope(payload)));
@@ -120,10 +215,24 @@ async function buildServiceCache({ token, serviceName, cachePath, parser }) {
   const minYear = Number(process.env.PBI_CACHE_MIN_YEAR || 2024);
   const payload = await requestPbiService(serviceName, token);
   const rows = extractRows(payload);
-  const existing = await readCacheFile(cachePath);
+  const cacheBase = await readCacheBase(cachePath);
+  const existing = cacheBase.payload;
+
+  if (cacheBase.recovered) {
+    console.warn(
+      `[pbi-cache] ${serviceName}: se recuperaron ${existing.data.length} documentos del historial Git (${cacheBase.objectId.slice(0, 8)})`
+    );
+  }
 
   if (!rows.length) {
     if (existing?.data?.length) {
+      if (cacheBase.recovered) {
+        const restored = mergePbiCachePayload(null, existing, { minYear });
+        restored.meta.cachePolicy.historyRecoveryCompleted = true;
+        restored.meta.cachePolicy.recoveredFromGitHistory = true;
+        restored.meta.stats.recoveredHistoricalDocuments = restored.data.length;
+        await writeCacheFile(cachePath, restored);
+      }
       console.warn(
         `[pbi-cache] ${serviceName}: la API respondio sin filas; se conserva la cache existente (${existing.data.length} documentos)`
       );
@@ -144,6 +253,11 @@ async function buildServiceCache({ token, serviceName, cachePath, parser }) {
   }
 
   const merged = mergePbiCachePayload(existing, batch, { minYear });
+  merged.meta.cachePolicy.historyRecoveryCompleted = true;
+  if (cacheBase.recovered) {
+    merged.meta.cachePolicy.recoveredFromGitHistory = true;
+    merged.meta.stats.recoveredHistoricalDocuments = existing.data.length;
+  }
   await writeCacheFile(cachePath, merged);
   console.log(
     `[pbi-cache] ${serviceName}: cache fusionada (${rows.length} lineas API => ${batch.data.length} documentos del lote; ${merged.data.length} documentos acumulados, desde ${minYear})`
